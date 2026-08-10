@@ -1,0 +1,68 @@
+from functools import lru_cache
+
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Configuración global de la aplicación, cargada desde variables de entorno."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    # Base de datos
+    database_url: str = Field(
+        default="postgresql+psycopg://tiendacell:tiendacell@localhost:5432/tiendacell",
+        description="URL de conexión a PostgreSQL (SQLAlchemy).",
+    )
+
+    # Seguridad
+    secret_key: str = Field(
+        default="CHANGE-ME-in-production",
+        description="Clave secreta para firmar tokens JWT. Nunca usar el valor por defecto en producción.",
+    )
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = Field(default=60 * 24, description="Minutos de validez del access token.")
+
+    # CORS
+    cors_origins: list[str] = Field(
+        default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"],
+        description="Orígenes permitidos para CORS.",
+    )
+
+    # Seed (credenciales de desarrollo, jamás para producción)
+    seed_admin_email: str = "admin@tiendacell.com"
+    seed_admin_password: str = "Admin123!"
+    seed_user_email: str = "usuario@tiendacell.com"
+    seed_user_password: str = "Usuario123!"
+
+    # API
+    api_prefix: str = "/api"
+    project_name: str = "Tienda Cell API"
+    project_version: str = "1.0.0"
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            v = v.strip()
+            if v.startswith("["):
+                return v
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
+
+    @property
+    def auth_url(self) -> str:
+        return f"{self.api_prefix}/auth/login"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()
