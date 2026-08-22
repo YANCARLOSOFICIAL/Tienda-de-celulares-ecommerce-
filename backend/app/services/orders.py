@@ -156,8 +156,27 @@ def list_orders(db: Session, user: User) -> list[Order]:
 def update_order_status(db: Session, user: User, order_id: int, new_status: str) -> Order:
     order = get_order_for_user(db, user, order_id)
     if user.role.name != "ADMIN":
-        raise AppException(status_code=403, message="No tienes permisos para realizar esta acción")
+        raise AppException(status_code=403, message="No tienes permisos para realizar esta accion")
     order.status = new_status
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+    return order
+
+
+def cancel_order(db: Session, user: User, order_id: int) -> Order:
+    order = get_order_for_user(db, user, order_id)
+    if order.status not in ("PENDING", "CONFIRMED"):
+        raise AppException(
+            status_code=400,
+            message=f"No se puede cancelar un pedido en estado '{order.status}'",
+        )
+    order.status = "CANCELLED"
+    for item in order.items:
+        if item.product_id:
+            product = db.get(Product, item.product_id)
+            if product:
+                product.stock += item.quantity
     db.add(order)
     db.commit()
     db.refresh(order)

@@ -51,6 +51,16 @@ def get_order(order_id: int, db: DbDep, current_user: CurrentUser) -> OrderApiRe
     )
 
 
+@router.post("/{order_id}/cancel", response_model=OrderApiResponse, summary="Cancelar mi pedido")
+def cancel_order(order_id: int, db: DbDep, current_user: CurrentUser) -> OrderApiResponse:
+    order = order_service.cancel_order(db, current_user, order_id)
+    return OrderApiResponse(
+        success=True,
+        message="Pedido cancelado correctamente",
+        data=OrderDetailOut.model_validate(order),
+    )
+
+
 @router.patch(
     "/{order_id}/status",
     response_model=OrderApiResponse,

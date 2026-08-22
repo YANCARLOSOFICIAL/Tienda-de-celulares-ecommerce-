@@ -71,9 +71,15 @@ async function submit() {
           </button>
         </form>
 
-        <p class="mt-6 text-center text-sm text-brutal-black/70">
-          ¿No tienes cuenta?
-          <router-link to="/register" class="font-black underline">Regístrate aquí</router-link>
+        <p class="mt-4 text-center">
+          <router-link to="/forgot-password" class="text-sm font-bold underline text-brutal-black/60">
+            Olvidaste tu contrasena?
+          </router-link>
+        </p>
+
+        <p class="mt-4 text-center text-sm text-brutal-black/70">
+          No tienes cuenta?
+          <router-link to="/register" class="font-black underline">Registrate aqui</router-link>
         </p>
       </div>
     </div>

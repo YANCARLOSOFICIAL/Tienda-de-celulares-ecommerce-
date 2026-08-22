@@ -223,7 +223,7 @@ async function confirmSandboxPayment() {
   if (!createdPaymentId.value) return
   paying.value = true
   try {
-    await paymentsApi.simulateApproval(createdPaymentId.value)
+    await paymentsApi.confirm(createdPaymentId.value)
     showSandboxConfirm.value = false
     router.push({ name: 'order-detail', params: { id: createdOrderId.value } })
   } catch (e: any) {

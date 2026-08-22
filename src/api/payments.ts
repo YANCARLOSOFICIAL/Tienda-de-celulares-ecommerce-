@@ -30,7 +30,7 @@ export const paymentsApi = {
     return Api.get<Payment>(`/payments/order/${orderId}`)
   },
 
-  async simulateApproval(paymentId: number) {
-    return Api.post<Payment>(`/payments/simulate/${paymentId}`)
+  async confirm(paymentId: number) {
+    return Api.post<Payment>(`/payments/confirm/${paymentId}`)
   },
 }

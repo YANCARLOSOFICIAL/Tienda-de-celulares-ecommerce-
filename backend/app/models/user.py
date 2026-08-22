@@ -25,6 +25,7 @@ class User(Base, TimestampMixin):
     orders: Mapped[list["Order"]] = relationship(back_populates="user")
     addresses: Mapped[list["Address"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     wishlist_items: Mapped[list["WishlistItem"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    reviews: Mapped[list["Review"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<User id={self.id} email={self.email!r}>"

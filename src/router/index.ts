@@ -11,6 +11,8 @@ import ProductPage from '../pages/ProductPage.vue'
 import ShopPage from '../pages/ShopPage.vue'
 import ProfilePage from '../pages/ProfilePage.vue'
 import WishlistPage from '../pages/WishlistPage.vue'
+import ForgotPasswordPage from '../pages/ForgotPasswordPage.vue'
+import ResetPasswordPage from '../pages/ResetPasswordPage.vue'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -25,6 +27,18 @@ const routes = [
     name: 'login',
     component: LoginPage,
     meta: { title: 'Iniciar sesión | Tienda Cell', guestOnly: true }
+  },
+  {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: ForgotPasswordPage,
+    meta: { title: 'Recuperar contraseña | Tienda Cell', guestOnly: true }
+  },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: ResetPasswordPage,
+    meta: { title: 'Restablecer contraseña | Tienda Cell', guestOnly: true }
   },
   {
     path: '/register',

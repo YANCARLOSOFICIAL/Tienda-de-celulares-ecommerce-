@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.core.dependencies import CurrentUser, DbDep, AdminUser
+from app.core.dependencies import CurrentUser, DbDep
 from app.schemas.common import ApiResponse
 from app.schemas.payment import PaymentApiResponse, PaymentCreateApiResponse, PaymentCreateResponse, PaymentOut
 from app.services import payments as payment_service
@@ -28,15 +28,15 @@ def get_payment(order_id: int, db: DbDep, current_user: CurrentUser) -> PaymentA
     return PaymentApiResponse(
         success=True,
         message="Pago obtenido correctamente",
-        data=PaymentOut.model_validate(payment),
+        data=PaymentOut.model_validate(payment) if payment else None,
     )
 
 
-@router.post("/simulate/{payment_id}", response_model=PaymentApiResponse, summary="Simular aprobacion de pago (sandbox)")
-def simulate_approval(payment_id: int, db: DbDep, _admin: AdminUser) -> PaymentApiResponse:
-    payment = payment_service.simulate_paymentApproval(db, payment_id)
+@router.post("/confirm/{payment_id}", response_model=PaymentApiResponse, summary="Confirmar pago (sandbox)")
+def confirm_payment(payment_id: int, db: DbDep, current_user: CurrentUser) -> PaymentApiResponse:
+    payment = payment_service.confirm_payment(db, current_user, payment_id)
     return PaymentApiResponse(
         success=True,
-        message="Pago aprobado (simulacion)",
+        message="Pago confirmado (sandbox)",
         data=PaymentOut.model_validate(payment),
     )

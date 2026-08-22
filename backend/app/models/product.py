@@ -29,6 +29,7 @@ class Product(Base, TimestampMixin):
     cart_items: Mapped[list["CartItem"]] = relationship(back_populates="product")
     order_items: Mapped[list["OrderItem"]] = relationship(back_populates="product")
     wishlist_items: Mapped[list["WishlistItem"]] = relationship(back_populates="product")
+    reviews: Mapped[list["Review"]] = relationship(back_populates="product", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Product id={self.id} name={self.name!r}>"

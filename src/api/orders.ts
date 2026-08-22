@@ -62,4 +62,8 @@ export const ordersApi = {
   async updateStatus(id: number, status: OrderStatus) {
     return Api.patch<Order>(`/orders/${id}/status`, { status })
   },
+
+  async cancel(id: number) {
+    return Api.post<Order>(`/orders/${id}/cancel`)
+  },
 }

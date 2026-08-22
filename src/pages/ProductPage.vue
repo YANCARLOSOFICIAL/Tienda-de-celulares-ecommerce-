@@ -11,6 +11,7 @@ import { ApiError } from '../api/client'
 
 import ProductGallery from '../components/ProductGallery.vue'
 import ProductSpecs from '../components/ProductSpecs.vue'
+import ProductReviews from '../components/ProductReviews.vue'
 import RelatedProducts from '../components/RelatedProducts.vue'
 
 const route = useRoute()
@@ -322,6 +323,10 @@ function buyNow() {
               <p class="text-brutal-black/70 leading-relaxed whitespace-pre-line">{{ product.description }}</p>
             </div>
           </div>
+        </div>
+
+        <div class="mt-12">
+          <ProductReviews :product-id="product.id" />
         </div>
 
         <RelatedProducts :category-id="product.category_id" :current-product-id="product.id" />

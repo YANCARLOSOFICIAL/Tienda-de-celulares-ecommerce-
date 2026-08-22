@@ -70,25 +70,26 @@ def create_payment(db: Session, user: User, order_id: int) -> Payment:
     return payment
 
 
-def get_payment_for_order(db: Session, user: User, order_id: int) -> Payment:
+def get_payment_for_order(db: Session, user: User, order_id: int) -> Payment | None:
     payment = db.scalar(select(Payment).where(Payment.order_id == order_id))
     if payment is None:
-        raise AppException(status_code=404, message="Pago no encontrado")
+        return None
     order = db.get(Order, order_id)
     if order is None or (order.user_id != user.id and user.role.name != "ADMIN"):
-        raise AppException(status_code=404, message="Pago no encontrado")
+        return None
     return payment
 
 
-def simulate_paymentApproval(db: Session, payment_id: int) -> Payment:
+def confirm_payment(db: Session, user: User, payment_id: int) -> Payment:
     payment = db.get(Payment, payment_id)
     if payment is None:
         raise AppException(status_code=404, message="Pago no encontrado")
-    payment.status = PaymentStatus.APPROVED
     order = db.get(Order, payment.order_id)
-    if order:
-        order.status = "CONFIRMED"
-        db.add(order)
+    if order is None or order.user_id != user.id:
+        raise AppException(status_code=403, message="No tienes permiso para confirmar este pago")
+    payment.status = PaymentStatus.APPROVED
+    order.status = "CONFIRMED"
+    db.add(order)
     db.commit()
     db.refresh(payment)
     return payment

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Package } from '@lucide/vue'
+import { Package, XCircle } from '@lucide/vue'
 
 import { formatPrice } from '../api/products'
 import { ordersApi, orderStatusLabels, type Order } from '../api/orders'
@@ -15,6 +15,7 @@ const authStore = useAuthStore()
 const order = ref<Order | null>(null)
 const payment = ref<Payment | null>(null)
 const loading = ref(false)
+const cancelling = ref(false)
 const error = ref<string | null>(null)
 
 onMounted(async () => {
@@ -39,6 +40,18 @@ async function load() {
     error.value = e instanceof Error ? e.message : 'Error al cargar el pedido.'
   } finally {
     loading.value = false
+  }
+}
+
+async function cancelOrder() {
+  if (!order.value || !confirm('Cancelar este pedido? El stock sera devuelto.')) return
+  cancelling.value = true
+  try {
+    order.value = await ordersApi.cancel(order.value.id)
+  } catch (e: any) {
+    error.value = e.message || 'Error al cancelar el pedido'
+  } finally {
+    cancelling.value = false
   }
 }
 
@@ -106,6 +119,20 @@ const statusClasses: Record<string, string> = {
               </span>
             </div>
           </div>
+          <div v-if="order.status === 'PENDING' || order.status === 'CONFIRMED'" class="mt-4 pt-4 border-t-4 border-brutal-black/10">
+            <button
+              class="brutal-button bg-red-100 text-red-600 px-4 py-2 text-sm uppercase tracking-wide flex items-center gap-2 disabled:opacity-60"
+              :disabled="cancelling"
+              @click="cancelOrder"
+            >
+              <XCircle :size="16" :stroke-width="2.5" />
+              {{ cancelling ? 'Cancelando...' : 'Cancelar pedido' }}
+            </button>
+          </div>
+        </div>
+
+        <div v-if="error" class="bg-red-100 border-2 border-red-400 p-3 text-sm font-bold text-red-700">
+          {{ error }}
         </div>
 
         <div class="brutal-card overflow-hidden">
