@@ -20,6 +20,8 @@ class OrderOut(ORMModel):
     id: int
     status: OrderStatus
     total: Decimal
+    shipping_method: str | None = None
+    shipping_cost: Decimal = Decimal("0.00")
     items: list[OrderItemOut]
     created_at: datetime
     updated_at: datetime
@@ -30,13 +32,20 @@ class OrderDetailOut(ORMModel):
     status: OrderStatus
     total: Decimal
     user_id: int
+    address_id: int | None = None
+    shipping_method: str | None = None
+    shipping_cost: Decimal = Decimal("0.00")
+    shipping_address_snapshot: str | None = None
+    notes: str | None = None
     items: list[OrderItemOut]
     created_at: datetime
     updated_at: datetime
 
 
 class OrderCreate(BaseModel):
-    pass
+    address_id: int | None = None
+    shipping_method: str = Field(default="estandar", description="Metodo de envio: estandar, express, recoleccion")
+    notes: str | None = Field(default=None, max_length=500)
 
 
 class OrderStatusUpdate(BaseModel):

@@ -4,6 +4,7 @@ from app.core.dependencies import AdminUser, CurrentUser, DbDep
 from app.schemas.common import ApiResponse
 from app.schemas.order import (
     OrderApiResponse,
+    OrderCreate,
     OrderDetailOut,
     OrderListApiResponse,
     OrderStatusUpdate,
@@ -23,8 +24,8 @@ router = APIRouter(prefix="/orders", tags=["Pedidos"])
         "y vacía el carrito, todo dentro de una única transacción."
     ),
 )
-def create_order(db: DbDep, current_user: CurrentUser) -> OrderApiResponse:
-    order = order_service.create_order(db, current_user)
+def create_order(payload: OrderCreate, db: DbDep, current_user: CurrentUser) -> OrderApiResponse:
+    order = order_service.create_order(db, current_user, payload)
     return OrderApiResponse(
         success=True,
         message="Pedido creado correctamente",

@@ -36,9 +36,15 @@ export const orderStatusLabels: Record<OrderStatus, string> = {
   CANCELLED: 'Cancelado',
 }
 
+export interface OrderCreatePayload {
+  address_id?: number | null
+  shipping_method?: string
+  notes?: string | null
+}
+
 export const ordersApi = {
-  async create() {
-    return Api.post<Order>('/orders')
+  async create(payload?: OrderCreatePayload) {
+    return Api.post<Order>('/orders', payload)
   },
 
   async list() {

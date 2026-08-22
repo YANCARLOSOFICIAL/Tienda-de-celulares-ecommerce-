@@ -20,6 +20,10 @@ const authStore = useAuthStore()
 const adding = ref(false)
 const added = ref(false)
 
+function goToDetail() {
+  router.push({ name: 'product-detail', params: { id: props.product.id } })
+}
+
 const whatsappMessage = computed(() => {
   return encodeURIComponent(
     `¡Hola! Me interesa el ${props.product.name} por $${formatPrice(props.product.price)}. ¿Podrían darme más información?`
@@ -58,7 +62,7 @@ async function addToCart() {
     itemscope
     itemtype="https://schema.org/Product"
   >
-    <div class="relative overflow-hidden bg-brutal-gray aspect-square">
+    <div class="relative overflow-hidden bg-brutal-gray aspect-square cursor-pointer" @click="goToDetail">
       <img
         :src="product.image || 'https://placehold.co/400x400/111111/FFD60A?text=Sin+imagen&font=inter'"
         :alt="product.name"
@@ -78,7 +82,13 @@ async function addToCart() {
     </div>
 
     <div class="flex-1 flex flex-col p-4 sm:p-5">
-      <h3 class="font-black text-lg sm:text-xl leading-tight mb-1" itemprop="name">{{ product.name }}</h3>
+      <h3
+        class="font-black text-lg sm:text-xl leading-tight mb-1 cursor-pointer hover:underline"
+        itemprop="name"
+        @click="goToDetail"
+      >
+        {{ product.name }}
+      </h3>
       <p class="text-sm text-brutal-black/60 mb-3 line-clamp-2" itemprop="description">{{ product.description }}</p>
 
       <div class="mt-auto space-y-3">

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
-from app.routers import auth, cart, categories, orders, products, users
+from app.routers import auth, addresses, admin_stats, cart, categories, orders, products, users, wishlist
 
 app = FastAPI(
     title=settings.project_name,
@@ -32,10 +32,13 @@ API_PREFIX = settings.api_prefix
 
 app.include_router(auth.router, prefix=API_PREFIX)
 app.include_router(users.router, prefix=API_PREFIX)
+app.include_router(addresses.router, prefix=API_PREFIX)
+app.include_router(admin_stats.router, prefix=API_PREFIX)
 app.include_router(categories.router, prefix=API_PREFIX)
 app.include_router(products.router, prefix=API_PREFIX)
 app.include_router(cart.router, prefix=API_PREFIX)
 app.include_router(orders.router, prefix=API_PREFIX)
+app.include_router(wishlist.router, prefix=API_PREFIX)
 
 
 @app.get("/health", tags=["Salud"], summary="Healthcheck de la API")

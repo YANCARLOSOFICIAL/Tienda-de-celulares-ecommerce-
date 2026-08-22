@@ -4,10 +4,18 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppException
+from app.models.address import Address
 from app.models.cart import Cart
 from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.user import User
+from app.schemas.order import OrderCreate
+
+SHIPPING_COSTS = {
+    "estandar": Decimal("99.00"),
+    "express": Decimal("199.00"),
+    "recoleccion": Decimal("0.00"),
+}
 
 
 def _lock_products(db: Session, product_ids: list[int]) -> list[Product]:
@@ -23,13 +31,34 @@ def _lock_products(db: Session, product_ids: list[int]) -> list[Product]:
     return list(db.scalars(stmt, execution_options={"populate_existing": True}))
 
 
-def create_order(db: Session, user: User) -> Order:
-    """Crea un pedido a partir del carrito del usuario, dentro de una única transacción.
+def create_order(db: Session, user: User, payload: OrderCreate | None = None) -> Order:
+    """Crea un pedido a partir del carrito del usuario, dentro de una unica transaccion.
 
-    Si cualquier validación falla, la transacción se revierte por completo:
+    Si cualquier validacion falla, la transaccion se revierte por completo:
     no queda un pedido incompleto, el stock no se descuenta parcialmente
-    y el carrito no se vacía.
+    y el carrito no se vacia.
     """
+    shipping_method = payload.shipping_method if payload else "estandar"
+    shipping_cost = SHIPPING_COSTS.get(shipping_method, Decimal("99.00"))
+    notes = payload.notes if payload else None
+
+    address_snapshot = None
+    address_id = None
+    if payload and payload.address_id:
+        address = db.get(Address, payload.address_id)
+        if address and address.user_id == user.id:
+            address_id = address.id
+            parts = [
+                address.street,
+                address.street_number,
+                address.interior,
+                address.neighborhood,
+                address.city,
+                address.state,
+                address.zip_code,
+            ]
+            address_snapshot = ", ".join(p for p in parts if p)
+
     try:
         cart = db.scalar(select(Cart).where(Cart.user_id == user.id))
         if cart is None or not cart.items:
@@ -42,7 +71,16 @@ def create_order(db: Session, user: User) -> Order:
         if len(products) != len(product_ids):
             raise AppException(status_code=404, message="Alguno de los productos ya no existe")
 
-        order = Order(user_id=user.id, status="PENDING", total=Decimal("0.00"))
+        order = Order(
+            user_id=user.id,
+            status="PENDING",
+            total=Decimal("0.00"),
+            address_id=address_id,
+            shipping_method=shipping_method,
+            shipping_cost=shipping_cost,
+            shipping_address_snapshot=address_snapshot,
+            notes=notes,
+        )
         db.add(order)
         db.flush()
 
@@ -73,7 +111,7 @@ def create_order(db: Session, user: User) -> Order:
             )
             product.stock -= item.quantity
 
-        order.total = total
+        order.total = total + shipping_cost
 
         cart.items.clear()
         db.commit()

@@ -7,6 +7,10 @@ import CheckoutPage from '../pages/CheckoutPage.vue'
 import OrdersPage from '../pages/OrdersPage.vue'
 import OrderDetailPage from '../pages/OrderDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
+import ProductPage from '../pages/ProductPage.vue'
+import ShopPage from '../pages/ShopPage.vue'
+import ProfilePage from '../pages/ProfilePage.vue'
+import WishlistPage from '../pages/WishlistPage.vue'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -27,6 +31,30 @@ const routes = [
     name: 'register',
     component: RegisterPage,
     meta: { title: 'Crear cuenta | Tienda Cell', guestOnly: true }
+  },
+  {
+    path: '/products/:id',
+    name: 'product-detail',
+    component: ProductPage,
+    meta: { title: 'Producto | Tienda Cell' }
+  },
+  {
+    path: '/shop',
+    name: 'shop',
+    component: ShopPage,
+    meta: { title: 'Tienda | Tienda Cell' }
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfilePage,
+    meta: { title: 'Mi perfil | Tienda Cell', requiresAuth: true }
+  },
+  {
+    path: '/wishlist',
+    name: 'wishlist',
+    component: WishlistPage,
+    meta: { title: 'Mis favoritos | Tienda Cell', requiresAuth: true }
   },
   {
     path: '/cart',

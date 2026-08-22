@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: tiendacell
       POSTGRES_DB: tiendacell
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -24,14 +24,14 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://tiendacell:tiendacell@db:5432/tiendacell
     ports:
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       db:
         condition: service_healthy
     command: >
-      sh -c "uv run alembic upgrade head &&
-             uv run python scripts/seed.py &&
-             uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
+      sh -c "alembic upgrade head &&
+             python scripts/seed.py &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
 volumes:
   postgres_data:

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Menu, X, Smartphone, ShoppingCart, User } from '@lucide/vue'
+import { Menu, X, Smartphone, ShoppingCart, User, Heart } from '@lucide/vue'
 
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
@@ -17,8 +17,8 @@ const isUserMenuOpen = ref(false)
 
 const navLinks = [
   { label: 'Inicio', href: '#hero' },
+  { label: 'Tienda', to: '/shop' },
   { label: 'Catálogo', href: '#productos' },
-  { label: 'Promociones', href: '#productos' },
   { label: 'Servicios', href: '#servicios' },
   { label: 'Contacto', href: '#contacto' },
 ]
@@ -92,15 +92,23 @@ watch(route, () => {
         </a>
 
         <div class="hidden lg:flex items-center gap-1">
-          <a
-            v-for="link in navLinks"
-            :key="link.label"
-            :href="link.href"
-            class="px-4 py-2 font-bold text-sm uppercase tracking-wide hover:bg-brutal-yellow hover:brutal-border hover:brutal-shadow-sm transition-all"
-            @click.prevent="scrollToSection(link.href)"
-          >
-            {{ link.label }}
-          </a>
+          <template v-for="link in navLinks" :key="link.label">
+            <router-link
+              v-if="link.to"
+              :to="link.to"
+              class="px-4 py-2 font-bold text-sm uppercase tracking-wide hover:bg-brutal-yellow hover:brutal-border hover:brutal-shadow-sm transition-all"
+            >
+              {{ link.label }}
+            </router-link>
+            <a
+              v-else
+              :href="link.href"
+              class="px-4 py-2 font-bold text-sm uppercase tracking-wide hover:bg-brutal-yellow hover:brutal-border hover:brutal-shadow-sm transition-all"
+              @click.prevent="scrollToSection(link.href!)"
+            >
+              {{ link.label }}
+            </a>
+          </template>
 
           <button
             class="ml-2 flex items-center gap-2 brutal-border px-3 py-2 font-bold text-sm uppercase tracking-wide hover:bg-brutal-yellow transition-colors relative"
@@ -130,6 +138,13 @@ watch(route, () => {
             >
               <router-link to="/orders" class="block px-4 py-3 font-bold text-sm uppercase hover:bg-brutal-yellow">
                 Mis pedidos
+              </router-link>
+              <router-link to="/wishlist" class="block px-4 py-3 font-bold text-sm uppercase hover:bg-brutal-yellow flex items-center gap-2">
+                <Heart :size="14" :stroke-width="2.5" />
+                Mis favoritos
+              </router-link>
+              <router-link to="/profile" class="block px-4 py-3 font-bold text-sm uppercase hover:bg-brutal-yellow">
+                Mi perfil
               </router-link>
               <router-link
                 v-if="authStore.isAdmin"
@@ -177,15 +192,24 @@ watch(route, () => {
         v-show="isMenuOpen"
         class="lg:hidden border-t-4 border-brutal-black py-4 space-y-2"
       >
-        <a
-          v-for="link in navLinks"
-          :key="link.label"
-          :href="link.href"
-          class="block px-4 py-3 font-bold text-base uppercase tracking-wide hover:bg-brutal-yellow brutal-border transition-all"
-          @click.prevent="scrollToSection(link.href)"
-        >
-          {{ link.label }}
-        </a>
+        <template v-for="link in navLinks" :key="link.label">
+          <router-link
+            v-if="link.to"
+            :to="link.to"
+            class="block px-4 py-3 font-bold text-base uppercase tracking-wide hover:bg-brutal-yellow brutal-border transition-all"
+            @click="isMenuOpen = false"
+          >
+            {{ link.label }}
+          </router-link>
+          <a
+            v-else
+            :href="link.href"
+            class="block px-4 py-3 font-bold text-base uppercase tracking-wide hover:bg-brutal-yellow brutal-border transition-all"
+            @click.prevent="scrollToSection(link.href!)"
+          >
+            {{ link.label }}
+          </a>
+        </template>
         <button
           class="flex items-center gap-2 w-full px-4 py-3 font-bold text-base uppercase tracking-wide brutal-border bg-brutal-white hover:bg-brutal-yellow transition-all"
           @click="goToCart"
@@ -203,6 +227,20 @@ watch(route, () => {
           >
             <User :size="20" :stroke-width="2.5" />
             Mis pedidos
+          </router-link>
+          <router-link
+            to="/wishlist"
+            class="flex items-center gap-2 w-full px-4 py-3 font-bold text-base uppercase tracking-wide brutal-border bg-brutal-white hover:bg-brutal-yellow transition-all"
+          >
+            <Heart :size="20" :stroke-width="2.5" />
+            Mis favoritos
+          </router-link>
+          <router-link
+            to="/profile"
+            class="flex items-center gap-2 w-full px-4 py-3 font-bold text-base uppercase tracking-wide brutal-border bg-brutal-white hover:bg-brutal-yellow transition-all"
+          >
+            <User :size="20" :stroke-width="2.5" />
+            Mi perfil
           </router-link>
           <router-link
             v-if="authStore.isAdmin"
