@@ -12,30 +12,26 @@ const { isVisible } = useIntersectionObserver(sectionRef)
 <template>
   <section
     ref="sectionRef"
-    class="py-16 sm:py-20 lg:py-28 bg-brutal-gray"
+    class="section-clean bg-[#12121a]"
     aria-labelledby="testimonios-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12 sm:mb-16">
-        <span class="inline-block bg-brutal-yellow text-brutal-black font-bold text-sm px-4 py-2 brutal-border mb-4">
-          TESTIMONIOS
-        </span>
-        <h2 id="testimonios-title" class="section-title text-brutal-black mb-4">
+        <span class="badge badge-accent mb-4">Testimonios</span>
+        <h2 id="testimonios-title" class="section-title mb-4">
           Lo que dicen nuestros clientes
         </h2>
-        <p class="section-subtitle">
+        <p class="section-subtitle mx-auto">
           La satisfacción de nuestros clientes habla por sí sola.
         </p>
       </div>
 
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
-      >
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <article
           v-for="(testimonial, index) in store.testimonials"
           :key="testimonial.id"
           :class="[
-            'brutal-card !bg-brutal-white p-6 sm:p-8 flex flex-col',
+            'glass-strong rounded-2xl p-6 sm:p-8 flex flex-col bg-[#12121a]/80 backdrop-blur-xl border border-[#00f0ff]/10',
             'animate-fade-in-up',
             isVisible ? 'visible' : ''
           ]"
@@ -43,30 +39,28 @@ const { isVisible } = useIntersectionObserver(sectionRef)
           itemscope
           itemtype="https://schema.org/Review"
         >
-          <div class="flex items-center gap-1 mb-4" aria-label="Calificación">
+          <div class="flex items-center gap-0.5 mb-4" aria-label="Calificación">
             <Star
               v-for="i in 5"
               :key="i"
-              :size="16"
+              :size="14"
               :stroke-width="2.5"
-              :class="i <= testimonial.rating ? 'fill-brutal-yellow text-brutal-yellow' : 'text-brutal-black/20'"
+              :class="i <= testimonial.rating ? 'fill-warning text-warning' : 'text-border'"
             />
           </div>
 
-          <blockquote class="flex-1 text-sm sm:text-base text-brutal-black/80 mb-4 leading-relaxed">
-            "{{ testimonial.text }}"
+          <blockquote class="flex-1 text-sm sm:text-base text-gray-400 mb-6 leading-relaxed">
+            <span class="text-[#00f0ff] text-lg font-bold">"</span>{{ testimonial.text }}<span class="text-[#00f0ff] text-lg font-bold">"</span>
           </blockquote>
 
-          <div class="flex items-center gap-3 mt-auto pt-4 border-t-4 border-brutal-black">
+          <div class="flex items-center gap-3 mt-auto pt-4 border-t border-[#00f0ff]/10">
             <img
               :src="testimonial.avatar"
               :alt="testimonial.name"
               loading="lazy"
-              class="w-10 h-10 rounded-full brutal-border object-cover"
+              class="w-9 h-9 rounded-full object-cover border border-[#00f0ff]/20"
             />
-            <div>
-              <span class="font-black text-sm" itemprop="author">{{ testimonial.name }}</span>
-            </div>
+            <span class="font-medium text-sm text-white" itemprop="author">{{ testimonial.name }}</span>
           </div>
           <meta itemprop="reviewBody" :content="testimonial.text" />
         </article>

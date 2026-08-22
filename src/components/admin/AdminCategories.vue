@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { FolderKanban, Pencil, Plus, Trash2 } from '@lucide/vue'
+import { FolderKanban, Pencil, Plus, Trash2, X } from '@lucide/vue'
 
 import { categoriesApi, type Category } from '../../api/categories'
 
@@ -91,59 +91,81 @@ onMounted(load)
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="font-black text-2xl uppercase flex items-center gap-2">
-          <FolderKanban :size="24" :stroke-width="2.5" />
-          Gestión de categorías
+        <h2 class="text-2xl font-bold text-text flex items-center gap-2">
+          <FolderKanban :size="24" :stroke-width="2" />
+          Categorías
         </h2>
-        <p class="text-brutal-black/60">Organiza el catálogo. No se pueden eliminar categorías con productos asociados.</p>
+        <p class="text-sm text-text-secondary">Organiza el catálogo. No se pueden eliminar categorías con productos asociados.</p>
       </div>
-      <button class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 flex items-center gap-2 uppercase text-sm" @click="openNew">
-        <Plus :size="16" :stroke-width="2.5" />
-        Nueva categoría
+      <button class="btn-primary flex items-center gap-2 text-sm" @click="openNew">
+        <Plus :size="16" :stroke-width="2" />
+        Crear categoría
       </button>
     </div>
 
-    <p v-if="banner" class="bg-green-100 border-4 border-brutal-black p-3 font-bold text-sm">{{ banner }}</p>
-    <p v-if="error" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm">{{ error }}</p>
+    <p v-if="banner" class="badge-success px-4 py-2 text-sm font-medium">{{ banner }}</p>
+    <p v-if="error" class="badge-danger px-4 py-2 text-sm font-medium">{{ error }}</p>
 
-    <div v-if="showForm" class="brutal-card p-6">
-      <h3 class="font-black text-xl uppercase mb-4">{{ editingId !== null ? 'Editar categoría' : 'Nueva categoría' }}</h3>
-      <form class="space-y-4" @submit.prevent="save">
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">Nombre *</label>
-          <input v-model="formName" required class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10" placeholder="Ej: Smartphones" />
-        </div>
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">Descripción</label>
-          <textarea v-model="formDescription" rows="2" class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10"></textarea>
-        </div>
-        <p v-if="formError" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm">{{ formError }}</p>
-        <div class="flex gap-3 justify-end">
-          <button type="button" class="brutal-button bg-brutal-white text-brutal-black px-5 py-2 uppercase text-sm" @click="openNew">Cancelar</button>
-          <button type="submit" :disabled="formBusy" class="brutal-button bg-brutal-yellow text-brutal-black px-5 py-2 uppercase text-sm disabled:opacity-60">
-            {{ formBusy ? 'Guardando...' : 'Guardar' }}
+    <div v-if="showForm" class="bento-card-static glass">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-semibold text-text">{{ editingId !== null ? 'Editar categoría' : 'Nueva categoría' }}</h3>
+          <button class="text-text-secondary hover:text-text transition-colors p-1" aria-label="Cerrar formulario" @click="showForm = false">
+            <X :size="18" :stroke-width="2" />
           </button>
         </div>
-      </form>
+        <form class="space-y-4" @submit.prevent="save">
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Nombre *</label>
+            <input v-model="formName" required class="input-minimal" placeholder="Ej: Smartphones" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Descripción</label>
+            <textarea v-model="formDescription" rows="2" class="input-minimal resize-none"></textarea>
+          </div>
+          <p v-if="formError" class="badge-danger px-4 py-2 text-sm">{{ formError }}</p>
+          <div class="flex gap-3 justify-end">
+            <button type="button" class="btn-secondary text-sm" @click="showForm = false">Cancelar</button>
+            <button type="submit" :disabled="formBusy" class="btn-primary text-sm disabled:opacity-50">
+              {{ formBusy ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <div v-if="loading" class="brutal-card p-8 text-center font-bold">Cargando categorías...</div>
+    <div v-if="loading" class="space-y-3">
+      <div v-for="i in 4" :key="i" class="bento-card-static glass p-5">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="skeleton h-5 w-32"></div>
+          <div class="skeleton h-5 w-16"></div>
+        </div>
+        <div class="skeleton h-3 w-48 mb-3"></div>
+        <div class="skeleton h-4 w-20"></div>
+      </div>
+    </div>
+
+    <div v-else-if="categories.length === 0" class="bento-card-static glass p-12 text-center">
+      <FolderKanban :size="40" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-3" />
+      <p class="text-lg font-semibold text-text">Sin categorías</p>
+      <p class="text-sm text-text-secondary mt-1">Crea tu primera categoría para organizar los productos.</p>
+    </div>
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div v-for="category in categories" :key="category.id" class="brutal-card p-5 flex flex-col">
+      <div v-for="category in categories" :key="category.id" class="bento-card-static glass p-5 flex flex-col admin-card-neon">
         <div class="flex items-start justify-between gap-2 mb-2">
-          <h3 class="font-black text-lg leading-tight">{{ category.name }}</h3>
+          <h3 class="font-semibold text-text leading-tight">{{ category.name }}</h3>
           <div class="flex gap-1 flex-shrink-0">
-            <button class="brutal-border p-1.5 hover:bg-brutal-yellow transition-colors" title="Editar" @click="openEdit(category)">
-              <Pencil :size="14" :stroke-width="2.5" />
+            <button class="p-1.5 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Editar" @click="openEdit(category)">
+              <Pencil :size="14" :stroke-width="2" />
             </button>
-            <button class="brutal-border p-1.5 bg-red-100 hover:bg-red-200 transition-colors" title="Eliminar" @click="confirmDelete(category)">
-              <Trash2 :size="14" :stroke-width="2.5" class="text-red-700" />
+            <button class="p-1.5 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors" title="Eliminar" @click="confirmDelete(category)">
+              <Trash2 :size="14" :stroke-width="2" />
             </button>
           </div>
         </div>
-        <p class="text-sm text-brutal-black/60 flex-1">{{ category.description || 'Sin descripción' }}</p>
-        <span class="text-xs font-black uppercase bg-brutal-gray border-4 border-brutal-black px-2 py-1 self-start mt-3">
+        <p class="text-sm text-text-secondary flex-1">{{ category.description || 'Sin descripción' }}</p>
+        <span class="text-xs font-mono text-text-tertiary bg-surface-dim rounded-lg px-2.5 py-1 self-start mt-3">
           /{{ category.slug }}
         </span>
       </div>

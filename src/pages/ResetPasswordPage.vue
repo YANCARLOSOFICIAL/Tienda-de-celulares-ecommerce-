@@ -41,77 +41,77 @@ async function resetPassword() {
 </script>
 
 <template>
-  <section class="py-16 sm:py-20 bg-brutal-gray min-h-[70vh] flex items-center">
-    <div class="max-w-md mx-auto px-4 sm:px-6 w-full">
-      <div class="brutal-card p-8">
-        <div class="text-center mb-6">
-          <span class="bg-brutal-yellow p-3 brutal-border inline-block mb-4">
-            <Lock :size="24" :stroke-width="2.5" />
-          </span>
-          <h1 class="font-black text-2xl uppercase">Nueva contrasena</h1>
+  <section class="py-16 sm:py-24 min-h-[70vh] flex items-center">
+    <div class="max-w-md mx-auto px-4 w-full">
+      <div class="bento-card-static p-8">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/10 mb-4">
+            <Lock :size="22" :stroke-width="2" class="text-accent" />
+          </div>
+          <h1 class="text-2xl font-semibold tracking-tight">Nueva contraseña</h1>
         </div>
 
         <div v-if="!success">
-          <div v-if="error" class="bg-red-100 border-2 border-red-400 p-3 text-sm font-bold text-red-700 mb-4">
+          <p v-if="error" class="text-sm text-danger font-medium mb-4">
             {{ error }}
-          </div>
+          </p>
 
           <form @submit.prevent="resetPassword" class="space-y-4">
             <div>
-              <label class="font-bold text-xs uppercase tracking-wide block mb-1">Token</label>
+              <label class="block text-sm font-medium text-text-secondary mb-1.5">Token</label>
               <input
                 v-model="token"
-                class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm font-mono"
+                class="input-minimal font-mono text-sm"
                 placeholder="Token de recuperacion"
                 required
               />
             </div>
             <div>
-              <label class="font-bold text-xs uppercase tracking-wide block mb-1">Nueva contrasena</label>
+              <label class="block text-sm font-medium text-text-secondary mb-1.5">Nueva contraseña</label>
               <input
                 v-model="newPassword"
                 type="password"
                 minlength="8"
-                class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
-                placeholder="Minimo 8 caracteres"
+                class="input-minimal"
+                placeholder="Mínimo 8 caracteres"
                 required
               />
             </div>
             <div>
-              <label class="font-bold text-xs uppercase tracking-wide block mb-1">Confirmar contrasena</label>
+              <label class="block text-sm font-medium text-text-secondary mb-1.5">Confirmar contraseña</label>
               <input
                 v-model="confirmPassword"
                 type="password"
-                class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
-                placeholder="Repite la contrasena"
+                class="input-minimal"
+                placeholder="Repite la contraseña"
                 required
               />
             </div>
             <button
               type="submit"
-              class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 w-full uppercase tracking-wide disabled:opacity-60"
+              class="btn-primary w-full"
               :disabled="loading || !token || !newPassword || !confirmPassword"
             >
-              {{ loading ? 'Restableciendo...' : 'Restablecer contrasena' }}
+              {{ loading ? 'Restableciendo...' : 'Restablecer contraseña' }}
             </button>
           </form>
         </div>
 
         <div v-else class="text-center space-y-4">
-          <CheckCircle2 :size="48" :stroke-width="2" class="mx-auto text-green-600" />
-          <p class="font-black text-lg uppercase">Contrasena actualizada</p>
-          <p class="text-brutal-black/60 text-sm">Ya puedes iniciar sesion con tu nueva contrasena.</p>
+          <CheckCircle2 :size="48" :stroke-width="1.5" class="mx-auto text-success" />
+          <p class="text-lg font-semibold">Contraseña actualizada</p>
+          <p class="text-text-secondary text-sm">Ya puedes iniciar sesión con tu nueva contraseña.</p>
           <router-link
             to="/login"
-            class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 inline-block uppercase tracking-wide"
+            class="btn-primary inline-flex items-center gap-2"
           >
             Ir al login
           </router-link>
         </div>
 
         <div class="mt-6 text-center">
-          <router-link to="/login" class="text-sm font-bold underline text-brutal-black/60 flex items-center justify-center gap-1">
-            <ArrowLeft :size="14" :stroke-width="2.5" />
+          <router-link to="/login" class="btn-ghost text-sm inline-flex items-center gap-1">
+            <ArrowLeft :size="14" :stroke-width="2" />
             Volver al login
           </router-link>
         </div>

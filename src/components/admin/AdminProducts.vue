@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ChartNoAxesCombined, Pencil, Plus, Trash2, X } from '@lucide/vue'
+import { Pencil, Plus, Trash2, X, Package } from '@lucide/vue'
 
 import { categoriesApi, type Category } from '../../api/categories'
 import { productsApi, type Product, type ProductPayload } from '../../api/products'
@@ -118,131 +118,143 @@ onMounted(load)
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="font-black text-2xl uppercase flex items-center gap-2">
-          <ChartNoAxesCombined :size="24" :stroke-width="2.5" />
-          Gestión de productos
+        <h2 class="text-2xl font-bold text-text flex items-center gap-2">
+          <Package :size="24" :stroke-width="2" />
+          Productos
         </h2>
-        <p class="text-brutal-black/60">Crea, edita y elimina productos del catálogo. Los inactivos no se muestran a los clientes.</p>
+        <p class="text-sm text-text-secondary">Crea, edita y elimina productos del catálogo.</p>
       </div>
-      <button class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 flex items-center gap-2 uppercase text-sm" @click="openNew">
-        <Plus :size="16" :stroke-width="2.5" />
-        Nuevo producto
+      <button class="btn-primary flex items-center gap-2 text-sm" @click="openNew">
+        <Plus :size="16" :stroke-width="2" />
+        Crear producto
       </button>
     </div>
 
-    <p v-if="banner" class="bg-green-100 border-4 border-brutal-black p-3 font-bold text-sm">
-      {{ banner }}
-    </p>
-    <p v-if="error" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm">
-      {{ error }}
-    </p>
+    <p v-if="banner" class="badge-success px-4 py-2 text-sm font-medium">{{ banner }}</p>
+    <p v-if="error" class="badge-danger px-4 py-2 text-sm font-medium">{{ error }}</p>
 
-    <div v-if="showForm" class="brutal-card p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-black text-xl uppercase">{{ editingId !== null ? 'Editar producto' : 'Nuevo producto' }}</h3>
-        <button class="brutal-border p-2 hover:bg-brutal-yellow transition-colors" aria-label="Cerrar formulario" @click="showForm = false">
-          <X :size="18" :stroke-width="2.5" />
-        </button>
+    <div v-if="showForm" class="bento-card-static glass">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-semibold text-text">{{ editingId !== null ? 'Editar producto' : 'Nuevo producto' }}</h3>
+          <button class="text-text-secondary hover:text-text transition-colors p-1" aria-label="Cerrar formulario" @click="showForm = false">
+            <X :size="18" :stroke-width="2" />
+          </button>
+        </div>
+
+        <form class="grid grid-cols-1 sm:grid-cols-2 gap-4" @submit.prevent="save">
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Nombre *</label>
+            <input v-model="form.name" required class="input-minimal" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Marca *</label>
+            <input v-model="form.brand" required class="input-minimal" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Modelo</label>
+            <input v-model="form.model" class="input-minimal" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Precio *</label>
+            <input v-model="form.price" type="number" step="0.01" min="0.01" required class="input-minimal" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Stock *</label>
+            <input v-model.number="form.stock" type="number" min="0" required class="input-minimal" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Categoría</label>
+            <select v-model="form.category_id" class="input-minimal">
+              <option value="">Sin categoría</option>
+              <option v-for="cat in categories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">URL de imagen</label>
+            <input v-model="form.image" class="input-minimal" placeholder="https://..." />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Descripción</label>
+            <textarea v-model="form.description" rows="3" class="input-minimal resize-none"></textarea>
+          </div>
+          <div class="sm:col-span-2 flex items-center gap-3">
+            <label class="flex items-center gap-2 text-sm font-medium text-text cursor-pointer">
+              <input v-model="form.is_active" type="checkbox" class="w-4 h-4 accent-accent rounded" />
+              Producto activo (visible para clientes)
+            </label>
+          </div>
+
+          <p v-if="formError" class="sm:col-span-2 badge-danger px-4 py-2 text-sm">{{ formError }}</p>
+
+          <div class="sm:col-span-2 flex gap-3 justify-end">
+            <button type="button" class="btn-secondary text-sm" @click="showForm = false">
+              Cancelar
+            </button>
+            <button type="submit" :disabled="formBusy" class="btn-primary text-sm disabled:opacity-50">
+              {{ formBusy ? 'Guardando...' : editingId !== null ? 'Guardar cambios' : 'Crear producto' }}
+            </button>
+          </div>
+        </form>
       </div>
-
-      <form class="grid grid-cols-1 sm:grid-cols-2 gap-4" @submit.prevent="save">
-        <div class="sm:col-span-2">
-          <label class="block font-bold text-sm uppercase mb-1">Nombre *</label>
-          <input v-model="form.name" required class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10" />
-        </div>
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">Marca *</label>
-          <input v-model="form.brand" required class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10" />
-        </div>
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">Modelo</label>
-          <input v-model="form.model" class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10" />
-        </div>
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">Precio *</label>
-          <input v-model="form.price" type="number" step="0.01" min="0.01" required class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10" />
-        </div>
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">Stock *</label>
-          <input v-model.number="form.stock" type="number" min="0" required class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10" />
-        </div>
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">Categoría</label>
-          <select v-model="form.category_id" class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10 bg-brutal-white">
-            <option value="">Sin categoría</option>
-            <option v-for="cat in categories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block font-bold text-sm uppercase mb-1">URL de imagen</label>
-          <input v-model="form.image" class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10" placeholder="https://..." />
-        </div>
-        <div class="sm:col-span-2">
-          <label class="block font-bold text-sm uppercase mb-1">Descripción</label>
-          <textarea v-model="form.description" rows="3" class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10"></textarea>
-        </div>
-        <div class="sm:col-span-2 flex items-center gap-3">
-          <label class="flex items-center gap-2 font-bold cursor-pointer">
-            <input v-model="form.is_active" type="checkbox" class="w-5 h-5" />
-            Producto activo (visible para clientes)
-          </label>
-        </div>
-
-        <p v-if="formError" class="sm:col-span-2 bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm">
-          {{ formError }}
-        </p>
-
-        <div class="sm:col-span-2 flex gap-3 justify-end">
-          <button type="button" class="brutal-button bg-brutal-white text-brutal-black px-5 py-3 uppercase text-sm" @click="showForm = false">
-            Cancelar
-          </button>
-          <button type="submit" :disabled="formBusy" class="brutal-button bg-brutal-yellow text-brutal-black px-5 py-3 uppercase text-sm disabled:opacity-60">
-            {{ formBusy ? 'Guardando...' : editingId !== null ? 'Guardar cambios' : 'Crear producto' }}
-          </button>
-        </div>
-      </form>
     </div>
 
-    <div v-if="loading" class="brutal-card p-8 text-center font-bold">Cargando productos...</div>
+    <div v-if="loading" class="bento-card-static glass p-8">
+      <div class="space-y-4">
+        <div v-for="i in 5" :key="i" class="flex items-center gap-4">
+          <div class="skeleton h-10 w-10 rounded-xl flex-shrink-0"></div>
+          <div class="skeleton h-4 flex-1"></div>
+          <div class="skeleton h-4 w-20"></div>
+          <div class="skeleton h-4 w-16"></div>
+        </div>
+      </div>
+    </div>
 
-    <div v-else class="brutal-card overflow-hidden">
+    <div v-else-if="products.length === 0" class="bento-card-static glass p-12 text-center">
+      <Package :size="40" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-3" />
+      <p class="text-lg font-semibold text-text">Sin productos</p>
+      <p class="text-sm text-text-secondary mt-1">Crea tu primer producto para comenzar.</p>
+    </div>
+
+    <div v-else class="bento-card-static glass overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table class="w-full text-sm">
           <thead>
-            <tr class="border-b-4 border-brutal-black bg-brutal-yellow">
-              <th class="px-4 py-3 font-black uppercase text-xs">Producto</th>
-              <th class="px-4 py-3 font-black uppercase text-xs">Marca</th>
-              <th class="px-4 py-3 font-black uppercase text-xs">Categoría</th>
-              <th class="px-4 py-3 font-black uppercase text-xs">Precio</th>
-              <th class="px-4 py-3 font-black uppercase text-xs">Stock</th>
-              <th class="px-4 py-3 font-black uppercase text-xs">Estado</th>
-              <th class="px-4 py-3 font-black uppercase text-xs text-right">Acciones</th>
+            <tr class="border-b border-border-light">
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Producto</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Precio</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Stock</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Categoría</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Estado</th>
+              <th class="text-right px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="product in products" :key="product.id" class="border-b-4 border-brutal-black last:border-b-0 hover:bg-brutal-gray/50">
-              <td class="px-4 py-3 font-bold">
+            <tr v-for="product in products" :key="product.id" class="border-b border-border-light last:border-b-0 admin-table-row">
+              <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <img :src="product.image || undefined" :alt="product.name" class="w-10 h-10 object-cover brutal-border flex-shrink-0" />
-                  <span>{{ product.name }}</span>
+                  <img :src="product.image || undefined" :alt="product.name" class="w-9 h-9 rounded-lg object-cover bg-surface-dim flex-shrink-0" />
+                  <div>
+                    <p class="font-medium text-text">{{ product.name }}</p>
+                    <p class="text-xs text-text-secondary">{{ product.brand }}</p>
+                  </div>
                 </div>
               </td>
-              <td class="px-4 py-3">{{ product.brand }}</td>
-              <td class="px-4 py-3">{{ categoryName(product.category_id) }}</td>
-              <td class="px-4 py-3 font-black">${{ Number(product.price).toLocaleString('es-MX') }}</td>
-              <td class="px-4 py-3">{{ product.stock }}</td>
+              <td class="px-4 py-3 font-semibold text-text">${{ Number(product.price).toLocaleString('es-MX') }}</td>
+              <td class="px-4 py-3 text-text">{{ product.stock }}</td>
+              <td class="px-4 py-3 text-text-secondary">{{ categoryName(product.category_id) }}</td>
               <td class="px-4 py-3">
-                <span :class="['font-black text-xs uppercase px-2 py-1 brutal-border', product.is_active ? 'bg-green-100 text-green-800' : 'bg-brutal-black text-brutal-white']">
+                <span :class="['badge text-xs', product.is_active ? 'badge-success' : 'badge']">
                   {{ product.is_active ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
               <td class="px-4 py-3">
-                <div class="flex gap-2 justify-end">
-                  <button class="brutal-border p-2 hover:bg-brutal-yellow transition-colors" title="Editar" @click="openEdit(product)">
-                    <Pencil :size="16" :stroke-width="2.5" />
+                <div class="flex gap-1 justify-end">
+                  <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Editar" @click="openEdit(product)">
+                    <Pencil :size="16" :stroke-width="2" />
                   </button>
-                  <button class="brutal-border p-2 bg-red-100 hover:bg-red-200 transition-colors" title="Eliminar" @click="confirmDelete(product)">
-                    <Trash2 :size="16" :stroke-width="2.5" class="text-red-700" />
+                  <button class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors" title="Eliminar" @click="confirmDelete(product)">
+                    <Trash2 :size="16" :stroke-width="2" />
                   </button>
                 </div>
               </td>

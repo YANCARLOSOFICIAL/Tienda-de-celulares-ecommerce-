@@ -34,20 +34,17 @@ watch(() => props.categoryId, fetchRelated)
 <template>
   <section v-if="products.length > 0 || loading" class="py-12 sm:py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-8 sm:mb-10">
-        <span class="inline-block bg-brutal-yellow text-brutal-black font-bold text-sm px-4 py-2 brutal-border mb-4">
-          RELACIONADOS
-        </span>
-        <h2 class="section-title text-brutal-black">También te puede interesar</h2>
+      <div class="mb-8 sm:mb-10">
+        <h2 class="section-title text-text">También te puede interesar</h2>
       </div>
 
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        <div v-for="i in 3" :key="i" class="brutal-card p-0 overflow-hidden">
-          <div class="skeleton aspect-square"></div>
+        <div v-for="i in 3" :key="i" class="bg-surface rounded-2xl overflow-hidden">
+          <div class="skeleton aspect-square rounded-none"></div>
           <div class="p-5 space-y-3">
-            <div class="skeleton h-6 w-3/4"></div>
-            <div class="skeleton h-4 w-full"></div>
-            <div class="skeleton h-12 w-full"></div>
+            <div class="skeleton h-5 w-3/4 rounded-lg"></div>
+            <div class="skeleton h-4 w-full rounded-lg"></div>
+            <div class="skeleton h-10 w-full rounded-lg"></div>
           </div>
         </div>
       </div>
@@ -64,3 +61,14 @@ watch(() => props.categoryId, fetchRelated)
     </div>
   </section>
 </template>
+
+<style scoped>
+:deep(.bento-card-static) {
+  border: 1px solid var(--color-border);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+:deep(.bento-card-static:hover) {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+}
+</style>

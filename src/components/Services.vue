@@ -34,38 +34,36 @@ const services = [
   <section
     id="servicios"
     ref="sectionRef"
-    class="py-16 sm:py-20 lg:py-28 bg-brutal-black"
+    class="section-clean bg-[#0a0a0f]"
     aria-labelledby="servicios-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12 sm:mb-16">
-        <span class="inline-block bg-brutal-yellow text-brutal-black font-bold text-sm px-4 py-2 brutal-border mb-4">
-          SERVICIOS
-        </span>
-        <h2 id="servicios-title" class="section-title text-brutal-yellow mb-4">
+        <span class="badge badge-accent mb-4">Servicios</span>
+        <h2 id="servicios-title" class="section-title mb-4">
           Todo lo que necesitas
         </h2>
-        <p class="section-subtitle !text-brutal-white/70">
+        <p class="section-subtitle mx-auto">
           Más que una tienda, somos tu centro de soluciones móviles.
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <article
           v-for="(service, index) in services"
           :key="service.title"
           :class="[
-            'brutal-card !bg-brutal-white p-6 sm:p-8 text-center flex flex-col items-center gap-4 group',
+            'bento-card p-6 sm:p-8 text-center flex flex-col items-center gap-4 group',
             'animate-fade-in-up',
             isVisible ? 'visible' : ''
           ]"
           :style="{ transitionDelay: `${index * 100}ms` }"
         >
-          <div class="brutal-border bg-brutal-yellow p-4 group-hover:bg-brutal-black transition-colors duration-300">
-            <component :is="service.icon" :size="32" :stroke-width="2.5" class="text-brutal-black group-hover:text-brutal-yellow transition-colors duration-300" />
+          <div class="w-14 h-14 rounded-2xl bg-[#00f0ff]/10 flex items-center justify-center group-hover:bg-[#00f0ff] transition-colors duration-300">
+            <component :is="service.icon" :size="24" :stroke-width="2" class="text-[#00f0ff] group-hover:text-[#0a0a0f] transition-colors duration-300" />
           </div>
-          <h3 class="font-black text-xl">{{ service.title }}</h3>
-          <p class="text-sm text-brutal-black/70">{{ service.description }}</p>
+          <h3 class="font-semibold text-base text-white">{{ service.title }}</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">{{ service.description }}</p>
         </article>
       </div>
     </div>

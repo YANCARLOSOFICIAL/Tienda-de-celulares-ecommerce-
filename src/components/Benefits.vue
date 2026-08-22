@@ -33,38 +33,36 @@ const benefits = [
 <template>
   <section
     ref="sectionRef"
-    class="py-16 sm:py-20 bg-brutal-yellow"
+    class="section-clean bg-[#12121a]"
     aria-label="Beneficios"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12 sm:mb-16">
-        <span class="inline-block bg-brutal-black text-brutal-yellow font-bold text-sm px-4 py-2 brutal-border mb-4">
-          ¿POR QUÉ ELEGIRNOS?
-        </span>
-        <h2 class="section-title text-brutal-black mb-4">
+        <span class="badge badge-accent mb-4">¿Por qué elegirnos?</span>
+        <h2 class="section-title mb-4">
           Beneficios Exclusivos
         </h2>
-        <p class="section-subtitle">
+        <p class="section-subtitle mx-auto">
           Te ofrecemos la mejor experiencia de compra en cada paso.
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <article
           v-for="(benefit, index) in benefits"
           :key="benefit.title"
           :class="[
-            'brutal-card !bg-brutal-white p-6 sm:p-8 flex flex-col items-center text-center gap-4',
+            'bento-card p-6 sm:p-8 flex flex-col items-center text-center gap-4',
             'animate-fade-in-up',
             isVisible ? 'visible' : ''
           ]"
           :style="{ transitionDelay: `${index * 100}ms` }"
         >
-          <div class="brutal-border bg-brutal-black p-4">
-            <component :is="benefit.icon" :size="28" :stroke-width="2.5" class="text-brutal-yellow" />
+          <div class="w-14 h-14 rounded-2xl bg-[#00f0ff]/10 flex items-center justify-center">
+            <component :is="benefit.icon" :size="24" :stroke-width="2" class="text-[#00f0ff]" />
           </div>
-          <h3 class="font-black text-lg">{{ benefit.title }}</h3>
-          <p class="text-sm text-brutal-black/70">{{ benefit.description }}</p>
+          <h3 class="font-semibold text-base text-white">{{ benefit.title }}</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">{{ benefit.description }}</p>
         </article>
       </div>
     </div>

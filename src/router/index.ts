@@ -13,6 +13,7 @@ import ProfilePage from '../pages/ProfilePage.vue'
 import WishlistPage from '../pages/WishlistPage.vue'
 import ForgotPasswordPage from '../pages/ForgotPasswordPage.vue'
 import ResetPasswordPage from '../pages/ResetPasswordPage.vue'
+import ComparePage from '../pages/ComparePage.vue'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -93,6 +94,12 @@ const routes = [
     name: 'order-detail',
     component: OrderDetailPage,
     meta: { title: 'Detalle de pedido | Tienda Cell', requiresAuth: true }
+  },
+  {
+    path: '/compare',
+    name: 'compare',
+    component: ComparePage,
+    meta: { title: 'Comparar productos | Tienda Cell' }
   },
   {
     path: '/admin',

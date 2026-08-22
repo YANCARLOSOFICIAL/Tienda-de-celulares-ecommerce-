@@ -6,7 +6,7 @@ const sectionRef = ref<HTMLElement | null>(null)
 const { isVisible } = useIntersectionObserver(sectionRef)
 
 const brands = [
-  { name: 'Apple', logo: '', color: '#111' },
+  { name: 'Apple', logo: '', color: '#111' },
   { name: 'Samsung', logo: 'SAMSUNG', color: '#1428A0' },
   { name: 'Xiaomi', logo: 'XIAOMI', color: '#FF6900' },
   { name: 'Motorola', logo: 'MOTOROLA', color: '#A100FF' },
@@ -19,37 +19,33 @@ const brands = [
   <section
     id="marcas"
     ref="sectionRef"
-    class="py-16 sm:py-20 bg-brutal-gray border-y-4 border-brutal-black"
+    class="section-clean bg-[#0a0a0f] border-y border-[#00f0ff]/20"
     aria-labelledby="marcas-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-10">
-        <h2 id="marcas-title" class="section-title text-brutal-black mb-4">
+        <h2 id="marcas-title" class="section-title mb-4">
           Marcas Disponibles
         </h2>
-        <p class="section-subtitle">
+        <p class="section-subtitle mx-auto">
           Trabajamos con las marcas más reconocidas del mercado.
         </p>
       </div>
 
-      <div
-        class="grid grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6"
-      >
+      <div class="grid grid-cols-3 lg:grid-cols-6 gap-4">
         <div
           v-for="(brand, index) in brands"
           :key="brand.name"
           :class="[
-            'brutal-card flex items-center justify-center p-6 sm:p-8 min-h-[100px] sm:min-h-[120px]',
+            'bento-card-static flex items-center justify-center p-6 sm:p-8 min-h-[100px] sm:min-h-[120px] group cursor-default',
             'animate-fade-in-up',
             isVisible ? 'visible' : ''
           ]"
-          :style="{
-            transitionDelay: `${index * 80}ms`,
-          }"
+          :style="{ transitionDelay: `${index * 80}ms` }"
         >
           <span
-            class="font-black text-center text-base sm:text-lg tracking-tighter"
-            :style="{ color: brand.color }"
+            class="font-bold text-center text-sm sm:text-base tracking-tight text-gray-500 group-hover:text-[#00f0ff] transition-colors duration-300"
+            :style="{ '--brand-hover': brand.color }"
           >
             {{ brand.logo }}
           </span>

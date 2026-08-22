@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Heart, ShoppingBag, Trash2, ArrowLeft } from '@lucide/vue'
+import { Heart, ShoppingBag, Trash2 } from '@lucide/vue'
 
 import { wishlistApi, type WishlistItem } from '../api/wishlist'
 import { useCartStore } from '../stores/cart'
@@ -48,76 +48,76 @@ async function removeItem(productId: number) {
 </script>
 
 <template>
-  <section class="py-10 sm:py-16 bg-brutal-gray min-h-[70vh]">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3 mb-8">
-        <span class="bg-brutal-yellow p-2 brutal-border flex items-center justify-center">
-          <Heart :size="22" :stroke-width="2.5" class="text-brutal-black" />
-        </span>
-        <h1 class="font-black text-3xl sm:text-4xl uppercase">Mis favoritos</h1>
+  <section class="py-16 sm:py-20 min-h-[70vh]" style="background: var(--color-surface-dim)">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-3 mb-10">
+        <Heart :size="20" :stroke-width="2" style="color: var(--color-text-secondary)" />
+        <h1 class="text-2xl sm:text-3xl font-semibold" style="color: var(--color-text)">Mis favoritos</h1>
       </div>
 
-      <div v-if="loading" class="space-y-4">
-        <div v-for="i in 3" :key="i" class="brutal-card p-5 flex gap-4">
-          <div class="skeleton w-24 h-24 shrink-0"></div>
-          <div class="flex-1 space-y-2">
-            <div class="skeleton h-5 w-3/4"></div>
-            <div class="skeleton h-4 w-1/2"></div>
-          </div>
+      <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div v-for="i in 6" :key="i" class="bento-card p-4 flex flex-col gap-3">
+          <div class="skeleton w-full aspect-square rounded-lg"></div>
+          <div class="skeleton h-4 w-3/4"></div>
+          <div class="skeleton h-3 w-1/2"></div>
+          <div class="skeleton h-5 w-1/3"></div>
         </div>
       </div>
 
-      <div v-else-if="items.length === 0" class="brutal-card p-12 text-center">
-        <Heart :size="48" :stroke-width="1.5" class="mx-auto text-brutal-black/20 mb-4" />
-        <p class="font-black text-2xl uppercase mb-2">Sin favoritos</p>
-        <p class="text-brutal-black/60 mb-6">Aun no has agregado productos a tu lista de favoritos.</p>
-        <router-link to="/shop" class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 inline-block uppercase tracking-wide">
+      <div v-else-if="items.length === 0" class="bento-card p-12 text-center">
+        <Heart :size="40" :stroke-width="1.5" class="mx-auto mb-4" style="color: var(--color-border)" />
+        <p class="text-lg font-medium mb-1" style="color: var(--color-text)">Sin favoritos</p>
+        <p class="text-sm mb-6" style="color: var(--color-text-secondary)">Aún no has agregado productos a tu lista de favoritos.</p>
+        <router-link to="/shop" class="btn-primary text-sm">
           Ver tienda
         </router-link>
       </div>
 
-      <div v-else class="space-y-4">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div
           v-for="item in items"
           :key="item.id"
-          class="brutal-card p-4 sm:p-5 flex flex-col sm:flex-row gap-4"
+          class="bento-card p-4 flex flex-col wishlist-card-neon"
         >
           <router-link
             :to="{ name: 'product-detail', params: { id: item.product.id } }"
-            class="shrink-0 w-24 h-24 bg-brutal-gray brutal-border overflow-hidden"
+            class="block w-full aspect-square rounded-lg overflow-hidden mb-3"
+            style="background: var(--color-surface-dim)"
           >
             <img
-              :src="item.product.image || 'https://placehold.co/200x200/111111/FFD60A?text=Sin+imagen&font=inter'"
+              :src="item.product.image || 'https://placehold.co/200x200/FAFAFA/E5E5EA?text=Sin+imagen&font=inter'"
               :alt="item.product.name"
               class="w-full h-full object-cover"
             />
           </router-link>
 
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 mb-3">
             <router-link
               :to="{ name: 'product-detail', params: { id: item.product.id } }"
-              class="font-black text-lg leading-tight hover:underline"
+              class="text-sm font-medium leading-tight hover:underline block truncate"
+              style="color: var(--color-text)"
             >
               {{ item.product.name }}
             </router-link>
-            <p class="text-sm text-brutal-black/50">{{ item.product.brand }}</p>
-            <p class="font-black text-xl mt-1">${{ formatPrice(item.product.price) }}</p>
+            <p class="text-xs mt-0.5" style="color: var(--color-text-secondary)">{{ item.product.brand }}</p>
+            <p class="text-base font-semibold mt-1" style="color: var(--color-text)">${{ formatPrice(item.product.price) }}</p>
           </div>
 
-          <div class="flex sm:flex-col gap-2 shrink-0">
+          <div class="flex flex-col gap-2 mt-auto">
             <button
-              class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 flex items-center gap-2 text-sm uppercase tracking-wide disabled:opacity-60"
+              class="btn-primary text-xs w-full"
               :disabled="addingId === item.product.id || item.product.stock <= 0"
               @click="addToCart(item.product.id)"
             >
-              <ShoppingBag :size="16" :stroke-width="2.5" />
-              {{ item.product.stock <= 0 ? 'Agotado' : addingId === item.product.id ? 'Agregando...' : 'Carrito' }}
+              <ShoppingBag :size="14" :stroke-width="2" class="inline-block mr-1 align-[-2px]" />
+              {{ item.product.stock <= 0 ? 'Agotado' : addingId === item.product.id ? 'Agregando...' : 'Agregar al carrito' }}
             </button>
             <button
-              class="brutal-button bg-brutal-white text-red-600 px-4 py-2 flex items-center gap-2 text-sm uppercase tracking-wide"
+              class="btn-ghost text-xs w-full"
+              style="color: var(--color-danger)"
               @click="removeItem(item.product.id)"
             >
-              <Trash2 :size="16" :stroke-width="2.5" />
+              <Trash2 :size="14" :stroke-width="2" class="inline-block mr-1 align-[-2px]" />
               Quitar
             </button>
           </div>
@@ -126,3 +126,14 @@ async function removeItem(productId: number) {
     </div>
   </section>
 </template>
+
+<style scoped>
+.wishlist-card-neon {
+  border: 1px solid var(--color-border);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.wishlist-card-neon:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+}
+</style>

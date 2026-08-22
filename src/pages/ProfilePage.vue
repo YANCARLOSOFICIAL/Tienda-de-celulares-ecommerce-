@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { User, Lock, Save, CheckCircle2 } from '@lucide/vue'
+import { Save, Lock, CheckCircle2 } from '@lucide/vue'
 
 import { authApi } from '../api/auth'
 import { useAuthStore } from '../stores/auth'
@@ -22,6 +22,12 @@ const successMsg = ref<string | null>(null)
 const passwordSuccess = ref<string | null>(null)
 const error = ref<string | null>(null)
 const passwordError = ref<string | null>(null)
+
+const initials = computed(() => {
+  const parts = fullName.value.trim().split(/\s+/)
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  return fullName.value.slice(0, 2).toUpperCase() || 'U'
+})
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
@@ -75,87 +81,107 @@ async function changePassword() {
 </script>
 
 <template>
-  <section class="py-10 sm:py-16 bg-brutal-gray min-h-[70vh]">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3 mb-8">
-        <span class="bg-brutal-yellow p-2 brutal-border flex items-center justify-center">
-          <User :size="22" :stroke-width="2.5" class="text-brutal-black" />
-        </span>
-        <h1 class="font-black text-3xl sm:text-4xl uppercase">Mi perfil</h1>
-      </div>
-
-      <div class="brutal-card p-6 sm:p-8 mb-6">
-        <h2 class="font-black text-lg uppercase mb-4 flex items-center gap-2">
-          <User :size="18" :stroke-width="2.5" />
-          Datos personales
-        </h2>
-
-        <div v-if="successMsg" class="bg-green-100 border-4 border-brutal-black p-3 font-bold text-sm mb-4 flex items-center gap-2">
-          <CheckCircle2 :size="18" :stroke-width="2.5" class="text-green-600" />
-          {{ successMsg }}
-        </div>
-        <div v-if="error" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm mb-4">
-          {{ error }}
+  <section class="py-10 sm:py-16 min-h-[70vh]">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+        <div class="bento-card-static p-8 flex flex-col items-center text-center profile-card-neon">
+          <div class="w-24 h-24 rounded-full bg-accent/10 flex items-center justify-center mb-4">
+            <span class="text-2xl font-semibold text-accent">{{ initials }}</span>
+          </div>
+          <h1 class="text-xl font-semibold tracking-tight">{{ fullName || 'Usuario' }}</h1>
+          <p class="text-text-secondary text-sm mt-1">{{ email }}</p>
+          <div class="mt-3 badge badge-accent">{{ authStore.user?.role?.name || 'Usuario' }}</div>
         </div>
 
-        <form @submit.prevent="saveProfile" class="space-y-4">
-          <div>
-            <label class="block text-sm font-bold mb-1">Nombre completo</label>
-            <input v-model="fullName" type="text" required class="w-full px-4 py-3 brutal-border bg-brutal-white font-semibold focus:outline-none focus:bg-brutal-yellow/20 transition-colors" />
-          </div>
-          <div>
-            <label class="block text-sm font-bold mb-1">Email</label>
-            <input :value="email" type="email" disabled class="w-full px-4 py-3 brutal-border bg-brutal-gray font-semibold text-brutal-black/50 cursor-not-allowed" />
-            <p class="text-xs text-brutal-black/40 mt-1">El email no se puede cambiar.</p>
-          </div>
-          <div>
-            <label class="block text-sm font-bold mb-1">Rol</label>
-            <input :value="authStore.user?.role?.name" type="text" disabled class="w-full px-4 py-3 brutal-border bg-brutal-gray font-semibold text-brutal-black/50 cursor-not-allowed" />
-          </div>
-          <button
-            type="submit"
-            class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 flex items-center gap-2 uppercase tracking-wide disabled:opacity-60"
-            :disabled="saving"
-          >
-            <Save :size="18" :stroke-width="2.5" />
-            {{ saving ? 'Guardando...' : 'Guardar cambios' }}
-          </button>
-        </form>
-      </div>
+        <div class="space-y-6">
+          <div class="bento-card-static p-6 sm:p-8 profile-card-neon">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+              Datos personales
+            </h2>
 
-      <div class="brutal-card p-6 sm:p-8">
-        <h2 class="font-black text-lg uppercase mb-4 flex items-center gap-2">
-          <Lock :size="18" :stroke-width="2.5" />
-          Cambiar contrasena
-        </h2>
+            <p v-if="successMsg" class="flex items-center gap-2 text-sm font-medium text-success mb-4">
+              <CheckCircle2 :size="16" :stroke-width="2" />
+              {{ successMsg }}
+            </p>
+            <p v-if="error" class="text-sm text-danger font-medium mb-4">{{ error }}</p>
 
-        <div v-if="passwordSuccess" class="bg-green-100 border-4 border-brutal-black p-3 font-bold text-sm mb-4 flex items-center gap-2">
-          <CheckCircle2 :size="18" :stroke-width="2.5" class="text-green-600" />
-          {{ passwordSuccess }}
+            <form @submit.prevent="saveProfile" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Nombre completo</label>
+                <input v-model="fullName" type="text" required class="input-minimal" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Email</label>
+                <input :value="email" type="email" disabled class="input-minimal opacity-60 cursor-not-allowed" />
+                <p class="text-xs text-text-tertiary mt-1">El email no se puede cambiar.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Rol</label>
+                <input :value="authStore.user?.role?.name" type="text" disabled class="input-minimal opacity-60 cursor-not-allowed" />
+              </div>
+              <button
+                type="submit"
+                class="btn-primary flex items-center gap-2"
+                :disabled="saving"
+              >
+                <Save :size="18" :stroke-width="2" />
+                {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            </form>
+          </div>
+
+          <div class="bento-card-static p-6 sm:p-8 profile-card-neon">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Lock :size="18" :stroke-width="2" />
+              Cambiar contraseña
+            </h2>
+
+            <p v-if="passwordSuccess" class="flex items-center gap-2 text-sm font-medium text-success mb-4">
+              <CheckCircle2 :size="16" :stroke-width="2" />
+              {{ passwordSuccess }}
+            </p>
+            <p v-if="passwordError" class="text-sm text-danger font-medium mb-4">{{ passwordError }}</p>
+
+            <form @submit.prevent="changePassword" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Nueva contraseña</label>
+                <input v-model="newPassword" type="password" required minlength="6" class="input-minimal" placeholder="Mínimo 6 caracteres" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Confirmar contraseña</label>
+                <input v-model="confirmPassword" type="password" required minlength="6" class="input-minimal" placeholder="Repite la contraseña" />
+              </div>
+              <button
+                type="submit"
+                class="btn-primary flex items-center gap-2"
+                :disabled="savingPassword"
+              >
+                <Lock :size="18" :stroke-width="2" />
+                {{ savingPassword ? 'Actualizando...' : 'Cambiar contraseña' }}
+              </button>
+            </form>
+          </div>
+
+          <div class="bento-card-static p-6 sm:p-8 profile-card-neon">
+            <h2 class="text-lg font-semibold text-danger mb-2">Zona de peligro</h2>
+            <p class="text-text-secondary text-sm mb-4">Eliminar tu cuenta es permanente y no se puede deshacer.</p>
+            <button class="border border-danger text-danger font-semibold py-2.5 px-6 rounded-full transition hover:bg-danger/5 cursor-not-allowed" disabled>
+              Eliminar cuenta
+            </button>
+          </div>
         </div>
-        <div v-if="passwordError" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm mb-4">
-          {{ passwordError }}
-        </div>
-
-        <form @submit.prevent="changePassword" class="space-y-4">
-          <div>
-            <label class="block text-sm font-bold mb-1">Nueva contrasena</label>
-            <input v-model="newPassword" type="password" required minlength="6" class="w-full px-4 py-3 brutal-border bg-brutal-white font-semibold focus:outline-none focus:bg-brutal-yellow/20 transition-colors" placeholder="Minimo 6 caracteres" />
-          </div>
-          <div>
-            <label class="block text-sm font-bold mb-1">Confirmar contrasena</label>
-            <input v-model="confirmPassword" type="password" required minlength="6" class="w-full px-4 py-3 brutal-border bg-brutal-white font-semibold focus:outline-none focus:bg-brutal-yellow/20 transition-colors" placeholder="Repite la contrasena" />
-          </div>
-          <button
-            type="submit"
-            class="brutal-button bg-brutal-black text-brutal-white px-6 py-3 flex items-center gap-2 uppercase tracking-wide disabled:opacity-60"
-            :disabled="savingPassword"
-          >
-            <Lock :size="18" :stroke-width="2.5" />
-            {{ savingPassword ? 'Actualizando...' : 'Cambiar contrasena' }}
-          </button>
-        </form>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.profile-card-neon {
+  border: 1px solid var(--color-border);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.profile-card-neon:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.12);
+}
+</style>

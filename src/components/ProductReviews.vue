@@ -92,18 +92,18 @@ function barWidth(stars: number): number {
       <h3 class="font-black text-xl uppercase flex items-center gap-2">
         <MessageSquare :size="20" :stroke-width="2.5" />
         Reviews
-        <span class="text-sm font-bold text-brutal-black/50">({{ summary.total }})</span>
+        <span class="text-sm font-bold text-text/50">({{ summary.total }})</span>
       </h3>
       <button
         v-if="authStore.isAuthenticated && !myReview"
-        class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 text-sm uppercase tracking-wide"
+        class="btn-primary text-text px-4 py-2 text-sm uppercase tracking-wide"
         @click="openForm"
       >
         Escribir review
       </button>
       <button
         v-else-if="authStore.isAuthenticated && myReview"
-        class="brutal-button bg-brutal-white text-brutal-black px-4 py-2 text-sm uppercase tracking-wide"
+        class="btn-secondary text-text px-4 py-2 text-sm uppercase tracking-wide"
         @click="openForm"
       >
         Editar mi review
@@ -111,30 +111,30 @@ function barWidth(stars: number): number {
     </div>
 
     <!-- Rating Summary -->
-    <div v-if="summary.total > 0" class="brutal-card p-5 flex flex-col sm:flex-row gap-6">
+    <div v-if="summary.total > 0" class="bento-card p-5 flex flex-col sm:flex-row gap-6">
       <div class="text-center sm:text-left shrink-0">
         <p class="font-black text-5xl">{{ summary.average }}</p>
         <div class="flex items-center gap-0.5 mt-1 justify-center sm:justify-start">
           <Star v-for="i in 5" :key="i" :size="16" :stroke-width="2.5"
-            :class="i <= Math.round(summary.average) ? 'text-brutal-yellow fill-brutal-yellow' : 'text-brutal-black/20'"
+            :class="i <= Math.round(summary.average) ? 'text-warning fill-warning' : 'text-text/20'"
           />
         </div>
-        <p class="text-xs text-brutal-black/50 mt-1">{{ summary.total }} review{{ summary.total !== 1 ? 's' : '' }}</p>
+        <p class="text-xs text-text/50 mt-1">{{ summary.total }} review{{ summary.total !== 1 ? 's' : '' }}</p>
       </div>
       <div class="flex-1 space-y-1.5">
         <div v-for="stars in [5, 4, 3, 2, 1]" :key="stars" class="flex items-center gap-2 text-sm">
           <span class="w-8 text-right font-bold">{{ stars }}</span>
-          <Star :size="12" :stroke-width="2.5" class="text-brutal-yellow fill-brutal-yellow shrink-0" />
-          <div class="flex-1 h-3 brutal-border bg-brutal-gray overflow-hidden">
-            <div class="h-full bg-brutal-yellow transition-all" :style="{ width: barWidth(stars) + '%' }"></div>
+          <Star :size="12" :stroke-width="2.5" class="text-warning fill-warning shrink-0" />
+          <div class="flex-1 h-2.5 bg-border-light rounded-full overflow-hidden">
+            <div class="h-full bg-warning rounded-full transition-all" :style="{ width: barWidth(stars) + '%' }"></div>
           </div>
-          <span class="w-6 text-xs font-bold text-brutal-black/50">{{ summary.distribution[stars] }}</span>
+          <span class="w-6 text-xs font-bold text-text/50">{{ summary.distribution[stars] }}</span>
         </div>
       </div>
     </div>
 
     <!-- Review Form -->
-    <div v-if="showForm" class="brutal-card p-5 space-y-4">
+    <div v-if="showForm" class="bento-card p-5 space-y-4">
       <h4 class="font-black text-lg uppercase">{{ myReview ? 'Editar review' : 'Tu review' }}</h4>
       <div v-if="error" class="bg-red-100 border-2 border-red-400 p-3 text-sm font-bold text-red-700">{{ error }}</div>
 
@@ -151,7 +151,7 @@ function barWidth(stars: number): number {
           >
             <Star
               :size="28" :stroke-width="2.5"
-              :class="(hoverRating || form.rating) >= i ? 'text-brutal-yellow fill-brutal-yellow' : 'text-brutal-black/20'"
+              :class="(hoverRating || form.rating) >= i ? 'text-warning fill-warning' : 'text-text/20'"
             />
           </button>
           <span v-if="hoverRating || form.rating" class="text-sm font-bold ml-2">
@@ -164,7 +164,7 @@ function barWidth(stars: number): number {
         <label class="font-bold text-xs uppercase tracking-wide block mb-1">Titulo (opcional)</label>
         <input
           v-model="form.title"
-          class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+          class="w-full input-minimal"
           placeholder="Resumen de tu experiencia"
           maxlength="200"
         />
@@ -175,7 +175,7 @@ function barWidth(stars: number): number {
         <textarea
           v-model="form.comment"
           rows="3"
-          class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm resize-none"
+          class="w-full input-minimal resize-none"
           placeholder="Cuenta tu experiencia con el producto..."
           maxlength="2000"
         />
@@ -183,13 +183,13 @@ function barWidth(stars: number): number {
 
       <div class="flex justify-end gap-2">
         <button
-          class="brutal-button bg-brutal-white text-brutal-black px-4 py-2 text-sm uppercase tracking-wide"
+          class="btn-secondary text-text px-4 py-2 text-sm uppercase tracking-wide"
           @click="showForm = false"
         >
           Cancelar
         </button>
         <button
-          class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 text-sm uppercase tracking-wide disabled:opacity-60"
+          class="btn-primary text-text px-4 py-2 text-sm uppercase tracking-wide disabled:opacity-60"
           :disabled="saving || !form.rating"
           @click="submitReview"
         >
@@ -200,36 +200,36 @@ function barWidth(stars: number): number {
 
     <!-- Reviews List -->
     <div v-if="loading" class="space-y-3">
-      <div v-for="i in 3" :key="i" class="brutal-card p-4 space-y-2">
+      <div v-for="i in 3" :key="i" class="bento-card p-4 space-y-2">
         <div class="skeleton h-4 w-32"></div>
         <div class="skeleton h-3 w-full"></div>
       </div>
     </div>
 
-    <div v-else-if="reviews.length === 0 && !showForm" class="brutal-card p-8 text-center">
-      <MessageSquare :size="36" :stroke-width="1.5" class="mx-auto text-brutal-black/20 mb-3" />
+    <div v-else-if="reviews.length === 0 && !showForm" class="bento-card p-8 text-center">
+      <MessageSquare :size="36" :stroke-width="1.5" class="mx-auto text-text/20 mb-3" />
       <p class="font-black text-lg uppercase">Sin reviews</p>
-      <p class="text-brutal-black/50 text-sm mt-1">Sé el primero en dejar tu opinion.</p>
+      <p class="text-text/50 text-sm mt-1">Sé el primero en dejar tu opinion.</p>
     </div>
 
     <div v-else class="space-y-3">
       <div
         v-for="review in reviews"
         :key="review.id"
-        class="brutal-card p-4"
+        class="bento-card p-4"
       >
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="flex items-center gap-2 mb-1">
               <div class="flex items-center gap-0.5">
                 <Star v-for="i in 5" :key="i" :size="14" :stroke-width="2.5"
-                  :class="i <= review.rating ? 'text-brutal-yellow fill-brutal-yellow' : 'text-brutal-black/20'"
+                  :class="i <= review.rating ? 'text-warning fill-warning' : 'text-text/20'"
                 />
               </div>
-              <span class="text-xs font-bold text-brutal-black/50">{{ review.user_name }}</span>
+              <span class="text-xs font-bold text-text/50">{{ review.user_name }}</span>
             </div>
             <p v-if="review.title" class="font-black text-sm">{{ review.title }}</p>
-            <p v-if="review.comment" class="text-sm text-brutal-black/70 mt-1">{{ review.comment }}</p>
+            <p v-if="review.comment" class="text-sm text-text/70 mt-1">{{ review.comment }}</p>
           </div>
           <button
             v-if="authStore.user?.id === review.user_id"

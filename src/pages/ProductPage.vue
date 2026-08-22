@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ShoppingBag, ArrowLeft, Package, Truck, Shield, MessageCircle, Heart } from '@lucide/vue'
+import { ShoppingBag, ArrowLeft, Package, Truck, Shield, MessageCircle, Heart, Star } from '@lucide/vue'
 
 import { productsApi, formatPrice, type Product } from '../api/products'
 import { useCartStore } from '../stores/cart'
@@ -11,6 +11,7 @@ import { ApiError } from '../api/client'
 
 import ProductGallery from '../components/ProductGallery.vue'
 import ProductSpecs from '../components/ProductSpecs.vue'
+import ProductVariants from '../components/ProductVariants.vue'
 import ProductReviews from '../components/ProductReviews.vue'
 import RelatedProducts from '../components/RelatedProducts.vue'
 
@@ -27,6 +28,7 @@ const added = ref(false)
 const quantity = ref(1)
 const isWishlisted = ref(false)
 const wishlistLoading = ref(false)
+const activeTab = ref<'reviews' | 'related'>('reviews')
 
 const productId = computed(() => Number(route.params.id))
 
@@ -96,13 +98,6 @@ const stockLabel = computed(() => {
   return `${product.value.stock} disponibles`
 })
 
-const stockClass = computed(() => {
-  if (!product.value) return ''
-  if (product.value.stock <= 0) return 'text-red-600 bg-red-50 border-red-300'
-  if (product.value.stock <= 5) return 'text-orange-600 bg-orange-50 border-orange-300'
-  return 'text-green-700 bg-green-50 border-green-300'
-})
-
 const whatsappMessage = computed(() => {
   if (!product.value) return ''
   return encodeURIComponent(
@@ -168,19 +163,20 @@ function buyNow() {
 </script>
 
 <template>
-  <section class="py-10 sm:py-16 bg-brutal-gray min-h-[70vh]">
+  <section class="py-10 sm:py-16 bg-surface-dim min-h-[70vh]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <button
-        class="flex items-center gap-2 text-sm font-bold text-brutal-black/60 hover:text-brutal-black mb-6 transition-colors"
+        class="flex items-center gap-2 text-sm text-text-secondary hover:text-text mb-8 transition-colors"
         @click="router.back()"
       >
-        <ArrowLeft :size="16" :stroke-width="2.5" />
+        <ArrowLeft :size="16" :stroke-width="2" />
         Volver
       </button>
 
+      <!-- Loading skeleton -->
       <div v-if="loading" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        <div class="brutal-card p-0 overflow-hidden">
+        <div class="rounded-2xl overflow-hidden">
           <div class="skeleton aspect-square w-full"></div>
         </div>
         <div class="space-y-6">
@@ -192,71 +188,114 @@ function buyNow() {
         </div>
       </div>
 
-      <div v-else-if="error" class="brutal-card p-12 text-center">
-        <Package :size="56" :stroke-width="1.5" class="mx-auto text-brutal-black/30 mb-4" />
-        <h2 class="font-black text-2xl uppercase mb-2">{{ error }}</h2>
-        <p class="text-brutal-black/60 mb-6">El producto que buscas no está disponible o fue eliminado.</p>
+      <!-- Error state -->
+      <div v-else-if="error" class="rounded-2xl p-12 text-center max-w-lg mx-auto bg-black/60 backdrop-blur-md border border-red-500/30 shadow-[0_0_15px_rgba(255,59,48,0.1)]">
+        <Package :size="48" :stroke-width="1.5" class="mx-auto text-text-secondary mb-4" />
+        <h2 class="text-xl font-semibold text-text mb-2">{{ error }}</h2>
+        <p class="text-text-secondary text-sm mb-6">El producto que buscas no está disponible o fue eliminado.</p>
         <router-link
           to="/#productos"
-          class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 inline-block uppercase tracking-wide"
+          class="btn-primary px-6 py-3 inline-block text-sm"
         >
           Ver catálogo
         </router-link>
       </div>
 
+      <!-- Product content -->
       <div v-else-if="product" class="space-y-12">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <ProductGallery :image="product.image" :name="product.name" />
+          <!-- Gallery -->
+          <div class="rounded-2xl p-[1px] bg-gradient-to-br from-neon-blue/40 via-transparent to-neon-purple/40 shadow-[0_0_15px_rgba(0,212,255,0.15)]">
+            <ProductGallery :image="product.image" :name="product.name" />
+          </div>
 
+          <!-- Details -->
           <div class="space-y-6">
+            <!-- Breadcrumb -->
+            <nav class="text-xs text-text-secondary flex items-center gap-1.5">
+              <router-link to="/" class="hover:text-neon-blue hover:drop-shadow-[0_0_6px_rgba(0,212,255,0.5)] transition-all">Home</router-link>
+              <span class="text-text-tertiary">›</span>
+              <span class="hover:text-neon-blue hover:drop-shadow-[0_0_6px_rgba(0,212,255,0.5)] transition-all cursor-pointer">Categoría</span>
+              <span class="text-text-tertiary">›</span>
+              <span class="text-text truncate">{{ product.name }}</span>
+            </nav>
+
+            <!-- Name + brand -->
             <div>
-              <span class="inline-block bg-brutal-yellow text-brutal-black font-bold text-xs px-3 py-1.5 brutal-border uppercase tracking-wide mb-3">
-                {{ product.brand }}
-              </span>
-              <h1 class="font-black text-3xl sm:text-4xl lg:text-5xl leading-tight uppercase">
+              <p class="text-secondary text-sm mb-1">{{ product.brand }}</p>
+              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text" itemprop="name">
                 {{ product.name }}
               </h1>
-              <p v-if="product.model" class="text-brutal-black/50 text-sm font-semibold mt-1">
+              <p v-if="product.model" class="text-text-secondary text-sm mt-1">
                 Modelo: {{ product.model }}
               </p>
             </div>
 
-            <div class="flex items-baseline gap-3">
-              <span
-                class="font-black text-4xl sm:text-5xl"
-                itemprop="offers"
-                itemscope
-                itemtype="https://schema.org/Offer"
-              >
+            <!-- Rating -->
+            <div v-if="(product as any).reviews_count" class="flex items-center gap-2">
+              <div class="flex items-center gap-0.5">
+                <Star
+                  v-for="i in 5"
+                  :key="i"
+                  :size="16"
+                  :stroke-width="2"
+                  :class="i <= Math.round((product as any).rating ?? 0) ? 'text-amber-400 fill-amber-400' : 'text-border'"
+                />
+              </div>
+              <span class="text-sm text-text-secondary">
+                {{ (product as any).rating?.toFixed(1) }}
+                <span v-if="(product as any).reviews_count">({{ (product as any).reviews_count }} reseñas)</span>
+              </span>
+            </div>
+
+            <!-- Price -->
+            <div
+              itemprop="offers"
+              itemscope
+              itemtype="https://schema.org/Offer"
+              class="flex items-baseline gap-2"
+            >
+              <span class="text-4xl font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]">
                 <span itemprop="price" :content="String(Number(product.price))">${{ formatPrice(product.price) }}</span>
                 <meta itemprop="priceCurrency" content="MXN" />
               </span>
             </div>
 
-            <div :class="['inline-flex items-center gap-2 px-4 py-2 brutal-border text-sm font-bold', stockClass]">
-              <Package :size="16" :stroke-width="2.5" />
-              {{ stockLabel }}
+            <!-- Stock indicator -->
+            <div class="flex items-center gap-2">
+              <span
+                class="w-2.5 h-2.5 rounded-full"
+                :class="inStock ? 'bg-success' : 'bg-red-500'"
+              ></span>
+              <span class="text-sm font-medium" :class="inStock ? 'text-success' : 'text-red-500'">
+                {{ stockLabel }}
+              </span>
             </div>
 
-            <p v-if="product.description" class="text-brutal-black/70 leading-relaxed text-base sm:text-lg">
+            <!-- Description -->
+            <p v-if="product.description" class="text-text-secondary leading-relaxed text-sm">
               {{ product.description }}
             </p>
 
-            <div v-if="inStock" class="flex items-center gap-3">
-              <label class="text-sm font-bold">Cantidad:</label>
-              <div class="flex items-center brutal-border">
+            <!-- Variants -->
+            <ProductVariants :product="product" />
+
+            <!-- Quantity + Add to cart -->
+            <div v-if="inStock" class="flex items-center gap-4">
+              <label class="text-sm text-text-secondary">Cantidad</label>
+              <div class="flex items-center rounded-xl border border-neon-blue/30 overflow-hidden">
                 <button
-                  class="px-3 py-2 font-bold text-lg hover:bg-brutal-gray transition-colors"
+                  class="px-3 py-2 text-text-secondary hover:bg-surface-dim transition-colors text-sm font-medium"
                   :disabled="quantity <= 1"
                   @click="quantity--"
                 >
                   −
                 </button>
-                <span class="px-4 py-2 font-black text-lg border-x-4 border-brutal-black min-w-[3rem] text-center">
+                <span class="px-4 py-2 text-sm font-semibold min-w-[2.5rem] text-center border-x border-neon-blue/30">
                   {{ quantity }}
                 </span>
                 <button
-                  class="px-3 py-2 font-bold text-lg hover:bg-brutal-gray transition-colors"
+                  class="px-3 py-2 text-text-secondary hover:bg-surface-dim transition-colors text-sm font-medium"
                   :disabled="quantity >= product.stock"
                   @click="quantity++"
                 >
@@ -265,71 +304,87 @@ function buyNow() {
               </div>
             </div>
 
+            <!-- Action buttons -->
             <div class="space-y-3">
               <button
                 v-if="inStock"
-                class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-4 w-full flex items-center justify-center gap-2 uppercase tracking-wide text-base disabled:opacity-60"
+                class="px-6 py-3.5 w-full flex items-center justify-center gap-2 text-sm font-semibold rounded-full transition-all disabled:opacity-60 bg-neon-blue text-black hover:bg-neon-blue/90 hover:shadow-[0_0_20px_rgba(0,212,255,0.5),0_0_40px_rgba(0,212,255,0.2)] active:scale-[0.98]"
                 :disabled="adding"
                 @click="addToCart"
               >
-                <ShoppingBag :size="20" :stroke-width="2.5" />
-                {{ added ? '¡Agregado al carrito!' : adding ? 'Agregando...' : 'Agregar al carrito' }}
+                <ShoppingBag :size="18" :stroke-width="2" />
+                {{ added ? '¡Agregado!' : adding ? 'Agregando...' : 'Agregar al carrito' }}
               </button>
 
-              <button
-                class="brutal-button px-6 py-4 w-full flex items-center justify-center gap-2 uppercase tracking-wide text-base"
-                :class="isWishlisted ? 'bg-red-100 text-red-600' : 'bg-brutal-white text-brutal-black'"
-                :disabled="wishlistLoading"
-                @click="toggleWishlist"
-              >
-                <Heart :size="20" :stroke-width="2.5" :fill="isWishlisted ? 'currentColor' : 'none'" />
-                {{ isWishlisted ? 'En favoritos' : 'Agregar a favoritos' }}
-              </button>
-
-              <a
-                :href="`https://wa.me/521234567890?text=${whatsappMessage}`"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="brutal-button bg-whatsapp text-brutal-white px-6 py-4 w-full flex items-center justify-center gap-2 uppercase tracking-wide text-base"
-              >
-                <MessageCircle :size="20" :stroke-width="2.5" />
-                Consultar por WhatsApp
-              </a>
-            </div>
-
-            <div class="border-t-4 border-brutal-black pt-6 space-y-3">
-              <div class="flex items-center gap-3 text-sm text-brutal-black/60">
-                <Truck :size="18" :stroke-width="2" class="text-brutal-black/40" />
-                <span class="font-semibold">Envío a todo México</span>
-              </div>
-              <div class="flex items-center gap-3 text-sm text-brutal-black/60">
-                <Shield :size="18" :stroke-width="2" class="text-brutal-black/40" />
-                <span class="font-semibold">Garantía incluida</span>
+              <div class="flex gap-3">
+                <button
+                  class="btn-secondary flex-1 flex items-center justify-center gap-2 py-3 text-sm transition-all"
+                  :class="isWishlisted ? 'text-red-500 border-red-200' : ''"
+                  :disabled="wishlistLoading"
+                  @click="toggleWishlist"
+                >
+                  <Heart :size="18" :stroke-width="2" :fill="isWishlisted ? 'currentColor' : 'none'" />
+                  {{ isWishlisted ? 'Guardado' : 'Favorito' }}
+                </button>
+                <a
+                  :href="`https://wa.me/521234567890?text=${whatsappMessage}`"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn-ghost flex-1 flex items-center justify-center gap-2 py-3 text-sm"
+                >
+                  <MessageCircle :size="18" :stroke-width="2" />
+                  WhatsApp
+                </a>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div class="lg:col-span-1">
-            <ProductSpecs :product="product" />
-          </div>
-          <div class="lg:col-span-2">
-            <div v-if="product.description" class="brutal-card p-5 sm:p-6">
-              <h3 class="font-black text-lg uppercase mb-4 flex items-center gap-2">
-                <span class="bg-brutal-yellow p-1.5 brutal-border text-xs">📝</span>
-                Descripción
-              </h3>
-              <p class="text-brutal-black/70 leading-relaxed whitespace-pre-line">{{ product.description }}</p>
+            <!-- Specs panel (glass) -->
+            <div class="rounded-2xl p-6 bg-black/60 backdrop-blur-md border border-neon-blue/20 shadow-[0_0_10px_rgba(0,212,255,0.05)]">
+              <ProductSpecs :product="product" />
+            </div>
+
+            <!-- Shipping info (glass card) -->
+            <div class="rounded-2xl p-4 flex items-start gap-3 bg-black/60 backdrop-blur-md border border-neon-green/20">
+              <Truck :size="20" :stroke-width="2" class="text-neon-green mt-0.5 shrink-0" />
+              <div class="text-sm">
+                <p class="font-medium text-text">Envío a todo México</p>
+                <p class="text-text-secondary text-xs mt-0.5">Envío gratis en compras mayores a $999 MXN</p>
+              </div>
+            </div>
+
+            <div class="rounded-2xl p-4 flex items-start gap-3 bg-black/60 backdrop-blur-md border border-neon-blue/20">
+              <Shield :size="20" :stroke-width="2" class="text-neon-blue mt-0.5 shrink-0" />
+              <div class="text-sm">
+                <p class="font-medium text-text">Garantía incluida</p>
+                <p class="text-text-secondary text-xs mt-0.5">3 meses de garantía del fabricante</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="mt-12">
-          <ProductReviews :product-id="product.id" />
+        <!-- Tabs -->
+        <div class="rounded-2xl bg-black/60 backdrop-blur-md border border-border overflow-hidden">
+          <div class="flex border-b border-border">
+            <button
+              class="flex-1 px-6 py-4 text-sm font-semibold uppercase tracking-wide transition-all"
+              :class="activeTab === 'reviews' ? 'text-neon-blue border-b-2 border-neon-blue shadow-[0_2px_10px_rgba(0,212,255,0.2)]' : 'text-text-secondary hover:text-text hover:bg-surface-dim'"
+              @click="activeTab = 'reviews'"
+            >
+              Reviews
+            </button>
+            <button
+              class="flex-1 px-6 py-4 text-sm font-semibold uppercase tracking-wide transition-all"
+              :class="activeTab === 'related' ? 'text-neon-blue border-b-2 border-neon-blue shadow-[0_2px_10px_rgba(0,212,255,0.2)]' : 'text-text-secondary hover:text-text hover:bg-surface-dim'"
+              @click="activeTab = 'related'"
+            >
+              Relacionados
+            </button>
+          </div>
+          <div class="p-6">
+            <ProductReviews v-if="activeTab === 'reviews'" :product-id="product.id" />
+            <RelatedProducts v-else :category-id="product.category_id" :current-product-id="product.id" />
+          </div>
         </div>
-
-        <RelatedProducts :category-id="product.category_id" :current-product-id="product.id" />
       </div>
     </div>
   </section>

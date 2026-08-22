@@ -40,9 +40,28 @@ const sortOptions = [
   { value: '-name', label: 'Nombre Z-A' },
 ]
 
-const hasActiveFilters = computed(() =>
-  search.value || selectedCategory.value || selectedBrand.value || minPrice.value || maxPrice.value
-)
+const activeFilters = computed(() => {
+  const filters: { key: string; label: string; clear: () => void }[] = []
+  if (search.value) {
+    filters.push({ key: 'search', label: `"${search.value}"`, clear: () => { search.value = '' } })
+  }
+  if (selectedCategory.value) {
+    const cat = categories.value.find(c => c.id === selectedCategory.value)
+    filters.push({ key: 'category', label: cat?.name || 'Categoria', clear: () => { selectedCategory.value = undefined } })
+  }
+  if (selectedBrand.value) {
+    filters.push({ key: 'brand', label: selectedBrand.value, clear: () => { selectedBrand.value = '' } })
+  }
+  if (minPrice.value) {
+    filters.push({ key: 'min_price', label: `Min $${minPrice.value}`, clear: () => { minPrice.value = '' } })
+  }
+  if (maxPrice.value) {
+    filters.push({ key: 'max_price', label: `Max $${maxPrice.value}`, clear: () => { maxPrice.value = '' } })
+  }
+  return filters
+})
+
+const hasActiveFilters = computed(() => activeFilters.value.length > 0)
 
 async function fetchProducts() {
   loading.value = true
@@ -95,6 +114,11 @@ function clearFilters() {
   fetchProducts()
 }
 
+function removeFilter(filter: { key: string; clear: () => void }) {
+  filter.clear()
+  applyFilters()
+}
+
 function updateUrl() {
   const query: Record<string, string> = {}
   if (search.value) query.search = search.value
@@ -129,78 +153,139 @@ watch(ordering, applyFilters)
 </script>
 
 <template>
-  <section class="py-10 sm:py-16 bg-brutal-gray min-h-[70vh]">
+  <section class="section-clean min-h-[70vh]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 class="font-black text-3xl sm:text-4xl uppercase">Tienda</h1>
-          <p class="text-brutal-black/60 font-semibold mt-1">{{ total }} productos encontrados</p>
+          <h1 class="text-3xl sm:text-4xl font-bold text-text tracking-tight">Tienda</h1>
+          <p class="text-text-secondary text-sm mt-1">{{ total }} productos encontrados</p>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative flex-1 sm:w-64">
-            <Search :size="16" :stroke-width="2.5" class="absolute left-3 top-1/2 -translate-y-1/2 text-brutal-black/40" />
+            <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
             <input
               v-model="search"
               type="text"
               placeholder="Buscar productos..."
-              class="w-full pl-10 pr-4 py-2.5 brutal-border bg-brutal-white font-semibold text-sm focus:outline-none focus:bg-brutal-yellow/20 transition-colors"
+              class="input-minimal w-full pl-10 pr-4"
               @input="onSearchInput"
             />
           </div>
           <button
-            class="lg:hidden brutal-border p-2.5 bg-brutal-white hover:bg-brutal-yellow transition-colors"
+            class="lg:hidden btn-secondary p-2.5 rounded-xl border-border hover:border-accent"
             @click="showFilters = !showFilters"
           >
-            <SlidersHorizontal :size="18" :stroke-width="2.5" />
+            <SlidersHorizontal :size="18" />
           </button>
         </div>
       </div>
 
+      <div v-if="hasActiveFilters" class="flex flex-wrap gap-2 mb-6">
+        <span
+          v-for="filter in activeFilters"
+          :key="filter.key"
+          class="badge badge-accent flex items-center gap-1.5 pr-1.5"
+        >
+          {{ filter.label }}
+          <button
+            class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-accent/10 transition-colors"
+            @click="removeFilter(filter)"
+          >
+            <X :size="12" />
+          </button>
+        </span>
+        <button class="text-xs text-text-secondary hover:text-text transition-colors underline" @click="clearFilters">
+          Limpiar todo
+        </button>
+      </div>
+
       <div class="flex gap-8">
-        <aside :class="['w-64 shrink-0 space-y-6', showFilters ? 'block' : 'hidden lg:block']">
+        <aside :class="['w-[280px] shrink-0 space-y-5', showFilters ? 'block' : 'hidden lg:block']">
           <div v-if="showFilters" class="lg:hidden flex items-center justify-between mb-2">
-            <span class="font-black uppercase">Filtros</span>
-            <button @click="showFilters = false"><X :size="20" /></button>
+            <span class="font-semibold text-text">Filtros</span>
+            <button @click="showFilters = false" class="text-text-secondary hover:text-text transition-colors">
+              <X :size="20" />
+            </button>
           </div>
 
-          <div class="brutal-card p-4">
-            <h3 class="font-black text-sm uppercase mb-3">Categoria</h3>
-            <div class="space-y-2">
-              <label class="flex items-center gap-2 cursor-pointer group">
-                <input type="radio" :checked="!selectedCategory" class="accent-brutal-yellow" @change="selectedCategory = undefined; applyFilters()" />
-                <span class="text-sm font-semibold group-hover:text-brutal-black/70">Todas</span>
+          <div class="glass-dark p-5 rounded-2xl border border-border hover:border-accent transition-colors">
+            <h3 class="text-sm font-semibold text-text mb-3">Categoria</h3>
+            <div class="space-y-2.5">
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input
+                  type="radio"
+                  :checked="!selectedCategory"
+                  class="accent-accent w-4 h-4"
+                  @change="selectedCategory = undefined; applyFilters()"
+                />
+                <span class="text-sm text-text-secondary group-hover:text-text transition-colors">Todas</span>
               </label>
-              <label v-for="cat in categories" :key="cat.id" class="flex items-center gap-2 cursor-pointer group">
-                <input type="radio" :value="cat.id" :checked="selectedCategory === cat.id" class="accent-brutal-yellow" @change="selectedCategory = cat.id; applyFilters()" />
-                <span class="text-sm font-semibold group-hover:text-brutal-black/70">{{ cat.name }}</span>
+              <label v-for="cat in categories" :key="cat.id" class="flex items-center gap-2.5 cursor-pointer group">
+                <input
+                  type="radio"
+                  :value="cat.id"
+                  :checked="selectedCategory === cat.id"
+                  class="accent-accent w-4 h-4"
+                  @change="selectedCategory = cat.id; applyFilters()"
+                />
+                <span class="text-sm text-text-secondary group-hover:text-text transition-colors">{{ cat.name }}</span>
               </label>
             </div>
           </div>
 
-          <div class="brutal-card p-4">
-            <h3 class="font-black text-sm uppercase mb-3">Marca</h3>
-            <div class="space-y-2">
-              <label class="flex items-center gap-2 cursor-pointer group">
-                <input type="radio" :checked="!selectedBrand" class="accent-brutal-yellow" @change="selectedBrand = ''; applyFilters()" />
-                <span class="text-sm font-semibold group-hover:text-brutal-black/70">Todas</span>
+          <div class="glass-dark p-5 rounded-2xl border border-border hover:border-accent transition-colors">
+            <h3 class="text-sm font-semibold text-text mb-3">Marca</h3>
+            <div class="space-y-2.5">
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <input
+                  type="radio"
+                  :checked="!selectedBrand"
+                  class="accent-accent w-4 h-4"
+                  @change="selectedBrand = ''; applyFilters()"
+                />
+                <span class="text-sm text-text-secondary group-hover:text-text transition-colors">Todas</span>
               </label>
-              <label v-for="brand in brands" :key="brand" class="flex items-center gap-2 cursor-pointer group">
-                <input type="radio" :value="brand" :checked="selectedBrand === brand" class="accent-brutal-yellow" @change="selectedBrand = brand; applyFilters()" />
-                <span class="text-sm font-semibold group-hover:text-brutal-black/70">{{ brand }}</span>
+              <label v-for="brand in brands" :key="brand" class="flex items-center gap-2.5 cursor-pointer group">
+                <input
+                  type="radio"
+                  :value="brand"
+                  :checked="selectedBrand === brand"
+                  class="accent-accent w-4 h-4"
+                  @change="selectedBrand = brand; applyFilters()"
+                />
+                <span class="text-sm text-text-secondary group-hover:text-text transition-colors">{{ brand }}</span>
               </label>
             </div>
           </div>
 
-          <div class="brutal-card p-4">
-            <h3 class="font-black text-sm uppercase mb-3">Precio</h3>
+          <div class="glass-dark p-5 rounded-2xl border border-border hover:border-accent transition-colors">
+            <h3 class="text-sm font-semibold text-text mb-3">Precio</h3>
             <div class="flex items-center gap-2">
-              <input v-model="minPrice" type="number" placeholder="Min" min="0" class="w-full px-3 py-2 brutal-border bg-brutal-white text-sm font-semibold focus:outline-none" @change="applyFilters" />
-              <span class="font-bold text-brutal-black/40">-</span>
-              <input v-model="maxPrice" type="number" placeholder="Max" min="0" class="w-full px-3 py-2 brutal-border bg-brutal-white text-sm font-semibold focus:outline-none" @change="applyFilters" />
+              <input
+                v-model="minPrice"
+                type="number"
+                placeholder="Min"
+                min="0"
+                class="input-minimal w-full"
+                @change="applyFilters"
+              />
+              <span class="text-text-secondary text-sm">-</span>
+              <input
+                v-model="maxPrice"
+                type="number"
+                placeholder="Max"
+                min="0"
+                class="input-minimal w-full"
+                @change="applyFilters"
+              />
             </div>
           </div>
 
-          <button v-if="hasActiveFilters" class="w-full brutal-button bg-brutal-black text-brutal-white py-2.5 text-sm uppercase tracking-wide" @click="clearFilters">
+          <button
+            v-if="hasActiveFilters"
+            class="btn-ghost w-full py-2.5 text-sm font-medium text-text-secondary hover:text-text transition-colors"
+            @click="clearFilters"
+          >
             Limpiar filtros
           </button>
         </aside>
@@ -208,52 +293,70 @@ watch(ordering, applyFilters)
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2">
-              <label class="text-sm font-bold">Ordenar:</label>
+              <label class="text-sm text-text-secondary">Ordenar:</label>
               <div class="relative">
-                <select v-model="ordering" class="appearance-none brutal-border bg-brutal-white px-4 py-2 pr-8 text-sm font-bold cursor-pointer focus:outline-none">
+                <select
+                  v-model="ordering"
+                  class="appearance-none bg-surface-dim border border-border rounded-xl px-3 py-1.5 text-sm font-semibold text-text cursor-pointer focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-colors pr-6"
+                >
                   <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                 </select>
-                <ChevronDown :size="14" class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown :size="14" class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary" />
               </div>
             </div>
           </div>
 
-          <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div v-for="i in 6" :key="i" class="brutal-card p-0 overflow-hidden">
-              <div class="skeleton aspect-square"></div>
-              <div class="p-5 space-y-3">
-                <div class="skeleton h-6 w-3/4"></div>
-                <div class="skeleton h-4 w-full"></div>
-                <div class="skeleton h-12 w-full"></div>
+          <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div v-for="i in 6" :key="i" class="bento-card p-0 overflow-hidden">
+              <div class="skeleton aspect-square rounded-none"></div>
+              <div class="p-4 space-y-2.5">
+                <div class="skeleton h-3 w-16"></div>
+                <div class="skeleton h-5 w-3/4"></div>
+                <div class="skeleton h-4 w-20"></div>
+                <div class="skeleton h-10 w-full rounded-xl"></div>
               </div>
             </div>
           </div>
 
-          <div v-else-if="products.length === 0" class="brutal-card p-12 text-center">
-            <p class="font-black text-2xl uppercase mb-2">Sin resultados</p>
-            <p class="text-brutal-black/60 mb-6">No se encontraron productos con esos filtros.</p>
-            <button class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 uppercase tracking-wide" @click="clearFilters">
+          <div v-else-if="products.length === 0" class="bento-card p-16 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface-dim flex items-center justify-center">
+              <Search :size="28" class="text-text-secondary" />
+            </div>
+            <p class="font-semibold text-lg text-text mb-1">No se encontraron productos</p>
+            <p class="text-text-secondary text-sm mb-6">Intenta ajustar los filtros de busqueda.</p>
+            <button class="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold" @click="clearFilters">
               Limpiar filtros
             </button>
           </div>
 
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            <ProductCard v-for="(product, index) in products" :key="product.id" :product="product" :visible="true" :index="index" />
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <ProductCard v-for="product in products" :key="product.id" :product="product" />
           </div>
 
-          <div v-if="pages > 1" class="flex justify-center gap-2 mt-10">
-            <button :disabled="currentPage <= 1" class="brutal-border bg-brutal-white px-4 py-2 font-bold text-sm uppercase disabled:opacity-40 hover:bg-brutal-yellow transition-colors" @click="goToPage(currentPage - 1)">
+          <div v-if="pages > 1" class="flex justify-center items-center gap-1.5 mt-10">
+            <button
+              :disabled="currentPage <= 1"
+              class="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-dim transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              @click="goToPage(currentPage - 1)"
+            >
               Anterior
             </button>
             <button
               v-for="p in Math.min(pages, 5)"
               :key="p"
-              :class="['brutal-border px-4 py-2 font-bold text-sm uppercase transition-colors', p === currentPage ? 'bg-brutal-yellow' : 'bg-brutal-white hover:bg-brutal-gray']"
+              :class="[
+                'w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors',
+                p === currentPage ? 'bg-accent text-black shadow-[0_0_12px_rgba(0,212,255,0.4)]' : 'text-text-secondary hover:text-text hover:bg-surface-dim'
+              ]"
               @click="goToPage(p)"
             >
               {{ p }}
             </button>
-            <button :disabled="currentPage >= pages" class="brutal-border bg-brutal-white px-4 py-2 font-bold text-sm uppercase disabled:opacity-40 hover:bg-brutal-yellow transition-colors" @click="goToPage(currentPage + 1)">
+            <button
+              :disabled="currentPage >= pages"
+              class="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-dim transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              @click="goToPage(currentPage + 1)"
+            >
               Siguiente
             </button>
           </div>

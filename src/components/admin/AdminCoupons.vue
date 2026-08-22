@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Tag, Plus, Pencil, Trash2, X, ToggleLeft, ToggleRight } from '@lucide/vue'
+import { Tag, Plus, Pencil, Trash2, X } from '@lucide/vue'
 
 import { couponsApi, type Coupon, type CouponPayload } from '../../api/coupons'
 import { formatPrice } from '../../api/products'
@@ -106,116 +106,112 @@ function couponLabel(coupon: Coupon): string {
 
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <h2 class="font-black text-2xl uppercase flex items-center gap-2">
-        <Tag :size="24" :stroke-width="2.5" />
-        Cupones de descuento
-      </h2>
-      <button
-        class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 flex items-center gap-2 text-sm uppercase tracking-wide"
-        @click="openCreate"
-      >
-        <Plus :size="18" :stroke-width="2.5" />
-        Crear cupon
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-text flex items-center gap-2">
+          <Tag :size="24" :stroke-width="2" />
+          Cupones de descuento
+        </h2>
+        <p class="text-sm text-text-secondary">Gestiona cupones de descuento para tu tienda.</p>
+      </div>
+      <button class="btn-primary flex items-center gap-2 text-sm" @click="openCreate">
+        <Plus :size="16" :stroke-width="2" />
+        Crear cupón
       </button>
     </div>
 
     <div v-if="loading" class="space-y-3">
-      <div v-for="i in 4" :key="i" class="brutal-card p-4 flex gap-4">
-        <div class="skeleton h-5 w-24"></div>
-        <div class="skeleton h-5 w-32"></div>
-        <div class="skeleton h-5 w-16"></div>
+      <div v-for="i in 4" :key="i" class="bento-card-static glass p-4">
+        <div class="flex gap-4">
+          <div class="skeleton h-5 w-24"></div>
+          <div class="skeleton h-5 w-32"></div>
+          <div class="skeleton h-5 w-16"></div>
+        </div>
       </div>
     </div>
 
-    <div v-else-if="coupons.length === 0" class="brutal-card p-8 text-center">
-      <Tag :size="40" :stroke-width="1.5" class="mx-auto text-brutal-black/20 mb-3" />
-      <p class="font-black text-xl uppercase">Sin cupones</p>
-      <p class="text-brutal-black/50 mt-1">Crea tu primer cupon de descuento.</p>
+    <div v-else-if="coupons.length === 0" class="bento-card-static glass p-12 text-center">
+      <Tag :size="40" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-3" />
+      <p class="text-lg font-semibold text-text">Sin cupones</p>
+      <p class="text-sm text-text-secondary mt-1">Crea tu primer cupón de descuento.</p>
     </div>
 
-    <div v-else class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b-4 border-brutal-black">
-            <th class="text-left py-2 font-black uppercase">Codigo</th>
-            <th class="text-left py-2 font-black uppercase">Tipo</th>
-            <th class="text-left py-2 font-black uppercase">Descuento</th>
-            <th class="text-left py-2 font-black uppercase">Min. compra</th>
-            <th class="text-left py-2 font-black uppercase">Usos</th>
-            <th class="text-left py-2 font-black uppercase">Expira</th>
-            <th class="text-left py-2 font-black uppercase">Estado</th>
-            <th class="text-right py-2 font-black uppercase">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="coupon in coupons" :key="coupon.id" class="border-b-2 border-brutal-black/10">
-            <td class="py-3 font-black">{{ coupon.code }}</td>
-            <td class="py-3">
-              <span class="text-xs font-bold uppercase bg-brutal-gray px-2 py-1 brutal-border">
-                {{ coupon.discount_type === 'PERCENTAGE' ? 'Porcentaje' : 'Fijo' }}
-              </span>
-            </td>
-            <td class="py-3 font-black">{{ couponLabel(coupon) }}</td>
-            <td class="py-3">${{ formatPrice(coupon.min_purchase) }}</td>
-            <td class="py-3">
-              {{ coupon.used_count }}{{ coupon.max_uses ? ` / ${coupon.max_uses}` : '' }}
-            </td>
-            <td class="py-3 text-brutal-black/60">
-              {{ coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('es-MX') : 'Sin limite' }}
-            </td>
-            <td class="py-3">
-              <span
-                v-if="isExpired(coupon)"
-                class="text-xs font-bold uppercase bg-red-100 text-red-600 px-2 py-1 brutal-border"
-              >
-                Expirado
-              </span>
-              <span
-                v-else-if="isMaxedOut(coupon)"
-                class="text-xs font-bold uppercase bg-orange-100 text-orange-600 px-2 py-1 brutal-border"
-              >
-                Agotado
-              </span>
-              <span
-                v-else-if="coupon.is_active"
-                class="text-xs font-bold uppercase bg-green-100 text-green-700 px-2 py-1 brutal-border"
-              >
-                Activo
-              </span>
-              <span v-else class="text-xs font-bold uppercase bg-brutal-gray px-2 py-1 brutal-border">
-                Inactivo
-              </span>
-            </td>
-            <td class="py-3">
-              <div class="flex items-center justify-end gap-1">
-                <button
-                  class="p-2 hover:bg-brutal-gray transition-colors"
-                  :title="coupon.is_active ? 'Desactivar' : 'Activar'"
-                  @click="toggleActive(coupon)"
-                >
-                  <ToggleRight v-if="coupon.is_active" :size="18" :stroke-width="2.5" class="text-green-600" />
-                  <ToggleLeft v-else :size="18" :stroke-width="2.5" class="text-brutal-black/40" />
-                </button>
-                <button
-                  class="p-2 hover:bg-brutal-gray transition-colors"
-                  title="Editar"
-                  @click="openEdit(coupon)"
-                >
-                  <Pencil :size="18" :stroke-width="2.5" />
-                </button>
-                <button
-                  class="p-2 hover:bg-red-100 text-red-600 transition-colors"
-                  title="Eliminar"
-                  @click="deleteCoupon(coupon)"
-                >
-                  <Trash2 :size="18" :stroke-width="2.5" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-else class="bento-card-static glass overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border-light">
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Código</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Tipo</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Descuento</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Min. compra</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Usos</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Expira</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Estado</th>
+              <th class="text-right px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="coupon in coupons" :key="coupon.id" class="border-b border-border-light last:border-b-0 admin-table-row">
+              <td class="px-4 py-3 font-mono font-semibold text-text">{{ coupon.code }}</td>
+              <td class="px-4 py-3">
+                <span class="badge text-xs">
+                  {{ coupon.discount_type === 'PERCENTAGE' ? 'Porcentaje' : 'Fijo' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 font-semibold text-text">{{ couponLabel(coupon) }}</td>
+              <td class="px-4 py-3 text-text-secondary">${{ formatPrice(coupon.min_purchase) }}</td>
+              <td class="px-4 py-3 text-text-secondary">
+                {{ coupon.used_count }}{{ coupon.max_uses ? ` / ${coupon.max_uses}` : '' }}
+              </td>
+              <td class="px-4 py-3 text-text-secondary">
+                {{ coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('es-MX') : 'Sin límite' }}
+              </td>
+              <td class="px-4 py-3">
+                <span v-if="isExpired(coupon)" class="badge badge-danger text-xs">
+                  Expirado
+                </span>
+                <span v-else-if="isMaxedOut(coupon)" class="badge badge-warning text-xs">
+                  Agotado
+                </span>
+                <span v-else-if="coupon.is_active" class="badge badge-success text-xs">
+                  Activo
+                </span>
+                <span v-else class="badge text-xs">
+                  Inactivo
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-end gap-1">
+                  <button
+                    class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                    :title="coupon.is_active ? 'Desactivar' : 'Activar'"
+                    @click="toggleActive(coupon)"
+                  >
+                    <span class="flex items-center justify-center w-4 h-4 rounded-full border-2 transition-colors" :class="coupon.is_active ? 'border-success bg-success/20' : 'border-border'">
+                      <span v-if="coupon.is_active" class="w-2 h-2 rounded-full bg-success"></span>
+                    </span>
+                  </button>
+                  <button
+                    class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                    title="Editar"
+                    @click="openEdit(coupon)"
+                  >
+                    <Pencil :size="16" :stroke-width="2" />
+                  </button>
+                  <button
+                    class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                    title="Eliminar"
+                    @click="deleteCoupon(coupon)"
+                  >
+                    <Trash2 :size="16" :stroke-width="2" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <Teleport to="body">
@@ -223,27 +219,27 @@ function couponLabel(coupon: Coupon): string {
         v-if="showModal"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div class="absolute inset-0 bg-brutal-black/50" @click="showModal = false"></div>
-        <div class="relative bg-brutal-white brutal-border brutal-shadow p-6 w-full max-w-md space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="font-black text-xl uppercase">
-              {{ editingId ? 'Editar cupon' : 'Crear cupon' }}
+        <div class="absolute inset-0 bg-glass-dark backdrop-blur-sm" @click="showModal = false"></div>
+        <div class="relative bg-surface-dim rounded-2xl border border-glass-border shadow-xl w-full max-w-md space-y-0 overflow-hidden">
+          <div class="flex items-center justify-between p-6 pb-0">
+            <h3 class="text-lg font-semibold text-text">
+              {{ editingId ? 'Editar cupón' : 'Crear cupón' }}
             </h3>
-            <button class="p-1 hover:bg-brutal-gray" @click="showModal = false">
-              <X :size="20" :stroke-width="2.5" />
+            <button class="text-text-secondary hover:text-text transition-colors p-1" @click="showModal = false">
+              <X :size="18" :stroke-width="2" />
             </button>
           </div>
 
-          <div v-if="formError" class="bg-red-100 border-2 border-red-400 p-3 text-sm font-bold text-red-700">
+          <div v-if="formError" class="mx-6 mt-4 badge-danger px-4 py-2 text-sm">
             {{ formError }}
           </div>
 
-          <div class="space-y-3">
+          <div class="p-6 space-y-4">
             <div v-if="!editingId">
-              <label class="font-bold text-xs uppercase tracking-wide block mb-1">Codigo *</label>
+              <label class="block text-sm font-medium text-text-secondary mb-1.5">Código *</label>
               <input
                 v-model="form.code"
-                class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm uppercase"
+                class="input-minimal uppercase font-mono"
                 placeholder="Ej: VERANO20"
                 maxlength="50"
               />
@@ -251,10 +247,10 @@ function couponLabel(coupon: Coupon): string {
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Tipo *</label>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Tipo *</label>
                 <select
                   v-model="form.discount_type"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 >
                   <option v-for="dt in discountTypes" :key="dt.value" :value="dt.value">
                     {{ dt.label }}
@@ -262,7 +258,7 @@ function couponLabel(coupon: Coupon): string {
                 </select>
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">
                   {{ form.discount_type === 'PERCENTAGE' ? 'Porcentaje *' : 'Monto *' }}
                 </label>
                 <input
@@ -271,53 +267,53 @@ function couponLabel(coupon: Coupon): string {
                   :min="form.discount_type === 'PERCENTAGE' ? 1 : 0.01"
                   :max="form.discount_type === 'PERCENTAGE' ? 100 : undefined"
                   step="0.01"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Compra minima ($)</label>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Compra mínima ($)</label>
                 <input
                   v-model.number="form.min_purchase"
                   type="number"
                   min="0"
                   step="0.01"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Max. usos</label>
+                <label class="block text-sm font-medium text-text-secondary mb-1.5">Máx. usos</label>
                 <input
                   v-model.number="form.max_uses"
                   type="number"
                   min="1"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
-                  placeholder="Sin limite"
+                  class="input-minimal"
+                  placeholder="Sin límite"
                 />
               </div>
             </div>
 
             <div>
-              <label class="font-bold text-xs uppercase tracking-wide block mb-1">Expira</label>
+              <label class="block text-sm font-medium text-text-secondary mb-1.5">Expira</label>
               <input
                 v-model="form.expires_at"
                 type="datetime-local"
-                class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                class="input-minimal"
               />
             </div>
           </div>
 
-          <div class="flex justify-end gap-2 pt-2">
+          <div class="flex justify-end gap-3 p-6 pt-0">
             <button
-              class="brutal-button bg-brutal-white text-brutal-black px-4 py-2 text-sm uppercase tracking-wide"
+              class="btn-secondary text-sm"
               @click="showModal = false"
             >
               Cancelar
             </button>
             <button
-              class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 text-sm uppercase tracking-wide disabled:opacity-60"
+              class="btn-primary text-sm disabled:opacity-50"
               :disabled="saving || !form.code || !form.discount_value"
               @click="saveCoupon"
             >

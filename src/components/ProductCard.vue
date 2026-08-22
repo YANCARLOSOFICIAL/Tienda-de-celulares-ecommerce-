@@ -1,24 +1,32 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ShoppingBag } from '@lucide/vue'
+import { ShoppingBag, Heart, MessageCircle, Scale } from '@lucide/vue'
 
 import { formatPrice } from '../api/products'
+import { wishlistApi } from '../api/wishlist'
 import type { Product } from '../stores/products'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore } from '../stores/auth'
+import { useCompareStore } from '../stores/compare'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   product: Product
-  visible: boolean
-  index: number
+}>()
+
+const emit = defineEmits<{
+  'add-to-cart': [product: Product]
+  'toggle-wishlist': [productId: number]
 }>()
 
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const compareStore = useCompareStore()
 const adding = ref(false)
 const added = ref(false)
+const isWishlisted = ref(false)
+const togglingWishlist = ref(false)
 
 function goToDetail() {
   router.push({ name: 'product-detail', params: { id: props.product.id } })
@@ -31,6 +39,8 @@ const whatsappMessage = computed(() => {
 })
 
 const priceNumber = computed(() => Number(props.product.price))
+
+const isInCompare = computed(() => compareStore.isInCompare(props.product.id))
 
 async function addToCart() {
   if (!authStore.isAuthenticated) {
@@ -49,74 +59,109 @@ async function addToCart() {
     adding.value = false
   }
 }
+
+async function toggleWishlist() {
+  if (!authStore.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: '/#productos' } })
+    return
+  }
+  togglingWishlist.value = true
+  try {
+    if (isWishlisted.value) {
+      await wishlistApi.remove(props.product.id)
+    } else {
+      await wishlistApi.add(props.product.id)
+    }
+    isWishlisted.value = !isWishlisted.value
+    emit('toggle-wishlist', props.product.id)
+  } catch {
+    // silently fail
+  } finally {
+    togglingWishlist.value = false
+  }
+}
+
+function toggleCompare() {
+  compareStore.toggle(props.product)
+}
 </script>
 
 <template>
   <article
-    :class="[
-      'brutal-card flex flex-col overflow-hidden group',
-      'animate-fade-in-up',
-      visible ? 'visible' : ''
-    ]"
-    :style="{ transitionDelay: `${index * 100}ms` }"
+    class="bento-card flex flex-col overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/20"
     itemscope
     itemtype="https://schema.org/Product"
   >
-    <div class="relative overflow-hidden bg-brutal-gray aspect-square cursor-pointer" @click="goToDetail">
+    <div class="relative overflow-hidden rounded-xl aspect-square cursor-pointer bg-surface-dim" @click="goToDetail">
       <img
-        :src="product.image || 'https://placehold.co/400x400/111111/FFD60A?text=Sin+imagen&font=inter'"
+        :src="product.image || 'https://placehold.co/400x400/FAFAFA/86868B?text=Sin+imagen&font=inter'"
         :alt="product.name"
         loading="lazy"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        class="w-full h-full object-cover rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(0,212,255,0.15)]"
         itemprop="image"
       />
-      <div class="absolute top-2 right-2 bg-brutal-black text-brutal-white text-[10px] font-bold px-2 py-1 uppercase brutal-border">
-        {{ product.brand }}
-      </div>
+
+      <button
+        class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-all duration-200 hover:bg-black/70 hover:scale-110"
+        :class="isWishlisted ? 'text-danger shadow-[0_0_12px_rgba(255,59,48,0.5)]' : 'text-text-secondary hover:text-danger'"
+        :disabled="togglingWishlist"
+        @click.stop="toggleWishlist"
+        :aria-label="isWishlisted ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+      >
+        <Heart :size="18" :fill="isWishlisted ? 'currentColor' : 'none'" :stroke-width="2" />
+      </button>
+
+      <button
+        class="absolute top-3 left-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-all duration-200 hover:bg-black/70 hover:scale-110"
+        :class="isInCompare ? 'text-accent shadow-[0_0_12px_rgba(0,212,255,0.5)]' : 'text-text-secondary hover:text-accent'"
+        @click.stop="toggleCompare"
+        :aria-label="isInCompare ? 'Quitar de comparar' : 'Agregar a comparar'"
+      >
+        <Scale :size="16" :stroke-width="2" />
+      </button>
+
       <div
         v-if="product.stock <= 0"
-        class="absolute top-2 left-2 bg-brutal-black text-brutal-white font-black text-sm px-3 py-1 brutal-border brutal-shadow-sm uppercase"
+        class="absolute top-3 left-3 bg-danger/90 text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-[0_0_10px_rgba(255,59,48,0.4)]"
       >
         Agotado
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col p-4 sm:p-5">
+    <div class="flex-1 flex flex-col p-4">
+      <p class="text-text-secondary text-sm mb-1" itemprop="brand">{{ product.brand }}</p>
       <h3
-        class="font-black text-lg sm:text-xl leading-tight mb-1 cursor-pointer hover:underline"
+        class="font-semibold text-base leading-snug mb-2 line-clamp-2 cursor-pointer hover:text-accent transition-colors"
         itemprop="name"
         @click="goToDetail"
       >
         {{ product.name }}
       </h3>
-      <p class="text-sm text-brutal-black/60 mb-3 line-clamp-2" itemprop="description">{{ product.description }}</p>
 
-      <div class="mt-auto space-y-3">
-        <div class="flex items-baseline gap-2">
-          <span class="font-black text-2xl sm:text-3xl text-brutal-black" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-            <span itemprop="price" :content="String(priceNumber)">${{ formatPrice(product.price) }}</span>
-            <meta itemprop="priceCurrency" content="MXN" />
-          </span>
-        </div>
+      <div class="mt-auto pt-3 space-y-3">
+        <span class="font-bold text-lg text-accent" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+          <span itemprop="price" :content="String(priceNumber)">${{ formatPrice(product.price) }}</span>
+          <meta itemprop="priceCurrency" content="MXN" />
+        </span>
 
-        <div class="flex flex-col gap-2">
+        <div class="flex gap-2">
           <button
             v-if="product.stock > 0"
-            class="flex items-center justify-center gap-2 bg-brutal-yellow text-brutal-black brutal-border brutal-shadow-sm px-4 py-3 font-bold text-sm uppercase tracking-wide hover:bg-brutal-black hover:text-brutal-yellow transition-all w-full"
+            class="btn-primary flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,212,255,0.4)]"
             :disabled="adding"
             @click="addToCart"
           >
-            <ShoppingBag :size="18" :stroke-width="2.5" />
-            {{ added ? '¡Agregado!' : adding ? 'Agregando...' : 'Agregar al carrito' }}
+            <ShoppingBag :size="16" :stroke-width="2" />
+            {{ added ? '¡Agregado!' : adding ? 'Agregando...' : 'Agregar' }}
           </button>
           <a
             :href="`https://wa.me/521234567890?text=${whatsappMessage}`"
             target="_blank"
             rel="noopener noreferrer"
-            class="flex items-center justify-center gap-2 bg-whatsapp text-brutal-white brutal-border brutal-shadow-sm px-4 py-3 font-bold text-sm uppercase tracking-wide hover:brightness-110 transition-all w-full"
+            class="btn-secondary flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold hover:shadow-[0_0_15px_rgba(0,255,136,0.3)]"
+            @click.stop
           >
-            <ShoppingBag :size="18" :stroke-width="2.5" />
-            Consultar por WhatsApp
+            <MessageCircle :size="16" :stroke-width="2" />
           </a>
         </div>
       </div>

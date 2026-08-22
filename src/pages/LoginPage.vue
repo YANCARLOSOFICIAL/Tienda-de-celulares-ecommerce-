@@ -22,18 +22,17 @@ async function submit() {
 </script>
 
 <template>
-  <section class="py-16 sm:py-24 bg-brutal-gray min-h-[70vh] flex items-center">
+  <section class="py-16 sm:py-24 min-h-[70vh] flex items-center">
     <div class="max-w-md w-full mx-auto px-4">
-      <div class="brutal-card p-8">
-        <span class="inline-block bg-brutal-yellow text-brutal-black font-bold text-sm px-4 py-2 brutal-border mb-6">
-          ACCESO
-        </span>
-        <h1 class="font-black text-3xl uppercase mb-2">Iniciar sesión</h1>
-        <p class="text-brutal-black/60 mb-8">Accede a tu cuenta para comprar y consultar tus pedidos.</p>
+      <div class="bento-card-static p-8 login-glass">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-semibold tracking-tight">Iniciar sesión</h1>
+          <p class="text-text-secondary mt-2">Accede a tu cuenta para comprar y consultar tus pedidos.</p>
+        </div>
 
-        <form class="space-y-5" @submit.prevent="submit">
+        <form class="space-y-4" @submit.prevent="submit">
           <div>
-            <label for="email" class="block font-bold text-sm uppercase mb-1">Correo electrónico</label>
+            <label for="email" class="block text-sm font-medium text-text-secondary mb-1.5">Correo electrónico</label>
             <input
               id="email"
               v-model="email"
@@ -41,11 +40,11 @@ async function submit() {
               required
               autocomplete="email"
               placeholder="tu@correo.com"
-              class="w-full border-4 border-brutal-black px-4 py-3 font-semibold focus:bg-brutal-yellow/10 outline-none"
+              class="input-minimal"
             />
           </div>
           <div>
-            <label for="password" class="block font-bold text-sm uppercase mb-1">Contraseña</label>
+            <label for="password" class="block text-sm font-medium text-text-secondary mb-1.5">Contraseña</label>
             <input
               id="password"
               v-model="password"
@@ -53,35 +52,47 @@ async function submit() {
               required
               autocomplete="current-password"
               placeholder="••••••••"
-              class="w-full border-4 border-brutal-black px-4 py-3 font-semibold focus:bg-brutal-yellow/10 outline-none"
+              class="input-minimal"
             />
           </div>
 
-          <p v-if="authStore.error" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm">
+          <p v-if="authStore.error" class="text-sm text-danger font-medium">
             {{ authStore.error }}
           </p>
 
           <button
             type="submit"
             :disabled="authStore.loading"
-            class="brutal-button bg-brutal-yellow text-brutal-black w-full px-6 py-4 flex items-center justify-center gap-2 uppercase tracking-wide disabled:opacity-60"
+            class="btn-primary w-full flex items-center justify-center gap-2"
           >
-            <LogIn :size="18" :stroke-width="2.5" />
+            <LogIn :size="18" :stroke-width="2" />
             {{ authStore.loading ? 'Entrando...' : 'Entrar' }}
           </button>
         </form>
 
-        <p class="mt-4 text-center">
-          <router-link to="/forgot-password" class="text-sm font-bold underline text-brutal-black/60">
-            Olvidaste tu contrasena?
+        <div class="mt-6 flex flex-col items-center gap-3">
+          <router-link to="/forgot-password" class="btn-ghost text-sm">
+            ¿Olvidaste tu contraseña?
           </router-link>
-        </p>
-
-        <p class="mt-4 text-center text-sm text-brutal-black/70">
-          No tienes cuenta?
-          <router-link to="/register" class="font-black underline">Registrate aqui</router-link>
-        </p>
+          <p class="text-sm text-text-secondary">
+            ¿No tienes cuenta?
+            <router-link to="/register" class="text-accent font-medium hover:underline">Regístrate aquí</router-link>
+          </p>
+        </div>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.login-glass {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 0.3s;
+}
+.login-glass:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+}
+</style>

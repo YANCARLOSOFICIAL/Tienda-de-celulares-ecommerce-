@@ -17,11 +17,11 @@ const formError = ref<string | null>(null)
 async function submit() {
   formError.value = null
   if (password.value !== confirmPassword.value) {
-    formError.value = 'Las contraseñas no coinciden.'
+    formError.value = 'Las contrasenas no coinciden.'
     return
   }
   if (password.value.length < 8) {
-    formError.value = 'La contraseña debe tener al menos 8 caracteres.'
+    formError.value = 'La contrasena debe tener al menos 8 caracteres.'
     return
   }
   const ok = await authStore.register(email.value, fullName.value, password.value)
@@ -35,18 +35,17 @@ async function submit() {
 </script>
 
 <template>
-  <section class="py-16 sm:py-24 bg-brutal-gray min-h-[70vh] flex items-center">
+  <section class="py-16 sm:py-24 min-h-[70vh] flex items-center">
     <div class="max-w-md w-full mx-auto px-4">
-      <div class="brutal-card p-8">
-        <span class="inline-block bg-brutal-yellow text-brutal-black font-bold text-sm px-4 py-2 brutal-border mb-6">
-          NUEVA CUENTA
-        </span>
-        <h1 class="font-black text-3xl uppercase mb-2">Crear cuenta</h1>
-        <p class="text-brutal-black/60 mb-8">Regístrate para comprar en Tienda Cell.</p>
+      <div class="bento-card-static p-8 register-glass">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-semibold tracking-tight">Crear cuenta</h1>
+          <p class="text-text-secondary mt-2">Regístrate para comprar en Tienda Cell.</p>
+        </div>
 
-        <form class="space-y-5" @submit.prevent="submit">
+        <form class="space-y-4" @submit.prevent="submit">
           <div>
-            <label for="full_name" class="block font-bold text-sm uppercase mb-1">Nombre completo</label>
+            <label for="full_name" class="block text-sm font-medium text-text-secondary mb-1.5">Nombre completo</label>
             <input
               id="full_name"
               v-model="fullName"
@@ -54,11 +53,11 @@ async function submit() {
               required
               autocomplete="name"
               placeholder="Tu nombre"
-              class="w-full border-4 border-brutal-black px-4 py-3 font-semibold focus:bg-brutal-yellow/10 outline-none"
+              class="input-minimal"
             />
           </div>
           <div>
-            <label for="email" class="block font-bold text-sm uppercase mb-1">Correo electrónico</label>
+            <label for="email" class="block text-sm font-medium text-text-secondary mb-1.5">Correo electrónico</label>
             <input
               id="email"
               v-model="email"
@@ -66,11 +65,11 @@ async function submit() {
               required
               autocomplete="email"
               placeholder="tu@correo.com"
-              class="w-full border-4 border-brutal-black px-4 py-3 font-semibold focus:bg-brutal-yellow/10 outline-none"
+              class="input-minimal"
             />
           </div>
           <div>
-            <label for="password" class="block font-bold text-sm uppercase mb-1">Contraseña</label>
+            <label for="password" class="block text-sm font-medium text-text-secondary mb-1.5">Contraseña</label>
             <input
               id="password"
               v-model="password"
@@ -78,11 +77,11 @@ async function submit() {
               required
               autocomplete="new-password"
               placeholder="Mínimo 8 caracteres"
-              class="w-full border-4 border-brutal-black px-4 py-3 font-semibold focus:bg-brutal-yellow/10 outline-none"
+              class="input-minimal"
             />
           </div>
           <div>
-            <label for="confirm_password" class="block font-bold text-sm uppercase mb-1">Confirmar contraseña</label>
+            <label for="confirm_password" class="block text-sm font-medium text-text-secondary mb-1.5">Confirmar contraseña</label>
             <input
               id="confirm_password"
               v-model="confirmPassword"
@@ -90,29 +89,42 @@ async function submit() {
               required
               autocomplete="new-password"
               placeholder="Repite tu contraseña"
-              class="w-full border-4 border-brutal-black px-4 py-3 font-semibold focus:bg-brutal-yellow/10 outline-none"
+              class="input-minimal"
             />
           </div>
 
-          <p v-if="formError" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm">
+          <p v-if="formError" class="text-sm text-danger font-medium">
             {{ formError }}
           </p>
 
           <button
             type="submit"
             :disabled="authStore.loading"
-            class="brutal-button bg-brutal-yellow text-brutal-black w-full px-6 py-4 flex items-center justify-center gap-2 uppercase tracking-wide disabled:opacity-60"
+            class="btn-primary w-full flex items-center justify-center gap-2"
           >
-            <UserPlus :size="18" :stroke-width="2.5" />
+            <UserPlus :size="18" :stroke-width="2" />
             {{ authStore.loading ? 'Creando...' : 'Crear cuenta' }}
           </button>
         </form>
 
-        <p class="mt-6 text-center text-sm text-brutal-black/70">
+        <p class="mt-6 text-center text-sm text-text-secondary">
           ¿Ya tienes cuenta?
-          <router-link to="/login" class="font-black underline">Inicia sesión</router-link>
+          <router-link to="/login" class="text-accent font-medium hover:underline">Inicia sesión</router-link>
         </p>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.register-glass {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 0.3s;
+}
+.register-glass:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+}
+</style>

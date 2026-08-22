@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { PackageOpen, Pencil } from '@lucide/vue'
+import { PackageOpen, Pencil, ChevronDown, ChevronUp } from '@lucide/vue'
 
 import { ordersApi, orderStatusLabels, type Order, type OrderStatus } from '../../api/orders'
 
@@ -12,8 +12,17 @@ const banner = ref<string | null>(null)
 const editingId = ref<number | null>(null)
 const editingStatus = ref<OrderStatus>('PENDING')
 const formBusy = ref(false)
+const expandedId = ref<number | null>(null)
 
 const statusOptions = Object.keys(orderStatusLabels) as OrderStatus[]
+
+const statusBadgeMap: Record<string, string> = {
+  PENDING: 'badge-warning',
+  CONFIRMED: 'badge-accent',
+  SHIPPED: 'badge-accent',
+  DELIVERED: 'badge-success',
+  CANCELLED: 'badge-danger',
+}
 
 async function load() {
   loading.value = true
@@ -49,6 +58,10 @@ async function saveStatus() {
   }
 }
 
+function toggleExpand(orderId: number) {
+  expandedId.value = expandedId.value === orderId ? null : orderId
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })
 }
@@ -59,74 +72,115 @@ onMounted(load)
 <template>
   <div class="space-y-6">
     <div>
-      <h2 class="font-black text-2xl uppercase flex items-center gap-2">
-        <PackageOpen :size="24" :stroke-width="2.5" />
-        Gestión de pedidos
+      <h2 class="text-2xl font-bold text-text flex items-center gap-2">
+        <PackageOpen :size="24" :stroke-width="2" />
+        Pedidos
       </h2>
-      <p class="text-brutal-black/60">Consulta todos los pedidos y actualiza su estado.</p>
+      <p class="text-sm text-text-secondary">Consulta todos los pedidos y actualiza su estado.</p>
     </div>
 
-    <p v-if="banner" class="bg-green-100 border-4 border-brutal-black p-3 font-bold text-sm">{{ banner }}</p>
-    <p v-if="error" class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm">{{ error }}</p>
+    <p v-if="banner" class="badge-success px-4 py-2 text-sm font-medium">{{ banner }}</p>
+    <p v-if="error" class="badge-danger px-4 py-2 text-sm font-medium">{{ error }}</p>
 
-    <div v-if="loading" class="brutal-card p-8 text-center font-bold">Cargando pedidos...</div>
-
-    <div v-else-if="orders.length === 0" class="brutal-card p-8 text-center font-bold text-brutal-black/60">
-      No hay pedidos registrados.
+    <div v-if="loading" class="bento-card-static glass p-8">
+      <div class="space-y-4">
+        <div v-for="i in 4" :key="i" class="flex items-center gap-4">
+          <div class="skeleton h-4 w-24"></div>
+          <div class="skeleton h-4 flex-1"></div>
+          <div class="skeleton h-4 w-16"></div>
+        </div>
+      </div>
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div v-for="order in orders" :key="order.id" class="brutal-card p-5">
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <div>
-            <span class="font-black text-xl">Pedido #{{ order.id }}</span>
-            <p class="text-xs text-brutal-black/60 font-semibold">Usuario #{{ order.user_id }} · {{ formatDate(order.created_at) }}</p>
-          </div>
-          <span
-            :class="[
-              'font-black text-[11px] uppercase px-2 py-1 brutal-border',
-              order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-brutal-yellow text-brutal-black',
-            ]"
-          >
-            {{ orderStatusLabels[order.status] }}
-          </span>
-        </div>
+    <div v-else-if="orders.length === 0" class="bento-card-static glass p-12 text-center">
+      <PackageOpen :size="40" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-3" />
+      <p class="text-lg font-semibold text-text">Sin pedidos</p>
+      <p class="text-sm text-text-secondary mt-1">No hay pedidos registrados.</p>
+    </div>
 
-        <ul class="border-y-4 border-brutal-black divide-y-2 divide-brutal-black/20 my-3">
-          <li v-for="item in order.items" :key="item.id" class="py-1.5 flex justify-between gap-2 text-sm font-semibold">
-            <span class="truncate">{{ item.quantity }} × {{ item.product_name }}</span>
-            <span class="flex-shrink-0">${{ Number(item.subtotal).toLocaleString('es-MX') }}</span>
-          </li>
-        </ul>
+    <div v-else class="bento-card-static glass overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border-light">
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Pedido</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Cliente</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Fecha</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Estado</th>
+              <th class="text-right px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Total</th>
+              <th class="text-right px-4 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="order in orders" :key="order.id">
+              <tr class="border-b border-border-light last:border-b-0 admin-table-row">
+                <td class="px-4 py-3 font-medium text-text">#{{ order.id }}</td>
+                <td class="px-4 py-3 text-text-secondary">Usuario #{{ order.user_id }}</td>
+                <td class="px-4 py-3 text-text-secondary">{{ formatDate(order.created_at) }}</td>
+                <td class="px-4 py-3">
+                  <span :class="['badge text-xs', statusBadgeMap[order.status] || 'badge']">
+                    {{ orderStatusLabels[order.status] }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-right font-semibold text-text">${{ Number(order.total).toLocaleString('es-MX') }}</td>
+                <td class="px-4 py-3">
+                  <div class="flex gap-1 justify-end">
+                    <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Expandir" @click="toggleExpand(order.id)">
+                      <ChevronUp v-if="expandedId === order.id" :size="16" :stroke-width="2" />
+                      <ChevronDown v-else :size="16" :stroke-width="2" />
+                    </button>
+                    <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Cambiar estado" @click="openEdit(order)">
+                      <Pencil :size="16" :stroke-width="2" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="expandedId === order.id" class="bg-surface-dim/50 border-b border-border-light">
+                <td colspan="6" class="px-4 py-4">
+                  <div class="space-y-3">
+                    <div>
+                      <p class="text-xs font-medium text-text-secondary uppercase tracking-wider mb-2">Artículos</p>
+                      <div class="space-y-1.5">
+                        <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
+                          <span class="text-text">{{ item.quantity }} × {{ item.product_name }}</span>
+                          <span class="font-medium text-text">${{ Number(item.subtotal).toLocaleString('es-MX') }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm font-medium text-text-secondary">Total</span>
+                      <span class="text-lg font-bold text-text">${{ Number(order.total).toLocaleString('es-MX') }}</span>
+                    </div>
 
-        <div class="flex items-center justify-between gap-2 mb-4">
-          <span class="font-black uppercase text-xs">Total</span>
-          <span class="font-black text-xl">${{ Number(order.total).toLocaleString('es-MX') }}</span>
-        </div>
-
-        <div v-if="editingId === order.id" class="space-y-2">
-          <label class="block font-bold text-sm uppercase mb-1">Nuevo estado</label>
-          <select v-model="editingStatus" class="w-full border-4 border-brutal-black px-3 py-2 font-semibold outline-none focus:bg-brutal-yellow/10 bg-brutal-white">
-            <option v-for="status in statusOptions" :key="status" :value="status">{{ orderStatusLabels[status] }}</option>
-          </select>
-          <div class="flex gap-2 justify-end">
-            <button class="brutal-button bg-brutal-white text-brutal-black px-4 py-2 uppercase text-xs" @click="editingId = null">
-              Cancelar
-            </button>
-            <button :disabled="formBusy" class="brutal-button bg-brutal-yellow text-brutal-black px-4 py-2 uppercase text-xs disabled:opacity-60" @click="saveStatus">
-              {{ formBusy ? 'Guardando...' : 'Guardar estado' }}
-            </button>
-          </div>
-        </div>
-
-        <button
-          v-else
-          class="w-full brutal-button bg-brutal-black text-brutal-white uppercase text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-brutal-yellow hover:text-brutal-black transition-colors"
-          @click="openEdit(order)"
-        >
-          <Pencil :size="16" :stroke-width="2.5" />
-          Cambiar estado
-        </button>
+                    <div v-if="editingId === order.id" class="pt-2 space-y-2">
+                      <label class="block text-sm font-medium text-text-secondary">Nuevo estado</label>
+                      <select v-model="editingStatus" class="input-minimal">
+                        <option v-for="status in statusOptions" :key="status" :value="status">{{ orderStatusLabels[status] }}</option>
+                      </select>
+                      <div class="flex gap-2 justify-end">
+                        <button class="btn-secondary text-xs" @click="editingId = null">
+                          Cancelar
+                        </button>
+                        <button :disabled="formBusy" class="btn-primary text-xs disabled:opacity-50" @click="saveStatus">
+                          {{ formBusy ? 'Guardando...' : 'Guardar estado' }}
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      v-else
+                      class="btn-ghost text-sm w-full flex items-center justify-center gap-2"
+                      @click="openEdit(order)"
+                    >
+                      <Pencil :size="14" :stroke-width="2" />
+                      Cambiar estado
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

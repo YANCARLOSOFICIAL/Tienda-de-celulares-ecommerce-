@@ -50,18 +50,16 @@ const contactInfo = [
   <section
     id="contacto"
     ref="sectionRef"
-    class="py-16 sm:py-20 lg:py-28 bg-brutal-gray"
+    class="section-clean bg-[#0a0a0f]"
     aria-labelledby="contacto-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12 sm:mb-16">
-        <span class="inline-block bg-brutal-yellow text-brutal-black font-bold text-sm px-4 py-2 brutal-border mb-4">
-          CONTACTO
-        </span>
-        <h2 id="contacto-title" class="section-title text-brutal-black mb-4">
+        <span class="badge badge-accent mb-4">Contacto</span>
+        <h2 id="contacto-title" class="section-title mb-4">
           Escríbenos
         </h2>
-        <p class="section-subtitle">
+        <p class="section-subtitle mx-auto">
           Estamos listos para ayudarte. Contáctanos por cualquier duda o consulta.
         </p>
       </div>
@@ -69,86 +67,86 @@ const contactInfo = [
       <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
         <div
           :class="[
-            'brutal-card !bg-brutal-white p-6 sm:p-8',
+            'bento-card p-6 sm:p-8',
             'animate-fade-in-up',
             isVisible ? 'visible' : ''
           ]"
         >
           <form @submit.prevent="handleSubmit" novalidate class="space-y-5">
             <div>
-              <label for="name" class="block font-bold text-sm mb-1 uppercase tracking-wide">Nombre *</label>
+              <label for="name" class="block text-sm font-medium text-gray-400 mb-1.5">Nombre *</label>
               <input
                 id="name"
                 v-model="form.name"
                 type="text"
-                class="w-full brutal-border px-4 py-3 bg-brutal-white font-medium text-base focus:outline-none focus:ring-0 focus:bg-brutal-yellow/10"
-                :class="{ 'border-red-500': errors.name }"
+                class="input-minimal bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                :class="{ '!border-danger': errors.name }"
                 placeholder="Tu nombre"
               />
-              <p v-if="errors.name" class="text-red-600 font-bold text-sm mt-1 flex items-center gap-1">
-                <AlertCircle :size="14" /> {{ errors.name }}
+              <p v-if="errors.name" class="text-danger text-xs mt-1.5 flex items-center gap-1">
+                <AlertCircle :size="12" /> {{ errors.name }}
               </p>
             </div>
 
             <div>
-              <label for="email" class="block font-bold text-sm mb-1 uppercase tracking-wide">Correo electrónico *</label>
+              <label for="email" class="block text-sm font-medium text-gray-400 mb-1.5">Correo electrónico *</label>
               <input
                 id="email"
                 v-model="form.email"
                 type="email"
-                class="w-full brutal-border px-4 py-3 bg-brutal-white font-medium text-base focus:outline-none focus:ring-0 focus:bg-brutal-yellow/10"
-                :class="{ 'border-red-500': errors.email }"
+                class="input-minimal bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                :class="{ '!border-danger': errors.email }"
                 placeholder="tu@correo.com"
               />
-              <p v-if="errors.email" class="text-red-600 font-bold text-sm mt-1 flex items-center gap-1">
-                <AlertCircle :size="14" /> {{ errors.email }}
+              <p v-if="errors.email" class="text-danger text-xs mt-1.5 flex items-center gap-1">
+                <AlertCircle :size="12" /> {{ errors.email }}
               </p>
             </div>
 
             <div>
-              <label for="phone" class="block font-bold text-sm mb-1 uppercase tracking-wide">Teléfono</label>
+              <label for="phone" class="block text-sm font-medium text-gray-400 mb-1.5">Teléfono</label>
               <input
                 id="phone"
                 v-model="form.phone"
                 type="tel"
-                class="w-full brutal-border px-4 py-3 bg-brutal-white font-medium text-base focus:outline-none focus:ring-0 focus:bg-brutal-yellow/10"
+                class="input-minimal bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
                 placeholder="+52 55 1234 5678"
               />
             </div>
 
             <div>
-              <label for="message" class="block font-bold text-sm mb-1 uppercase tracking-wide">Mensaje *</label>
+              <label for="message" class="block text-sm font-medium text-gray-400 mb-1.5">Mensaje *</label>
               <textarea
                 id="message"
                 v-model="form.message"
                 rows="4"
-                class="w-full brutal-border px-4 py-3 bg-brutal-white font-medium text-base resize-y focus:outline-none focus:ring-0 focus:bg-brutal-yellow/10"
-                :class="{ 'border-red-500': errors.message }"
+                class="input-minimal resize-y bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                :class="{ '!border-danger': errors.message }"
                 placeholder="¿En qué podemos ayudarte?"
               ></textarea>
-              <p v-if="errors.message" class="text-red-600 font-bold text-sm mt-1 flex items-center gap-1">
-                <AlertCircle :size="14" /> {{ errors.message }}
+              <p v-if="errors.message" class="text-danger text-xs mt-1.5 flex items-center gap-1">
+                <AlertCircle :size="12" /> {{ errors.message }}
               </p>
             </div>
 
             <button
               type="submit"
-              class="brutal-button bg-brutal-black text-brutal-white px-8 py-3 text-base uppercase tracking-wide flex items-center justify-center gap-2 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              class="btn-primary w-full flex items-center justify-center gap-2"
               :disabled="status === 'sending'"
             >
               <template v-if="status === 'sending'">
-                <span class="inline-block w-5 h-5 border-2 border-brutal-white border-t-transparent rounded-full animate-spin"></span>
+                <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                 Enviando...
               </template>
               <template v-else-if="status === 'success'">
-                <CheckCircle :size="20" class="text-whatsapp" /> Mensaje enviado
+                <CheckCircle :size="18" /> Mensaje enviado
               </template>
               <template v-else>
-                <Send :size="18" :stroke-width="2.5" /> Enviar mensaje
+                <Send :size="16" :stroke-width="2.5" /> Enviar mensaje
               </template>
             </button>
 
-            <p v-if="status === 'error'" class="text-red-600 font-bold text-sm text-center mt-2">
+            <p v-if="status === 'error'" class="text-danger text-xs text-center mt-1">
               Ocurrió un error. Intenta de nuevo.
             </p>
           </form>
@@ -156,7 +154,7 @@ const contactInfo = [
 
         <div
           :class="[
-            'space-y-6',
+            'space-y-4',
             'animate-fade-in-up',
             isVisible ? 'visible' : ''
           ]"
@@ -166,18 +164,18 @@ const contactInfo = [
             v-for="(info, i) in contactInfo"
             :key="info.label"
             :class="[
-              'brutal-card !bg-brutal-white p-6 flex items-center gap-4',
+              'bento-card p-5 flex items-center gap-4',
               'animate-fade-in-up',
               isVisible ? 'visible' : ''
             ]"
             :style="{ transitionDelay: `${300 + i * 100}ms` }"
           >
-            <div class="brutal-border bg-brutal-yellow p-3 flex-shrink-0">
-              <component :is="info.icon" :size="22" :stroke-width="2.5" />
+            <div class="w-11 h-11 rounded-xl bg-[#00f0ff]/10 flex items-center justify-center flex-shrink-0">
+              <component :is="info.icon" :size="18" :stroke-width="2" class="text-[#00f0ff]" />
             </div>
             <div>
-              <p class="font-bold text-sm text-brutal-black/60 uppercase tracking-wide">{{ info.label }}</p>
-              <p class="font-black text-base sm:text-lg">{{ info.value }}</p>
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">{{ info.label }}</p>
+              <p class="font-semibold text-sm text-white">{{ info.value }}</p>
             </div>
           </div>
 
@@ -192,9 +190,10 @@ const contactInfo = [
               href="https://wa.me/521234567890"
               target="_blank"
               rel="noopener noreferrer"
-              class="brutal-button bg-whatsapp text-brutal-white px-8 py-4 text-base uppercase tracking-wide flex items-center justify-center gap-2 w-full"
+              class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-whatsapp text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <Phone :size="20" :stroke-width="2.5" />
+              <Phone :size="18" :stroke-width="2.5" />
+              WhatsApp
             </a>
           </div>
         </div>

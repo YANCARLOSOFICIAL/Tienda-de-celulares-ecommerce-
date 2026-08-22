@@ -266,28 +266,22 @@ function shipLabel(method: string) {
   }
 }
 </script>
-
 <template>
-  <section class="py-16 sm:py-20 bg-brutal-gray min-h-[70vh]">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-
-      <div class="flex items-center gap-3 mb-10">
-        <span class="bg-brutal-yellow p-2 brutal-border flex items-center justify-center">
-          <ShoppingBag :size="22" :stroke-width="2.5" class="text-brutal-black" />
-        </span>
-        <h1 class="font-black text-3xl sm:text-4xl uppercase">Checkout</h1>
-      </div>
+  <section class="min-h-screen bg-surface">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
 
       <!-- SUCCESS SCREEN -->
-      <div v-if="createdOrderId" class="brutal-card p-10 text-center">
-        <CheckCircle2 :size="56" :stroke-width="2" class="mx-auto text-green-600 mb-4" />
-        <h2 class="font-black text-2xl uppercase mb-2">Pedido creado</h2>
-        <p class="text-brutal-black/70 mb-6">
+      <div v-if="createdOrderId" class="text-center py-16">
+        <div class="w-16 h-16 rounded-full bg-neon-green/10 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle2 :size="32" :stroke-width="1.5" class="text-neon-green" />
+        </div>
+        <h2 class="text-3xl font-semibold text-text tracking-tight mb-2">Pedido confirmado</h2>
+        <p class="text-text-secondary mb-8">
           Tu pedido #{{ createdOrderId }} fue registrado con exito.
         </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <button
-            class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-60"
+            class="btn-primary px-8 py-3 flex items-center justify-center gap-2"
             :disabled="paying"
             @click="payNow"
           >
@@ -295,13 +289,13 @@ function shipLabel(method: string) {
           </button>
           <router-link
             to="/orders"
-            class="brutal-button bg-brutal-white text-brutal-black px-6 py-3 uppercase tracking-wide"
+            class="btn-secondary px-8 py-3 text-center"
           >
             Ver mis pedidos
           </router-link>
           <router-link
             to="/#productos"
-            class="brutal-button bg-brutal-white text-brutal-black px-6 py-3 uppercase tracking-wide"
+            class="btn-secondary px-8 py-3 text-center"
           >
             Seguir comprando
           </router-link>
@@ -309,58 +303,78 @@ function shipLabel(method: string) {
       </div>
 
       <!-- LOADING -->
-      <div v-else-if="cartStore.loading" class="brutal-card p-10 text-center">
-        <p class="font-bold text-lg">Cargando carrito...</p>
+      <div v-else-if="cartStore.loading" class="text-center py-20">
+        <div class="w-48 h-4 mx-auto mb-4 rounded skeleton"></div>
+        <div class="w-32 h-4 mx-auto rounded skeleton"></div>
       </div>
 
       <!-- EMPTY CART -->
-      <div v-else-if="isEmpty" class="brutal-card p-10 text-center">
-        <p class="font-black text-2xl uppercase mb-4">No hay productos en tu carrito</p>
+      <div v-else-if="isEmpty" class="text-center py-16">
+        <ShoppingBag :size="48" :stroke-width="1" class="text-text-secondary mx-auto mb-4" />
+        <h2 class="text-2xl font-semibold text-text tracking-tight mb-2">Carrito vacio</h2>
+        <p class="text-text-secondary mb-6">No hay productos en tu carrito.</p>
         <router-link
           to="/#productos"
-          class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 inline-block uppercase tracking-wide"
+          class="btn-primary px-8 py-3 inline-block"
         >
           Ver catalogo
         </router-link>
       </div>
 
       <!-- CHECKOUT FLOW -->
-      <div v-else class="space-y-6">
-
-        <!-- STEP INDICATORS -->
-        <div class="flex gap-2">
-          <div
-            v-for="(label, i) in stepLabels"
-            :key="i"
-            class="flex-1 brutal-border p-3 text-center font-black text-xs sm:text-sm uppercase tracking-wide"
-            :class="step === i + 1
-              ? 'bg-brutal-yellow text-brutal-black'
-              : step > i + 1
-                ? 'bg-brutal-black text-brutal-white'
-                : 'bg-brutal-white text-brutal-black/50'"
-          >
-            {{ i + 1 }}. {{ label }}
-          </div>
+      <div v-else>
+        <div class="mb-10">
+          <h1 class="text-3xl font-semibold text-text tracking-tight">Checkout</h1>
         </div>
 
-        <!-- ERROR -->
-        <p
+        <!-- Progress Steps -->
+        <div class="flex items-center mb-10">
+          <template v-for="(label, i) in stepLabels" :key="i">
+            <div class="flex items-center gap-2">
+              <div
+                class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all"
+                :class="step === i + 1
+                  ? 'bg-accent text-black neon-border'
+                  : step > i + 1
+                    ? 'bg-neon-green text-black'
+                    : 'bg-surface-dim text-text-secondary border border-border'"
+              >
+                <CheckCircle2 v-if="step > i + 1" :size="14" :stroke-width="2.5" />
+                <span v-else>{{ i + 1 }}</span>
+              </div>
+              <span
+                class="text-xs font-medium hidden sm:block"
+                :class="step === i + 1 ? 'text-text neon-text' : 'text-text-secondary'"
+              >
+                {{ label }}
+              </span>
+            </div>
+            <div
+              v-if="i < stepLabels.length - 1"
+              class="flex-1 h-px mx-3"
+              :class="step > i + 1 ? 'bg-neon-green' : 'bg-border'"
+            ></div>
+          </template>
+        </div>
+
+        <!-- Error -->
+        <div
           v-if="orderError"
-          class="bg-red-100 border-4 border-brutal-black p-3 font-bold text-sm flex items-center gap-2"
+          class="mb-6 p-4 rounded-xl bg-danger/5 border border-danger/20 flex items-center gap-3"
         >
-          <XCircle :size="18" :stroke-width="2.5" />
-          {{ orderError }}
-        </p>
+          <XCircle :size="18" :stroke-width="2" class="text-danger flex-shrink-0" />
+          <p class="text-sm text-danger">{{ orderError }}</p>
+        </div>
 
         <!-- STEP 1: ADDRESS -->
-        <div v-if="step === 1" class="space-y-4">
-          <div class="brutal-card p-5">
-            <h2 class="font-black text-xl uppercase mb-4 flex items-center gap-2">
-              <MapPin :size="20" :stroke-width="2.5" />
-              Selecciona una direccion
+        <div v-if="step === 1" class="space-y-6">
+          <div>
+            <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+              <MapPin :size="18" :stroke-width="1.5" class="text-text-secondary" />
+              Direccion de entrega
             </h2>
 
-            <div v-if="addresses.length === 0 && !showNewAddress" class="text-brutal-black/60 mb-4">
+            <div v-if="addresses.length === 0 && !showNewAddress" class="text-text-secondary text-sm">
               No tienes direcciones guardadas.
             </div>
 
@@ -368,151 +382,155 @@ function shipLabel(method: string) {
               <button
                 v-for="addr in addresses"
                 :key="addr.id"
-                class="w-full text-left brutal-border p-4 cursor-pointer transition-all"
+                class="w-full text-left rounded-xl p-4 transition-all"
                 :class="selectedAddressId === addr.id
-                  ? 'bg-brutal-yellow'
-                  : 'bg-brutal-white hover:bg-brutal-gray'"
+                  ? 'neon-border bg-accent/[0.03]'
+                  : 'border border-border hover:border-accent/40 bg-surface-dim'"
                 @click="selectAddress(addr.id)"
               >
                 <div class="flex items-start justify-between">
                   <div class="min-w-0">
-                    <p class="font-black text-sm">
+                    <p class="text-sm font-medium text-text">
                       {{ addr.label || 'Direccion' }}
-                      <span v-if="addr.is_default" class="text-xs bg-brutal-black text-brutal-white px-2 py-0.5 ml-2">
+                      <span v-if="addr.is_default" class="badge-accent text-[10px] ml-2">
                         Default
                       </span>
                     </p>
-                    <p class="text-sm text-brutal-black/70 mt-1">
+                    <p class="text-sm text-text-secondary mt-1">
                       {{ addr.street }} {{ addr.street_number }}
                       <span v-if="addr.interior">, {{ addr.interior }}</span>
                     </p>
-                    <p class="text-sm text-brutal-black/70">
+                    <p class="text-sm text-text-secondary">
                       {{ addr.neighborhood }}, {{ addr.city }}, {{ addr.state }} {{ addr.zip_code }}
                     </p>
-                    <p class="text-xs text-brutal-black/50 mt-1">
+                    <p class="text-xs text-text-tertiary mt-1">
                       {{ addr.full_name }} - {{ addr.phone }}
                     </p>
                   </div>
                   <div
                     v-if="selectedAddressId === addr.id"
-                    class="w-4 h-4 brutal-border bg-brutal-black flex-shrink-0 mt-1"
+                    class="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-0.5"
                   >
-                    <CheckCircle2 :size="16" class="text-brutal-white" />
+                    <CheckCircle2 :size="12" class="text-black" :stroke-width="2.5" />
                   </div>
+                  <div
+                    v-else
+                    class="w-5 h-5 rounded-full border-2 border-border flex-shrink-0 mt-0.5"
+                  ></div>
                 </div>
               </button>
             </div>
 
             <button
-              class="brutal-button bg-brutal-white text-brutal-black px-4 py-2 flex items-center gap-2 uppercase tracking-wide text-sm"
+              class="text-sm text-accent font-medium flex items-center gap-1.5 hover:opacity-70 transition-opacity"
               @click="toggleNewAddress"
             >
-              <Plus :size="16" :stroke-width="2.5" />
+              <Plus :size="16" :stroke-width="2" />
               {{ showNewAddress ? 'Cancelar' : 'Agregar direccion nueva' }}
             </button>
           </div>
 
           <!-- NEW ADDRESS FORM -->
-          <div v-if="showNewAddress" class="brutal-card p-5">
-            <h3 class="font-black text-lg uppercase mb-4">Nueva direccion</h3>
+          <div v-if="showNewAddress" class="glass-dark rounded-2xl p-6 space-y-4">
+            <h3 class="text-base font-semibold text-text">Nueva direccion</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Etiqueta</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Etiqueta</label>
                 <input
                   v-model="newAddress.label"
                   placeholder="Casa, Oficina..."
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Nombre completo *</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Nombre completo *</label>
                 <input
                   v-model="newAddress.full_name"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Telefono *</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Telefono *</label>
                 <input
                   v-model="newAddress.phone"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Calle *</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Calle *</label>
                 <input
                   v-model="newAddress.street"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Numero</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Numero</label>
                 <input
                   v-model="newAddress.street_number"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Interior</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Interior</label>
                 <input
                   v-model="newAddress.interior"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Colonia *</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Colonia *</label>
                 <input
                   v-model="newAddress.neighborhood"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Ciudad *</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Ciudad *</label>
                 <input
                   v-model="newAddress.city"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Estado *</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Estado *</label>
                 <input
                   v-model="newAddress.state"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
               <div>
-                <label class="font-bold text-xs uppercase tracking-wide block mb-1">Codigo postal *</label>
+                <label class="text-xs font-medium text-text-secondary block mb-1.5">Codigo postal *</label>
                 <input
                   v-model="newAddress.zip_code"
-                  class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm"
+                  class="input-minimal"
                 />
               </div>
             </div>
             <button
-              class="brutal-button bg-brutal-black text-brutal-white px-4 py-2 mt-4 flex items-center gap-2 uppercase tracking-wide text-sm"
+              class="btn-primary px-5 py-2.5"
               @click="saveNewAddress"
             >
               Guardar direccion
             </button>
           </div>
 
-          <div class="flex justify-end">
+          <div class="flex justify-end pt-2">
             <button
-              class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 flex items-center gap-2 uppercase tracking-wide"
+              class="btn-primary px-8 py-3 flex items-center gap-2"
               :disabled="!selectedAddressId && !showNewAddress"
               @click="goNext"
             >
               Continuar
-              <ChevronRight :size="18" :stroke-width="2.5" />
+              <ChevronRight :size="16" :stroke-width="2" />
             </button>
           </div>
         </div>
 
         <!-- STEP 2: SHIPPING METHOD -->
-        <div v-if="step === 2" class="space-y-4">
-          <div class="brutal-card p-5">
-            <h2 class="font-black text-xl uppercase mb-4 flex items-center gap-2">
-              <Truck :size="20" :stroke-width="2.5" />
+        <div v-if="step === 2" class="space-y-6">
+          <div>
+            <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+              <Truck :size="18" :stroke-width="1.5" class="text-text-secondary" />
               Metodo de envio
             </h2>
 
@@ -520,124 +538,140 @@ function shipLabel(method: string) {
               <label
                 v-for="method in ['ESTANDAR', 'EXPRESS', 'RECOLECCION']"
                 :key="method"
-                class="flex items-center gap-4 brutal-border p-4 cursor-pointer transition-all"
+                class="flex items-center gap-4 rounded-xl p-4 cursor-pointer transition-all"
                 :class="shippingMethod === method
-                  ? 'bg-brutal-yellow'
-                  : 'bg-brutal-white hover:bg-brutal-gray'"
+                  ? 'neon-border bg-accent/[0.03]'
+                  : 'border border-border hover:border-accent/40 bg-surface-dim'"
               >
                 <input
                   v-model="shippingMethod"
                   type="radio"
                   :value="method"
-                  class="w-4 h-4 accent-brutal-black"
+                  class="w-4 h-4 accent-accent"
                 />
-                <span class="font-black text-sm uppercase tracking-wide flex-1">
-                  {{ shipLabel(method) }}
+                <div class="flex-1">
+                  <span class="text-sm font-medium text-text">
+                    {{ method === 'ESTANDAR' ? 'Estandar' : method === 'EXPRESS' ? 'Express' : 'Recoleccion en tienda' }}
+                  </span>
+                  <span class="text-xs text-text-secondary ml-2">
+                    {{ method === 'ESTANDAR' ? '5-7 dias habiles' : method === 'EXPRESS' ? '1-2 dias habiles' : 'Sin costo' }}
+                  </span>
+                </div>
+                <span class="text-sm font-medium text-text">
+                  {{ method === 'ESTANDAR' ? '$99' : method === 'EXPRESS' ? '$199' : '$0' }}
                 </span>
               </label>
             </div>
           </div>
 
-          <div class="flex justify-between">
+          <div class="flex justify-between pt-2">
             <button
-              class="brutal-button bg-brutal-white text-brutal-black px-6 py-3 flex items-center gap-2 uppercase tracking-wide"
+              class="btn-secondary px-6 py-3 flex items-center gap-2"
               @click="goBack"
             >
-              <ArrowLeft :size="18" :stroke-width="2.5" />
+              <ArrowLeft :size="16" :stroke-width="2" />
               Volver
             </button>
             <button
-              class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 flex items-center gap-2 uppercase tracking-wide"
+              class="btn-primary px-8 py-3 flex items-center gap-2"
               @click="goNext"
             >
               Continuar
-              <ChevronRight :size="18" :stroke-width="2.5" />
+              <ChevronRight :size="16" :stroke-width="2" />
             </button>
           </div>
         </div>
 
         <!-- STEP 3: ORDER SUMMARY -->
-        <div v-if="step === 3" class="space-y-4">
-          <!-- Items -->
-          <div class="brutal-card overflow-hidden">
-            <div class="p-4 border-b-4 border-brutal-black">
-              <h2 class="font-black text-xl uppercase flex items-center gap-2">
-                <FileText :size="20" :stroke-width="2.5" />
-                Resumen del pedido
-              </h2>
-            </div>
-            <div
-              v-for="item in items"
-              :key="item.id"
-              class="flex items-center justify-between gap-4 p-4 border-b-4 border-brutal-black last:border-b-0"
-            >
-              <div class="min-w-0">
-                <h3 class="font-black leading-tight">{{ item.product.name }}</h3>
-                <p class="text-sm text-brutal-black/60">
-                  ${{ formatPrice(item.product.price) }} x {{ item.quantity }}
-                </p>
+        <div v-if="step === 3" class="space-y-6">
+          <!-- Products -->
+          <div>
+            <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+              <FileText :size="18" :stroke-width="1.5" class="text-text-secondary" />
+              Resumen del pedido
+            </h2>
+            <div class="space-y-3">
+              <div
+                v-for="item in items"
+                :key="item.id"
+                class="flex items-center gap-4 py-3 border-b border-border last:border-b-0"
+              >
+                <div class="w-14 h-14 rounded-xl bg-surface-dim flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <img
+                    v-if="item.product.image"
+                    :src="item.product.image"
+                    :alt="item.product.name"
+                    class="w-full h-full object-cover"
+                  />
+                  <ShoppingBag v-else :size="20" :stroke-width="1.5" class="text-text-secondary" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-medium text-text truncate">{{ item.product.name }}</p>
+                  <p class="text-xs text-text-secondary mt-0.5">
+                    ${{ formatPrice(item.product.price) }} x {{ item.quantity }}
+                  </p>
+                </div>
+                <span class="text-sm font-medium text-text whitespace-nowrap">${{ formatPrice(item.subtotal) }}</span>
               </div>
-              <span class="font-black whitespace-nowrap">${{ formatPrice(item.subtotal) }}</span>
             </div>
           </div>
 
-          <!-- Address & Shipping Info -->
-          <div class="brutal-card p-5 space-y-3">
-            <div v-if="selectedAddress" class="flex items-start gap-2">
-              <MapPin :size="18" :stroke-width="2.5" class="mt-0.5 flex-shrink-0" />
+          <!-- Address & Shipping -->
+          <div class="glass-dark rounded-2xl p-5 space-y-3">
+            <div v-if="selectedAddress" class="flex items-start gap-3">
+              <MapPin :size="18" :stroke-width="1.5" class="text-text-secondary mt-0.5 flex-shrink-0" />
               <div>
-                <p class="font-black text-sm uppercase">{{ selectedAddress.label || 'Direccion' }}</p>
-                <p class="text-sm text-brutal-black/70">
+                <p class="text-sm font-medium text-text">{{ selectedAddress.label || 'Direccion' }}</p>
+                <p class="text-sm text-text-secondary mt-0.5">
                   {{ selectedAddress.street }} {{ selectedAddress.street_number }}
                   <span v-if="selectedAddress.interior">, {{ selectedAddress.interior }}</span>
                 </p>
-                <p class="text-sm text-brutal-black/70">
+                <p class="text-sm text-text-secondary">
                   {{ selectedAddress.neighborhood }}, {{ selectedAddress.city }}, {{ selectedAddress.state }} {{ selectedAddress.zip_code }}
                 </p>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <Truck :size="18" :stroke-width="2.5" />
-              <span class="font-bold text-sm uppercase">{{ shipLabel(shippingMethod) }}</span>
+            <div class="flex items-center gap-3">
+              <Truck :size="18" :stroke-width="1.5" class="text-text-secondary" />
+              <span class="text-sm text-text">{{ shipLabel(shippingMethod) }}</span>
             </div>
           </div>
 
           <!-- Notes -->
-          <div class="brutal-card p-5">
-            <label class="font-black text-sm uppercase tracking-wide block mb-2">
-              Notas adicionales (opcional)
+          <div>
+            <label class="text-sm font-medium text-text block mb-2">
+              Notas adicionales
+              <span class="text-text-secondary font-normal">(opcional)</span>
             </label>
             <textarea
               v-model="notes"
               rows="3"
               placeholder="Instrucciones de entrega, referencias..."
-              class="w-full brutal-border px-3 py-2 bg-brutal-white font-bold text-sm resize-none"
+              class="input-minimal resize-none"
             />
           </div>
 
           <!-- Coupon -->
-          <div class="brutal-card p-5">
-            <label class="font-black text-sm uppercase tracking-wide block mb-2">
-              Cupon de descuento
-            </label>
+          <div>
+            <label class="text-sm font-medium text-text block mb-2">Cupon de descuento</label>
             <div v-if="!appliedCoupon" class="flex gap-2">
               <input
                 v-model="couponCode"
-                class="flex-1 brutal-border px-3 py-2 bg-brutal-white font-bold text-sm uppercase"
+                class="input-minimal flex-1 uppercase"
                 placeholder="Codigo del cupon"
                 @keyup.enter="applyCoupon"
               />
               <button
-                class="brutal-button bg-brutal-black text-brutal-white px-4 py-2 text-sm uppercase tracking-wide disabled:opacity-60"
+                class="btn-secondary px-5 py-2.5 disabled:opacity-50"
                 :disabled="validatingCoupon || !couponCode.trim()"
                 @click="applyCoupon"
               >
                 {{ validatingCoupon ? 'Validando...' : 'Aplicar' }}
               </button>
             </div>
-            <div v-else class="flex items-center justify-between bg-green-50 border-2 border-green-400 p-3">
+            <div v-else class="flex items-center justify-between bg-neon-green/5 border border-neon-green/20 rounded-xl p-3">
               <div>
-                <p class="font-black text-sm uppercase text-green-700">
+                <p class="text-sm font-medium text-neon-green">
                   {{ appliedCoupon.code }}
                   <span v-if="appliedCoupon.discount_type === 'PERCENTAGE'">
                     - {{ appliedCoupon.discount_value }}%
@@ -646,54 +680,54 @@ function shipLabel(method: string) {
                     - ${{ formatPrice(appliedCoupon.discount_value) }}
                   </span>
                 </p>
-                <p class="text-xs text-green-600">Cupon aplicado correctamente</p>
+                <p class="text-xs text-neon-green/70 mt-0.5">Cupon aplicado correctamente</p>
               </div>
-              <button class="p-1 hover:bg-green-100" @click="removeCoupon">
-                <XCircle :size="20" :stroke-width="2.5" class="text-green-700" />
+              <button class="p-1.5 rounded-full hover:bg-neon-green/10 transition-colors" @click="removeCoupon">
+                <XCircle :size="18" :stroke-width="2" class="text-neon-green" />
               </button>
             </div>
-            <p v-if="couponError" class="text-xs text-red-600 font-bold mt-2">{{ couponError }}</p>
+            <p v-if="couponError" class="text-xs text-danger mt-2">{{ couponError }}</p>
           </div>
 
           <!-- Totals -->
-          <div class="brutal-card p-5">
-            <div class="space-y-2 mb-4">
-              <div class="flex justify-between text-sm font-bold">
+          <div class="glass-dark rounded-2xl p-5">
+            <div class="space-y-2.5 mb-4">
+              <div class="flex justify-between text-sm text-text">
                 <span>Subtotal</span>
                 <span>${{ formatPrice(cartTotal) }}</span>
               </div>
-              <div class="flex justify-between text-sm font-bold">
+              <div class="flex justify-between text-sm text-text">
                 <span>Envio</span>
                 <span>${{ formatPrice(String(shippingCost)) }}</span>
               </div>
-              <div v-if="appliedCoupon" class="flex justify-between text-sm font-bold text-green-700">
+              <div v-if="appliedCoupon" class="flex justify-between text-sm text-neon-green">
                 <span>Descuento ({{ appliedCoupon.code }})</span>
                 <span>-${{ formatPrice(String(couponDiscount)) }}</span>
               </div>
-              <div class="border-t-4 border-brutal-black pt-2 flex justify-between items-center">
-                <span class="font-black text-xl uppercase">Total</span>
-                <span class="font-black text-2xl">${{ formatPrice(String(grandTotal)) }}</span>
+              <div class="border-t border-border pt-3 mt-3 flex justify-between items-center">
+                <span class="text-lg font-semibold text-text">Total</span>
+                <span class="text-2xl font-bold text-text">${{ formatPrice(String(grandTotal)) }}</span>
               </div>
             </div>
-            <p class="text-xs text-brutal-black/50 mb-4">
+            <p class="text-xs text-text-secondary mb-5">
               Al confirmar se creara tu pedido y se descontara el inventario.
-              Estado inicial: <strong>{{ orderStatusLabels.PENDING }}</strong>.
+              Estado inicial: <strong class="text-text">{{ orderStatusLabels.PENDING }}</strong>.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-3">
               <button
-                class="brutal-button bg-brutal-white text-brutal-black px-6 py-3 flex items-center justify-center gap-2 uppercase tracking-wide"
+                class="btn-secondary px-6 py-3 flex items-center justify-center gap-2"
                 @click="goBack"
               >
-                <ArrowLeft :size="18" :stroke-width="2.5" />
+                <ArrowLeft :size="16" :stroke-width="2" />
                 Volver
               </button>
               <button
-                class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-4 flex-1 flex items-center justify-center gap-2 uppercase tracking-wide disabled:opacity-60"
+                class="btn-primary px-8 py-4 flex-1 flex items-center justify-center gap-2"
                 :disabled="processing"
                 @click="placeOrder"
               >
-                <ShoppingBag :size="18" :stroke-width="2.5" />
+                <ShoppingBag :size="16" :stroke-width="2" />
                 {{ processing ? 'Procesando...' : 'Confirmar pedido' }}
               </button>
             </div>
@@ -704,31 +738,32 @@ function shipLabel(method: string) {
     </div>
   </section>
 
+  <!-- SANDBOX PAYMENT MODAL -->
   <Teleport to="body">
     <div
       v-if="showSandboxConfirm"
       class="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
-      <div class="absolute inset-0 bg-brutal-black/50" @click="showSandboxConfirm = false"></div>
-      <div class="relative bg-brutal-white brutal-border brutal-shadow p-8 w-full max-w-md text-center space-y-4">
-        <div class="bg-brutal-yellow p-3 brutal-border inline-block mx-auto">
-          <CheckCircle2 :size="32" :stroke-width="2.5" />
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showSandboxConfirm = false"></div>
+      <div class="relative glass-dark rounded-2xl p-8 w-full max-w-md text-center space-y-5 shadow-lg">
+        <div class="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+          <CheckCircle2 :size="28" :stroke-width="1.5" class="text-accent" />
         </div>
-        <h3 class="font-black text-xl uppercase">Confirmar pago (sandbox)</h3>
-        <p class="text-brutal-black/70 text-sm">
+        <h3 class="text-xl font-semibold text-text">Confirmar pago (sandbox)</h3>
+        <p class="text-text-secondary text-sm leading-relaxed">
           No hay credenciales de MercadoPago configuradas. En modo sandbox, confirma el pago manualmente para simular la aprobacion.
         </p>
-        <div class="flex flex-col gap-2 pt-2">
+        <div class="flex flex-col gap-2.5 pt-1">
           <button
-            class="brutal-button bg-green-500 text-brutal-white px-6 py-3 uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-60"
+            class="bg-neon-green text-black px-6 py-3 rounded-full text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
             :disabled="paying"
             @click="confirmSandboxPayment"
           >
-            <CheckCircle2 :size="18" :stroke-width="2.5" />
+            <CheckCircle2 :size="16" :stroke-width="2" />
             {{ paying ? 'Procesando...' : 'Confirmar pago aprobado' }}
           </button>
           <button
-            class="brutal-button bg-brutal-white text-brutal-black px-6 py-2 text-sm uppercase tracking-wide"
+            class="btn-secondary px-6 py-2.5"
             @click="showSandboxConfirm = false"
           >
             Cancelar
