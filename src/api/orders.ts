@@ -22,6 +22,9 @@ export interface Order {
   status: OrderStatus
   total: string
   user_id: number
+  shipping_cost?: string
+  coupon_code?: string | null
+  discount_amount?: string
   items: OrderItem[]
   created_at: string
   updated_at: string
@@ -39,6 +42,7 @@ export const orderStatusLabels: Record<OrderStatus, string> = {
 export interface OrderCreatePayload {
   address_id?: number | null
   shipping_method?: string
+  coupon_code?: string | null
   notes?: string | null
 }
 

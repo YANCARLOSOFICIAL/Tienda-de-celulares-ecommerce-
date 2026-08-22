@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
-from app.routers import auth, addresses, admin_stats, cart, categories, orders, products, users, wishlist
+from app.routers import auth, addresses, admin_stats, cart, categories, coupons, orders, payments, products, users, wishlist
 
 app = FastAPI(
     title=settings.project_name,
@@ -36,8 +36,10 @@ app.include_router(addresses.router, prefix=API_PREFIX)
 app.include_router(admin_stats.router, prefix=API_PREFIX)
 app.include_router(categories.router, prefix=API_PREFIX)
 app.include_router(products.router, prefix=API_PREFIX)
+app.include_router(coupons.router, prefix=API_PREFIX)
 app.include_router(cart.router, prefix=API_PREFIX)
 app.include_router(orders.router, prefix=API_PREFIX)
+app.include_router(payments.router, prefix=API_PREFIX)
 app.include_router(wishlist.router, prefix=API_PREFIX)
 
 

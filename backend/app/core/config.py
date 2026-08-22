@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     project_name: str = "Tienda Cell API"
     project_version: str = "1.0.0"
 
+    # MercadoPago (opcional - si no se configura, se usa modo sandbox interno)
+    mercadopago_access_token: str | None = Field(default=None, description="Access token de MercadoPago (opcional)")
+    frontend_url: str = Field(default="http://localhost:5173", description="URL del frontend para back_urls")
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, v):

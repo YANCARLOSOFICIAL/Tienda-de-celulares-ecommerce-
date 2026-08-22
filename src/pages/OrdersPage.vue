@@ -100,9 +100,17 @@ const statusClasses: Record<string, string> = {
             </span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-brutal-black/70">
-              {{ order.items.reduce((acc, i) => acc + i.quantity, 0) }} artículo(s)
-            </span>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-brutal-black/70">
+                {{ order.items.reduce((acc, i) => acc + i.quantity, 0) }} articulo(s)
+              </span>
+              <span
+                v-if="order.coupon_code"
+                class="text-xs font-bold uppercase bg-green-100 text-green-700 px-2 py-0.5 brutal-border"
+              >
+                {{ order.coupon_code }}
+              </span>
+            </div>
             <span class="font-black text-xl">${{ formatPrice(order.total) }}</span>
           </div>
         </router-link>

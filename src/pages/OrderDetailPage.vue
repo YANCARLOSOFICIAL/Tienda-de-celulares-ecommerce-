@@ -5,6 +5,7 @@ import { Package } from '@lucide/vue'
 
 import { formatPrice } from '../api/products'
 import { ordersApi, orderStatusLabels, type Order } from '../api/orders'
+import { paymentsApi, paymentStatusLabel, type Payment } from '../api/payments'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -12,6 +13,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const order = ref<Order | null>(null)
+const payment = ref<Payment | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -28,6 +30,11 @@ async function load() {
   error.value = null
   try {
     order.value = await ordersApi.get(Number(route.params.id))
+    try {
+      payment.value = await paymentsApi.getByOrder(order.value.id)
+    } catch {
+      payment.value = null
+    }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Error al cargar el pedido.'
   } finally {
@@ -92,6 +99,12 @@ const statusClasses: Record<string, string> = {
                 {{ orderStatusLabels[order.status] }}
               </span>
             </div>
+            <div v-if="payment">
+              <span class="block text-sm text-brutal-black/60">Pago</span>
+              <span class="font-black text-xs uppercase px-3 py-1 brutal-border inline-block mt-1 bg-brutal-white">
+                {{ paymentStatusLabel[payment.status] || payment.status }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -111,9 +124,15 @@ const statusClasses: Record<string, string> = {
           </div>
         </div>
 
-        <div class="brutal-card p-6 flex justify-between items-center">
-          <span class="font-black text-xl uppercase">Total</span>
-          <span class="font-black text-2xl">${{ formatPrice(order.total) }}</span>
+        <div class="brutal-card p-6 space-y-2">
+          <div v-if="order.discount_amount && Number(order.discount_amount) > 0" class="flex justify-between text-sm font-bold text-green-700">
+            <span>Descuento ({{ order.coupon_code }})</span>
+            <span>-${{ formatPrice(order.discount_amount) }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="font-black text-xl uppercase">Total</span>
+            <span class="font-black text-2xl">${{ formatPrice(order.total) }}</span>
+          </div>
         </div>
       </div>
     </div>

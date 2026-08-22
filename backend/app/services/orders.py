@@ -10,6 +10,7 @@ from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.user import User
 from app.schemas.order import OrderCreate
+from app.services.coupons import validate_coupon, calculate_discount
 
 SHIPPING_COSTS = {
     "estandar": Decimal("99.00"),
@@ -41,6 +42,7 @@ def create_order(db: Session, user: User, payload: OrderCreate | None = None) ->
     shipping_method = payload.shipping_method if payload else "estandar"
     shipping_cost = SHIPPING_COSTS.get(shipping_method, Decimal("99.00"))
     notes = payload.notes if payload else None
+    coupon_code = payload.coupon_code if payload else None
 
     address_snapshot = None
     address_id = None
@@ -62,7 +64,7 @@ def create_order(db: Session, user: User, payload: OrderCreate | None = None) ->
     try:
         cart = db.scalar(select(Cart).where(Cart.user_id == user.id))
         if cart is None or not cart.items:
-            raise AppException(status_code=400, message="El carrito está vacío")
+            raise AppException(status_code=400, message="El carrito esta vacio")
 
         cart_items = cart.items
         product_ids = [item.product_id for item in cart_items]
@@ -89,7 +91,7 @@ def create_order(db: Session, user: User, payload: OrderCreate | None = None) ->
             product = products[item.product_id]
             if not product.is_active:
                 raise AppException(
-                    status_code=400, message=f"El producto '{product.name}' ya no está disponible"
+                    status_code=400, message=f"El producto '{product.name}' ya no esta disponible"
                 )
             if product.stock < item.quantity:
                 raise AppException(
@@ -111,7 +113,16 @@ def create_order(db: Session, user: User, payload: OrderCreate | None = None) ->
             )
             product.stock -= item.quantity
 
-        order.total = total + shipping_cost
+        discount = Decimal("0.00")
+        if coupon_code:
+            coupon = validate_coupon(db, coupon_code, total)
+            discount = calculate_discount(coupon, total)
+            coupon.used_count += 1
+            db.add(coupon)
+
+        order.total = total + shipping_cost - discount
+        order.coupon_code = coupon_code
+        order.discount_amount = discount
 
         cart.items.clear()
         db.commit()

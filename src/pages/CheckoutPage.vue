@@ -16,6 +16,8 @@ import {
 import { formatPrice } from '../api/products'
 import { addressesApi, type Address, type AddressPayload } from '../api/addresses'
 import { ordersApi, orderStatusLabels, type OrderCreatePayload } from '../api/orders'
+import { couponsApi, type CouponValidateResult } from '../api/coupons'
+import { paymentsApi } from '../api/payments'
 import { ApiError } from '../api/client'
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
@@ -26,8 +28,11 @@ const cartStore = useCartStore()
 
 const step = ref<1 | 2 | 3>(1)
 const processing = ref(false)
+const paying = ref(false)
+const showSandboxConfirm = ref(false)
 const orderError = ref<string | null>(null)
 const createdOrderId = ref<number | null>(null)
+const createdPaymentId = ref<number | null>(null)
 
 const addresses = ref<Address[]>([])
 const selectedAddressId = ref<number | null>(null)
@@ -46,6 +51,11 @@ const shippingCost = computed(() => {
 })
 
 const notes = ref('')
+
+const couponCode = ref('')
+const appliedCoupon = ref<CouponValidateResult | null>(null)
+const couponError = ref<string | null>(null)
+const validatingCoupon = ref(false)
 
 const newAddress = ref<AddressPayload>({
   label: '',
@@ -68,7 +78,16 @@ const selectedAddress = computed(() =>
   addresses.value.find((a) => a.id === selectedAddressId.value) ?? null,
 )
 
-const grandTotal = computed(() => Number(cartTotal.value) + shippingCost.value)
+const grandTotal = computed(() => Number(cartTotal.value) + shippingCost.value - couponDiscount.value)
+
+const couponDiscount = computed(() => {
+  if (!appliedCoupon.value) return 0
+  const subtotal = Number(cartTotal.value)
+  if (appliedCoupon.value.discount_type === 'PERCENTAGE') {
+    return Math.min(subtotal * Number(appliedCoupon.value.discount_value) / 100, subtotal)
+  }
+  return Math.min(Number(appliedCoupon.value.discount_value), subtotal)
+})
 
 const stepLabels = ['Direccion', 'Envio', 'Resumen']
 
@@ -162,6 +181,7 @@ async function placeOrder() {
   const payload: OrderCreatePayload = {
     address_id: addressId ?? undefined,
     shipping_method: shippingMethod.value,
+    coupon_code: appliedCoupon.value ? appliedCoupon.value.code : undefined,
     notes: notes.value.trim() || undefined,
   }
 
@@ -178,6 +198,61 @@ async function placeOrder() {
   } finally {
     processing.value = false
   }
+}
+
+async function payNow() {
+  if (!createdOrderId.value) return
+  paying.value = true
+  orderError.value = null
+  try {
+    const result = await paymentsApi.create(createdOrderId.value)
+    createdPaymentId.value = result.payment_id
+    if (result.checkout_url) {
+      window.location.href = result.checkout_url
+    } else {
+      showSandboxConfirm.value = true
+    }
+  } catch (e: any) {
+    orderError.value = e.message || 'Error al iniciar el pago'
+  } finally {
+    paying.value = false
+  }
+}
+
+async function confirmSandboxPayment() {
+  if (!createdPaymentId.value) return
+  paying.value = true
+  try {
+    await paymentsApi.simulateApproval(createdPaymentId.value)
+    showSandboxConfirm.value = false
+    router.push({ name: 'order-detail', params: { id: createdOrderId.value } })
+  } catch (e: any) {
+    orderError.value = e.message || 'Error al confirmar el pago'
+  } finally {
+    paying.value = false
+  }
+}
+
+async function applyCoupon() {
+  if (!couponCode.value.trim()) return
+  validatingCoupon.value = true
+  couponError.value = null
+  try {
+    const result = await couponsApi.validate(couponCode.value.trim(), Number(cartTotal.value))
+    appliedCoupon.value = result
+    couponError.value = null
+  } catch (e: any) {
+    appliedCoupon.value = null
+    couponError.value = e.message || 'Cupon invalido'
+  } finally {
+    validatingCoupon.value = false
+  }
+}
+
+function removeCoupon() {
+  appliedCoupon.value = null
+  couponCode.value = ''
+  couponError.value = null
 }
 
 function shipLabel(method: string) {
@@ -211,9 +286,16 @@ function shipLabel(method: string) {
           Tu pedido #{{ createdOrderId }} fue registrado con exito.
         </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-60"
+            :disabled="paying"
+            @click="payNow"
+          >
+            {{ paying ? 'Redirigiendo...' : 'Pagar ahora' }}
+          </button>
           <router-link
             to="/orders"
-            class="brutal-button bg-brutal-yellow text-brutal-black px-6 py-3 uppercase tracking-wide"
+            class="brutal-button bg-brutal-white text-brutal-black px-6 py-3 uppercase tracking-wide"
           >
             Ver mis pedidos
           </router-link>
@@ -533,6 +615,46 @@ function shipLabel(method: string) {
             />
           </div>
 
+          <!-- Coupon -->
+          <div class="brutal-card p-5">
+            <label class="font-black text-sm uppercase tracking-wide block mb-2">
+              Cupon de descuento
+            </label>
+            <div v-if="!appliedCoupon" class="flex gap-2">
+              <input
+                v-model="couponCode"
+                class="flex-1 brutal-border px-3 py-2 bg-brutal-white font-bold text-sm uppercase"
+                placeholder="Codigo del cupon"
+                @keyup.enter="applyCoupon"
+              />
+              <button
+                class="brutal-button bg-brutal-black text-brutal-white px-4 py-2 text-sm uppercase tracking-wide disabled:opacity-60"
+                :disabled="validatingCoupon || !couponCode.trim()"
+                @click="applyCoupon"
+              >
+                {{ validatingCoupon ? 'Validando...' : 'Aplicar' }}
+              </button>
+            </div>
+            <div v-else class="flex items-center justify-between bg-green-50 border-2 border-green-400 p-3">
+              <div>
+                <p class="font-black text-sm uppercase text-green-700">
+                  {{ appliedCoupon.code }}
+                  <span v-if="appliedCoupon.discount_type === 'PERCENTAGE'">
+                    - {{ appliedCoupon.discount_value }}%
+                  </span>
+                  <span v-else>
+                    - ${{ formatPrice(appliedCoupon.discount_value) }}
+                  </span>
+                </p>
+                <p class="text-xs text-green-600">Cupon aplicado correctamente</p>
+              </div>
+              <button class="p-1 hover:bg-green-100" @click="removeCoupon">
+                <XCircle :size="20" :stroke-width="2.5" class="text-green-700" />
+              </button>
+            </div>
+            <p v-if="couponError" class="text-xs text-red-600 font-bold mt-2">{{ couponError }}</p>
+          </div>
+
           <!-- Totals -->
           <div class="brutal-card p-5">
             <div class="space-y-2 mb-4">
@@ -543,6 +665,10 @@ function shipLabel(method: string) {
               <div class="flex justify-between text-sm font-bold">
                 <span>Envio</span>
                 <span>${{ formatPrice(String(shippingCost)) }}</span>
+              </div>
+              <div v-if="appliedCoupon" class="flex justify-between text-sm font-bold text-green-700">
+                <span>Descuento ({{ appliedCoupon.code }})</span>
+                <span>-${{ formatPrice(String(couponDiscount)) }}</span>
               </div>
               <div class="border-t-4 border-brutal-black pt-2 flex justify-between items-center">
                 <span class="font-black text-xl uppercase">Total</span>
@@ -577,4 +703,38 @@ function shipLabel(method: string) {
       </div>
     </div>
   </section>
+
+  <Teleport to="body">
+    <div
+      v-if="showSandboxConfirm"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div class="absolute inset-0 bg-brutal-black/50" @click="showSandboxConfirm = false"></div>
+      <div class="relative bg-brutal-white brutal-border brutal-shadow p-8 w-full max-w-md text-center space-y-4">
+        <div class="bg-brutal-yellow p-3 brutal-border inline-block mx-auto">
+          <CheckCircle2 :size="32" :stroke-width="2.5" />
+        </div>
+        <h3 class="font-black text-xl uppercase">Confirmar pago (sandbox)</h3>
+        <p class="text-brutal-black/70 text-sm">
+          No hay credenciales de MercadoPago configuradas. En modo sandbox, confirma el pago manualmente para simular la aprobacion.
+        </p>
+        <div class="flex flex-col gap-2 pt-2">
+          <button
+            class="brutal-button bg-green-500 text-brutal-white px-6 py-3 uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-60"
+            :disabled="paying"
+            @click="confirmSandboxPayment"
+          >
+            <CheckCircle2 :size="18" :stroke-width="2.5" />
+            {{ paying ? 'Procesando...' : 'Confirmar pago aprobado' }}
+          </button>
+          <button
+            class="brutal-button bg-brutal-white text-brutal-black px-6 py-2 text-sm uppercase tracking-wide"
+            @click="showSandboxConfirm = false"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>

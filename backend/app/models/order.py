@@ -30,6 +30,8 @@ class Order(Base, TimestampMixin):
     total: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     shipping_method: Mapped[str | None] = mapped_column(String(50), nullable=True)
     shipping_cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
+    coupon_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    discount_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
     shipping_address_snapshot: Mapped[str | None] = mapped_column(Text, nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
@@ -37,6 +39,7 @@ class Order(Base, TimestampMixin):
     items: Mapped[list["OrderItem"]] = relationship(
         back_populates="order", cascade="all, delete-orphan", lazy="selectin"
     )
+    payments: Mapped[list["Payment"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Order id={self.id} user_id={self.user_id} status={self.status.value}>"

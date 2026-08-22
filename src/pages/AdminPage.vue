@@ -5,15 +5,17 @@ import { ChartNoAxesCombined, FolderKanban, PackageOpen } from '@lucide/vue'
 import AdminCategories from '../components/admin/AdminCategories.vue'
 import AdminOrders from '../components/admin/AdminOrders.vue'
 import AdminProducts from '../components/admin/AdminProducts.vue'
+import AdminCoupons from '../components/admin/AdminCoupons.vue'
 import AdminDashboard from './AdminDashboard.vue'
 
-type Tab = 'dashboard' | 'products' | 'categories' | 'orders'
+type Tab = 'dashboard' | 'products' | 'categories' | 'orders' | 'coupons'
 
 const tabs: { id: Tab; label: string; icon: typeof ChartNoAxesCombined }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: ChartNoAxesCombined },
   { id: 'products', label: 'Productos', icon: ChartNoAxesCombined },
   { id: 'categories', label: 'Categorías', icon: FolderKanban },
   { id: 'orders', label: 'Pedidos', icon: PackageOpen },
+  { id: 'coupons', label: 'Cupones', icon: ChartNoAxesCombined },
 ]
 
 const activeTab = ref<Tab>('dashboard')
@@ -44,6 +46,7 @@ const activeTab = ref<Tab>('dashboard')
     <AdminDashboard v-if="activeTab === 'dashboard'" />
     <AdminProducts v-else-if="activeTab === 'products'" />
     <AdminCategories v-else-if="activeTab === 'categories'" />
-    <AdminOrders v-else />
+    <AdminOrders v-else-if="activeTab === 'orders'" />
+    <AdminCoupons v-else />
   </div>
 </template>
