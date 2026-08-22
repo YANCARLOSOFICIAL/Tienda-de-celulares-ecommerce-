@@ -50,7 +50,7 @@ const contactInfo = [
   <section
     id="contacto"
     ref="sectionRef"
-    class="section-clean bg-[#0a0a0f]"
+    class="section-clean bg-surface"
     aria-labelledby="contacto-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -74,12 +74,12 @@ const contactInfo = [
         >
           <form @submit.prevent="handleSubmit" novalidate class="space-y-5">
             <div>
-              <label for="name" class="block text-sm font-medium text-gray-400 mb-1.5">Nombre *</label>
+              <label for="name" class="block text-sm font-medium text-text-secondary mb-1.5">Nombre *</label>
               <input
                 id="name"
                 v-model="form.name"
                 type="text"
-                class="input-minimal bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
                 :class="{ '!border-danger': errors.name }"
                 placeholder="Tu nombre"
               />
@@ -89,12 +89,12 @@ const contactInfo = [
             </div>
 
             <div>
-              <label for="email" class="block text-sm font-medium text-gray-400 mb-1.5">Correo electrónico *</label>
+              <label for="email" class="block text-sm font-medium text-text-secondary mb-1.5">Correo electrónico *</label>
               <input
                 id="email"
                 v-model="form.email"
                 type="email"
-                class="input-minimal bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
                 :class="{ '!border-danger': errors.email }"
                 placeholder="tu@correo.com"
               />
@@ -104,23 +104,23 @@ const contactInfo = [
             </div>
 
             <div>
-              <label for="phone" class="block text-sm font-medium text-gray-400 mb-1.5">Teléfono</label>
+              <label for="phone" class="block text-sm font-medium text-text-secondary mb-1.5">Teléfono</label>
               <input
                 id="phone"
                 v-model="form.phone"
                 type="tel"
-                class="input-minimal bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
                 placeholder="+52 55 1234 5678"
               />
             </div>
 
             <div>
-              <label for="message" class="block text-sm font-medium text-gray-400 mb-1.5">Mensaje *</label>
+              <label for="message" class="block text-sm font-medium text-text-secondary mb-1.5">Mensaje *</label>
               <textarea
                 id="message"
                 v-model="form.message"
                 rows="4"
-                class="input-minimal resize-y bg-[#12121a] border-[#1e1e2e] text-white placeholder-gray-600 focus:border-[#00f0ff] focus:ring-[#00f0ff]/20"
+                class="input-minimal resize-y bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
                 :class="{ '!border-danger': errors.message }"
                 placeholder="¿En qué podemos ayudarte?"
               ></textarea>
@@ -170,11 +170,11 @@ const contactInfo = [
             ]"
             :style="{ transitionDelay: `${300 + i * 100}ms` }"
           >
-            <div class="w-11 h-11 rounded-xl bg-[#00f0ff]/10 flex items-center justify-center flex-shrink-0">
-              <component :is="info.icon" :size="18" :stroke-width="2" class="text-[#00f0ff]" />
+            <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+              <component :is="info.icon" :size="18" :stroke-width="2" class="text-blue-500" />
             </div>
             <div>
-              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">{{ info.label }}</p>
+              <p class="text-xs font-medium text-text-tertiary uppercase tracking-wide">{{ info.label }}</p>
               <p class="font-semibold text-sm text-white">{{ info.value }}</p>
             </div>
           </div>

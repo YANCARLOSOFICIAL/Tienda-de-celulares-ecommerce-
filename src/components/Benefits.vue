@@ -33,7 +33,7 @@ const benefits = [
 <template>
   <section
     ref="sectionRef"
-    class="section-clean bg-[#12121a]"
+    class="section-clean bg-surface-dim"
     aria-label="Beneficios"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,11 +58,11 @@ const benefits = [
           ]"
           :style="{ transitionDelay: `${index * 100}ms` }"
         >
-          <div class="w-14 h-14 rounded-2xl bg-[#00f0ff]/10 flex items-center justify-center">
-            <component :is="benefit.icon" :size="24" :stroke-width="2" class="text-[#00f0ff]" />
+          <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+            <component :is="benefit.icon" :size="24" :stroke-width="2" class="text-blue-500" />
           </div>
           <h3 class="font-semibold text-base text-white">{{ benefit.title }}</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">{{ benefit.description }}</p>
+          <p class="text-sm text-text-secondary leading-relaxed">{{ benefit.description }}</p>
         </article>
       </div>
     </div>

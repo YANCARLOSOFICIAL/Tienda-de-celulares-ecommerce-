@@ -24,19 +24,19 @@ const summaryCards = ref<{ label: string; value: string; icon: typeof Package; c
 watch(stats, (s) => {
   if (!s) return
   summaryCards.value = [
-    { label: 'Pedidos', value: String(s.total_orders), icon: ShoppingCart, color: 'text-[#0071E3]', bgColor: 'bg-[#0071E3]/10' },
-    { label: 'Ingresos', value: '$' + formatPrice(s.total_revenue), icon: DollarSign, color: 'text-[#30D158]', bgColor: 'bg-[#30D158]/10' },
-    { label: 'Productos', value: String(s.total_products), icon: Package, color: 'text-[#0071E3]', bgColor: 'bg-blue-500/10' },
-    { label: 'Usuarios', value: String(s.total_users), icon: Users, color: 'text-[#BF5AF2]', bgColor: 'bg-purple-500/10' },
+    { label: 'Pedidos', value: String(s.total_orders), icon: ShoppingCart, color: 'text-gold', bgColor: 'bg-gold/10' },
+    { label: 'Ingresos', value: '$' + formatPrice(s.total_revenue), icon: DollarSign, color: 'text-accent', bgColor: 'bg-accent/10' },
+    { label: 'Productos', value: String(s.total_products), icon: Package, color: 'text-gold', bgColor: 'bg-gold/10' },
+    { label: 'Usuarios', value: String(s.total_users), icon: Users, color: 'text-silver', bgColor: 'bg-silver/10' },
   ]
 })
 
 const statusColorMap: Record<string, string> = {
-  pending: 'bg-[#FF9F0A]',
-  confirmed: 'bg-[#0071E3]',
-  shipped: 'bg-[#BF5AF2]',
-  delivered: 'bg-[#30D158]',
-  cancelled: 'bg-[#FF453A]',
+  pending: 'bg-gold',
+  confirmed: 'bg-accent',
+  shipped: 'bg-silver',
+  delivered: 'bg-accent',
+  cancelled: 'bg-danger',
 }
 
 const statusBadgeMap: Record<string, string> = {
@@ -52,7 +52,7 @@ const statusBadgeMap: Record<string, string> = {
   <div class="bento-grid">
     <!-- Loading skeletons -->
     <template v-if="loading">
-      <div v-for="i in 4" :key="i" class="bento-card glass">
+      <div v-for="i in 4" :key="i" class="bento-card-static">
         <div class="skeleton h-4 w-24 mb-3"></div>
         <div class="skeleton h-8 w-32"></div>
       </div>
@@ -63,7 +63,7 @@ const statusBadgeMap: Record<string, string> = {
       <div
         v-for="card in summaryCards"
         :key="card.label"
-        class="bento-card glass"
+        class="bento-card-static"
       >
         <div class="flex items-center gap-3 mb-3">
           <span :class="[card.bgColor, 'w-10 h-10 rounded-full flex items-center justify-center']">
@@ -77,7 +77,7 @@ const statusBadgeMap: Record<string, string> = {
       <!-- Orders by status -->
       <div class="bento-card bento-span-2 glass">
         <div class="flex items-center gap-2 mb-4">
-          <TrendingUp :size="18" :stroke-width="2" class="text-secondary" />
+          <TrendingUp :size="18" :stroke-width="2" class="text-text-tertiary" />
           <h3 class="font-semibold text-text">Pedidos por estado</h3>
         </div>
         <div class="space-y-3">
@@ -91,7 +91,7 @@ const statusBadgeMap: Record<string, string> = {
             </span>
             <div class="flex-1 h-2 bg-surface-dim rounded-full overflow-hidden">
               <div
-                :class="[statusColorMap[status] || 'bg-[#86868B]']"
+                :class="[statusColorMap[status] || 'bg-gold']"
                 class="h-full rounded-full transition-all duration-500"
                 :style="{ width: stats.total_orders ? `${(count / stats.total_orders) * 100}%` : '0%' }"
               ></div>
@@ -102,9 +102,9 @@ const statusBadgeMap: Record<string, string> = {
       </div>
 
       <!-- Top products -->
-      <div class="bento-card glass">
+      <div class="bento-card-static">
         <div class="flex items-center gap-2 mb-4">
-          <Package :size="18" :stroke-width="2" class="text-secondary" />
+          <Package :size="18" :stroke-width="2" class="text-text-tertiary" />
           <h3 class="font-semibold text-text">Productos más vendidos</h3>
         </div>
         <div v-if="stats.top_products.length === 0" class="text-secondary text-sm">
@@ -129,7 +129,7 @@ const statusBadgeMap: Record<string, string> = {
       <!-- Recent orders -->
       <div class="bento-card bento-span-2 glass">
         <div class="flex items-center gap-2 mb-4">
-          <ShoppingCart :size="18" :stroke-width="2" class="text-secondary" />
+          <ShoppingCart :size="18" :stroke-width="2" class="text-text-tertiary" />
           <h3 class="font-semibold text-text">Pedidos recientes</h3>
         </div>
         <div v-if="stats.recent_orders.length === 0" class="text-secondary text-sm">

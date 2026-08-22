@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Menu, X, ShoppingCart, User, LogOut, Package, Heart, Shield, Search } from '@lucide/vue'
+import { Menu, X, ShoppingCart, User, LogOut, Package, Heart, Shield } from '@lucide/vue'
 
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
@@ -15,7 +15,6 @@ const cartStore = useCartStore()
 const isMenuOpen = ref(false)
 const isScrolled = ref(false)
 const isUserMenuOpen = ref(false)
-const isMobileSearchOpen = ref(false)
 
 const navLinks = [
   { label: 'Inicio', href: '#hero' },
@@ -25,7 +24,7 @@ const navLinks = [
 ]
 
 function handleScroll() {
-  isScrolled.value = window.scrollY > 20
+  isScrolled.value = window.scrollY > 10
 }
 
 function scrollToSection(href: string) {
@@ -77,7 +76,6 @@ onUnmounted(() => {
 watch(route, () => {
   isMenuOpen.value = false
   isUserMenuOpen.value = false
-  isMobileSearchOpen.value = false
 })
 </script>
 
@@ -85,32 +83,33 @@ watch(route, () => {
   <header
     :class="[
       'fixed top-0 left-0 w-full z-50 transition-all duration-300',
-      isScrolled ? 'glass-strong bg-[#0A0A0A]/90 border-b border-[#00D4FF]/10 shadow-[0_1px_3px_rgba(0,212,255,0.04)]' : 'bg-[#0A0A0A]/90 backdrop-blur-sm'
+      isScrolled ? 'glass-strong shadow-2xl shadow-black/30' : 'bg-transparent'
     ]"
   >
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Navegación principal">
-      <div class="flex items-center justify-between h-14 lg:h-16">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Navegacion principal">
+      <div class="flex items-center justify-between h-14 lg:h-[76px]">
         <a
           href="#hero"
-          class="text-white font-bold text-lg tracking-tight neon-text hover:opacity-70 transition-opacity"
+          class="flex items-center gap-3 text-white font-bold text-lg tracking-tight hover:opacity-70 transition-opacity"
           @click.prevent="scrollToSection('#hero')"
         >
+          <span class="text-gold-gradient text-xl font-bold" style="font-family: var(--font-family-serif);">TC</span>
           Tienda Cell
         </a>
 
-        <div class="hidden lg:flex items-center gap-1">
+        <div class="hidden lg:flex items-center gap-9">
           <template v-for="link in navLinks" :key="link.label">
             <router-link
               v-if="link.to"
               :to="link.to"
-              class="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-[#00D4FF]/10"
+              class="px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-silver transition-colors rounded-lg"
             >
               {{ link.label }}
             </router-link>
             <a
               v-else
               :href="link.href"
-              class="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-[#00D4FF]/10"
+              class="px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-silver transition-colors rounded-lg"
               @click.prevent="scrollToSection(link.href!)"
             >
               {{ link.label }}
@@ -124,14 +123,14 @@ watch(route, () => {
 
         <div class="hidden lg:flex items-center gap-2">
           <button
-            class="relative p-2 text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+            class="relative p-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
             aria-label="Ver carrito"
             @click="goToCart"
           >
             <ShoppingCart :size="18" :stroke-width="1.75" />
             <span
               v-if="cartStore.itemCount > 0"
-              class="absolute -top-0.5 -right-0.5 bg-[#00D4FF] text-black text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none shadow-[0_0_8px_rgba(0,212,255,0.5)]"
+              class="absolute -top-0.5 -right-0.5 bg-gold text-[#0e0f12] text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none"
             >
               {{ cartStore.itemCount }}
             </span>
@@ -139,29 +138,13 @@ watch(route, () => {
 
           <div v-if="authStore.isAuthenticated" class="relative user-menu-container">
             <button
-              class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+              class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
               @click.stop="isUserMenuOpen = !isUserMenuOpen"
             >
               <User :size="16" :stroke-width="1.75" />
               <span class="max-w-[100px] truncate">{{ authStore.user?.full_name }}</span>
             </button>
-      <Transition
-        enter-active-class="transition ease-out duration-200"
-        enter-from-class="opacity-0 -translate-y-2"
-        enter-to-class="opacity-100 translate-y-0"
-        leave-active-class="transition ease-in duration-150"
-        leave-from-class="opacity-100 translate-y-0"
-        leave-to-class="opacity-0 -translate-y-2"
-      >
-        <div
-          v-show="isMobileSearchOpen"
-          class="lg:hidden pb-3 border-b border-[#00D4FF]/10 bg-[#141414]/95 backdrop-blur-md px-3 pt-3"
-        >
-          <PredictiveSearch />
-        </div>
-      </Transition>
-
-      <Transition
+            <Transition
               enter-active-class="transition ease-out duration-150"
               enter-from-class="opacity-0 -translate-y-1"
               enter-to-class="opacity-100 translate-y-0"
@@ -171,12 +154,12 @@ watch(route, () => {
             >
               <div
                 v-if="isUserMenuOpen"
-                class="absolute right-0 mt-1.5 w-52 bg-[#141414]/95 backdrop-blur-md rounded-xl border border-[#00D4FF]/10 shadow-lg shadow-[#00D4FF]/5 overflow-hidden"
+                class="absolute right-0 mt-1.5 w-52 glass-strong rounded-xl overflow-hidden shadow-2xl shadow-black/40"
               >
                 <div class="py-1">
                   <router-link
                     to="/orders"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 transition-colors"
+                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors"
                     @click="isUserMenuOpen = false"
                   >
                     <Package :size="15" :stroke-width="1.75" />
@@ -184,7 +167,7 @@ watch(route, () => {
                   </router-link>
                   <router-link
                     to="/wishlist"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 transition-colors"
+                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors"
                     @click="isUserMenuOpen = false"
                   >
                     <Heart :size="15" :stroke-width="1.75" />
@@ -192,7 +175,7 @@ watch(route, () => {
                   </router-link>
                   <router-link
                     to="/profile"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 transition-colors"
+                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors"
                     @click="isUserMenuOpen = false"
                   >
                     <User :size="15" :stroke-width="1.75" />
@@ -201,13 +184,13 @@ watch(route, () => {
                   <router-link
                     v-if="authStore.isAdmin"
                     to="/admin"
-                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 transition-colors"
+                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors"
                     @click="isUserMenuOpen = false"
                   >
                     <Shield :size="15" :stroke-width="1.75" />
                     Panel admin
                   </router-link>
-                  <div class="my-1 h-px bg-[#00D4FF]/10" />
+                  <div class="my-1 h-px bg-border" />
                   <button
                     class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                     @click="logout"
@@ -231,29 +214,21 @@ watch(route, () => {
 
         <div class="flex lg:hidden items-center gap-2">
           <button
-            class="relative p-2 text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
-            aria-label="Buscar productos"
-            @click="isMobileSearchOpen = !isMobileSearchOpen"
-          >
-            <Search :size="18" :stroke-width="1.75" />
-          </button>
-
-          <button
-            class="relative p-2 text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+            class="relative p-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
             aria-label="Ver carrito"
             @click="goToCart"
           >
             <ShoppingCart :size="18" :stroke-width="1.75" />
             <span
               v-if="cartStore.itemCount > 0"
-              class="absolute -top-0.5 -right-0.5 bg-[#00D4FF] text-black text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none shadow-[0_0_8px_rgba(0,212,255,0.5)]"
+              class="absolute -top-0.5 -right-0.5 bg-gold text-[#0e0f12] text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none"
             >
               {{ cartStore.itemCount }}
             </span>
           </button>
 
           <button
-            class="p-2 text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+            class="p-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
             @click="isMenuOpen = !isMenuOpen"
             :aria-label="isMenuOpen ? 'Cerrar menú' : 'Abrir menú'"
             :aria-expanded="isMenuOpen"
@@ -274,14 +249,14 @@ watch(route, () => {
       >
         <div
           v-show="isMenuOpen"
-          class="lg:hidden pb-4 border-t border-[#00D4FF]/10 bg-[#141414]/95 backdrop-blur-md"
+          class="lg:hidden pb-4 glass-strong border-t border-white/10"
         >
           <div class="pt-3 space-y-1">
             <template v-for="link in navLinks" :key="link.label">
               <router-link
                 v-if="link.to"
                 :to="link.to"
-                class="block px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+                class="block px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 @click="isMenuOpen = false"
               >
                 {{ link.label }}
@@ -289,7 +264,7 @@ watch(route, () => {
               <a
                 v-else
                 :href="link.href"
-                class="block px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+                class="block px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 @click.prevent="scrollToSection(link.href!)"
               >
                 {{ link.label }}
@@ -297,11 +272,11 @@ watch(route, () => {
             </template>
           </div>
 
-          <div class="mt-3 pt-3 border-t border-[#00D4FF]/10 space-y-1">
+          <div class="mt-3 pt-3 border-t border-border space-y-1">
             <template v-if="authStore.isAuthenticated">
               <router-link
                 to="/orders"
-                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 @click="isMenuOpen = false"
               >
                 <Package :size="16" :stroke-width="1.75" />
@@ -309,7 +284,7 @@ watch(route, () => {
               </router-link>
               <router-link
                 to="/wishlist"
-                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 @click="isMenuOpen = false"
               >
                 <Heart :size="16" :stroke-width="1.75" />
@@ -317,7 +292,7 @@ watch(route, () => {
               </router-link>
               <router-link
                 to="/profile"
-                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 @click="isMenuOpen = false"
               >
                 <User :size="16" :stroke-width="1.75" />
@@ -326,7 +301,7 @@ watch(route, () => {
               <router-link
                 v-if="authStore.isAdmin"
                 to="/admin"
-                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#00D4FF]/10 rounded-lg transition-colors"
+                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 @click="isMenuOpen = false"
               >
                 <Shield :size="16" :stroke-width="1.75" />

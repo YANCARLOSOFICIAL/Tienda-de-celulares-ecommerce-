@@ -87,8 +87,8 @@ function emitVariant() {
           :key="storage"
           class="px-4 py-2 rounded-xl text-sm font-medium transition-all"
           :class="selectedStorage === storage
-            ? 'bg-accent text-black shadow-[0_0_12px_rgba(0,212,255,0.4)]'
-            : 'bg-surface-dim border border-border text-text-secondary hover:border-accent hover:text-text'"
+            ? 'bg-accent text-black'
+            : 'bg-surface-dim border border-border text-text-secondary hover:border-white/10 hover:text-white'"
           @click="selectStorage(storage)"
         >
           {{ storage }}
@@ -106,8 +106,8 @@ function emitVariant() {
           :key="color.name"
           class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center"
           :class="selectedColor === color.name
-            ? 'border-accent shadow-[0_0_8px_rgba(0,212,255,0.5)] scale-110'
-            : 'border-border hover:border-accent'"
+            ? 'border-blue-500 scale-110'
+            : 'border-border hover:border-white/10'"
           :title="color.name"
           @click="selectColor(color.name)"
         >

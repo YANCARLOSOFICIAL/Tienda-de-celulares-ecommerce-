@@ -118,7 +118,7 @@ onMounted(load)
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-text flex items-center gap-2">
+        <h2 class="text-2xl font-bold text-text flex items-center gap-2" style="font-family: var(--font-family-serif);">
           <Package :size="24" :stroke-width="2" />
           Productos
         </h2>

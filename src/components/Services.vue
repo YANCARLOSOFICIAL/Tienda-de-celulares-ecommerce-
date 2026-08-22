@@ -34,7 +34,7 @@ const services = [
   <section
     id="servicios"
     ref="sectionRef"
-    class="section-clean bg-[#0a0a0f]"
+    class="section-clean bg-surface"
     aria-labelledby="servicios-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,11 +59,11 @@ const services = [
           ]"
           :style="{ transitionDelay: `${index * 100}ms` }"
         >
-          <div class="w-14 h-14 rounded-2xl bg-[#00f0ff]/10 flex items-center justify-center group-hover:bg-[#00f0ff] transition-colors duration-300">
-            <component :is="service.icon" :size="24" :stroke-width="2" class="text-[#00f0ff] group-hover:text-[#0a0a0f] transition-colors duration-300" />
+          <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-300">
+            <component :is="service.icon" :size="24" :stroke-width="2" class="text-blue-500 group-hover:text-white transition-colors duration-300" />
           </div>
           <h3 class="font-semibold text-base text-white">{{ service.title }}</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">{{ service.description }}</p>
+          <p class="text-sm text-text-secondary leading-relaxed">{{ service.description }}</p>
         </article>
       </div>
     </div>

@@ -116,7 +116,7 @@ function barWidth(stars: number): number {
         <p class="font-black text-5xl">{{ summary.average }}</p>
         <div class="flex items-center gap-0.5 mt-1 justify-center sm:justify-start">
           <Star v-for="i in 5" :key="i" :size="16" :stroke-width="2.5"
-            :class="i <= Math.round(summary.average) ? 'text-warning fill-warning' : 'text-text/20'"
+            :class="i <= Math.round(summary.average) ? 'text-amber-400 fill-amber-400' : 'text-text/20'"
           />
         </div>
         <p class="text-xs text-text/50 mt-1">{{ summary.total }} review{{ summary.total !== 1 ? 's' : '' }}</p>
@@ -124,9 +124,9 @@ function barWidth(stars: number): number {
       <div class="flex-1 space-y-1.5">
         <div v-for="stars in [5, 4, 3, 2, 1]" :key="stars" class="flex items-center gap-2 text-sm">
           <span class="w-8 text-right font-bold">{{ stars }}</span>
-          <Star :size="12" :stroke-width="2.5" class="text-warning fill-warning shrink-0" />
+          <Star :size="12" :stroke-width="2.5" class="text-amber-400 fill-amber-400 shrink-0" />
           <div class="flex-1 h-2.5 bg-border-light rounded-full overflow-hidden">
-            <div class="h-full bg-warning rounded-full transition-all" :style="{ width: barWidth(stars) + '%' }"></div>
+            <div class="h-full bg-amber-400 rounded-full transition-all" :style="{ width: barWidth(stars) + '%' }"></div>
           </div>
           <span class="w-6 text-xs font-bold text-text/50">{{ summary.distribution[stars] }}</span>
         </div>
@@ -151,7 +151,7 @@ function barWidth(stars: number): number {
           >
             <Star
               :size="28" :stroke-width="2.5"
-              :class="(hoverRating || form.rating) >= i ? 'text-warning fill-warning' : 'text-text/20'"
+              :class="(hoverRating || form.rating) >= i ? 'text-amber-400 fill-amber-400' : 'text-text/20'"
             />
           </button>
           <span v-if="hoverRating || form.rating" class="text-sm font-bold ml-2">
@@ -223,7 +223,7 @@ function barWidth(stars: number): number {
             <div class="flex items-center gap-2 mb-1">
               <div class="flex items-center gap-0.5">
                 <Star v-for="i in 5" :key="i" :size="14" :stroke-width="2.5"
-                  :class="i <= review.rating ? 'text-warning fill-warning' : 'text-text/20'"
+                  :class="i <= review.rating ? 'text-amber-400 fill-amber-400' : 'text-text/20'"
                 />
               </div>
               <span class="text-xs font-bold text-text/50">{{ review.user_name }}</span>

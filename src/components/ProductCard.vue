@@ -88,22 +88,21 @@ function toggleCompare() {
 
 <template>
   <article
-    class="bento-card flex flex-col overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/20"
+    class="premium-card flex flex-col overflow-hidden group"
     itemscope
     itemtype="https://schema.org/Product"
   >
-    <div class="relative overflow-hidden rounded-xl aspect-square cursor-pointer bg-surface-dim" @click="goToDetail">
+    <div class="premium-image cursor-pointer" @click="goToDetail">
       <img
         :src="product.image || 'https://placehold.co/400x400/FAFAFA/86868B?text=Sin+imagen&font=inter'"
         :alt="product.name"
         loading="lazy"
-        class="w-full h-full object-cover rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(0,212,255,0.15)]"
         itemprop="image"
       />
 
       <button
-        class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-all duration-200 hover:bg-black/70 hover:scale-110"
-        :class="isWishlisted ? 'text-danger shadow-[0_0_12px_rgba(255,59,48,0.5)]' : 'text-text-secondary hover:text-danger'"
+        class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full glass transition-all duration-300 hover:scale-110 z-10"
+        :class="isWishlisted ? 'text-red-400' : 'text-text-secondary hover:text-red-400'"
         :disabled="togglingWishlist"
         @click.stop="toggleWishlist"
         :aria-label="isWishlisted ? 'Quitar de favoritos' : 'Agregar a favoritos'"
@@ -112,8 +111,8 @@ function toggleCompare() {
       </button>
 
       <button
-        class="absolute top-3 left-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-all duration-200 hover:bg-black/70 hover:scale-110"
-        :class="isInCompare ? 'text-accent shadow-[0_0_12px_rgba(0,212,255,0.5)]' : 'text-text-secondary hover:text-accent'"
+        class="absolute top-3 left-3 w-9 h-9 flex items-center justify-center rounded-full glass transition-all duration-300 hover:scale-110 z-10"
+        :class="isInCompare ? 'text-accent' : 'text-text-secondary hover:text-accent'"
         @click.stop="toggleCompare"
         :aria-label="isInCompare ? 'Quitar de comparar' : 'Agregar a comparar'"
       >
@@ -122,24 +121,27 @@ function toggleCompare() {
 
       <div
         v-if="product.stock <= 0"
-        class="absolute top-3 left-3 bg-danger/90 text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-[0_0_10px_rgba(255,59,48,0.4)]"
+        class="absolute top-3 left-3 badge badge-danger z-10"
       >
         Agotado
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col p-4">
-      <p class="text-text-secondary text-sm mb-1" itemprop="brand">{{ product.brand }}</p>
-      <h3
-        class="font-semibold text-base leading-snug mb-2 line-clamp-2 cursor-pointer hover:text-accent transition-colors"
-        itemprop="name"
-        @click="goToDetail"
-      >
-        {{ product.name }}
-      </h3>
+    <div class="premium-content flex-1 flex flex-col">
+      <span class="category-badge mb-2">{{ product.brand }}</span>
+      <div class="premium-header">
+        <h3
+          class="premium-title cursor-pointer hover:text-gold-light transition-colors duration-300"
+          itemprop="name"
+          @click="goToDetail"
+        >
+          {{ product.name }}
+        </h3>
+      </div>
+      <p class="premium-description" itemprop="description">{{ product.brand }} {{ product.model }}</p>
 
-      <div class="mt-auto pt-3 space-y-3">
-        <span class="font-bold text-lg text-accent" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+      <div class="mt-auto pt-2 space-y-3">
+        <span class="text-gold font-bold text-xl" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
           <span itemprop="price" :content="String(priceNumber)">${{ formatPrice(product.price) }}</span>
           <meta itemprop="priceCurrency" content="MXN" />
         </span>
@@ -147,18 +149,18 @@ function toggleCompare() {
         <div class="flex gap-2">
           <button
             v-if="product.stock > 0"
-            class="btn-primary flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,212,255,0.4)]"
+            class="btn-gold flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold"
             :disabled="adding"
             @click="addToCart"
           >
             <ShoppingBag :size="16" :stroke-width="2" />
-            {{ added ? '¡Agregado!' : adding ? 'Agregando...' : 'Agregar' }}
+            {{ added ? 'Agregado!' : adding ? 'Agregando...' : 'Agregar' }}
           </button>
           <a
             :href="`https://wa.me/521234567890?text=${whatsappMessage}`"
             target="_blank"
             rel="noopener noreferrer"
-            class="btn-secondary flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold hover:shadow-[0_0_15px_rgba(0,255,136,0.3)]"
+            class="btn-secondary flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full text-sm font-semibold"
             @click.stop
           >
             <MessageCircle :size="16" :stroke-width="2" />

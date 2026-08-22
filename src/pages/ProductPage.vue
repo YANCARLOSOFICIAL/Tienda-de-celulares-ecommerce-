@@ -163,11 +163,11 @@ function buyNow() {
 </script>
 
 <template>
-  <section class="py-10 sm:py-16 bg-surface-dim min-h-[70vh]">
+  <section class="section-clean min-h-[70vh]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <button
-        class="flex items-center gap-2 text-sm text-text-secondary hover:text-text mb-8 transition-colors"
+        class="flex items-center gap-2 text-sm text-text-secondary hover:text-gold-light mb-8 transition-colors"
         @click="router.back()"
       >
         <ArrowLeft :size="16" :stroke-width="2" />
@@ -189,13 +189,11 @@ function buyNow() {
       </div>
 
       <!-- Error state -->
-      <div v-else-if="error" class="rounded-2xl p-12 text-center max-w-lg mx-auto bg-black/60 backdrop-blur-md border border-red-500/30 shadow-[0_0_15px_rgba(255,59,48,0.1)]">
-        <Package :size="48" :stroke-width="1.5" class="mx-auto text-text-secondary mb-4" />
-        <h2 class="text-xl font-semibold text-text mb-2">{{ error }}</h2>
-        <p class="text-text-secondary text-sm mb-6">El producto que buscas no está disponible o fue eliminado.</p>
-        <router-link
-          to="/#productos"
-          class="btn-primary px-6 py-3 inline-block text-sm"
+      <div v-else-if="error" class="bento-card p-12 text-center max-w-lg mx-auto">
+        <Package :size="48" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-4" />
+        <h2 class="text-xl font-semibold text-white mb-2" style="font-family: var(--font-family-serif);">{{ error }}</h2>
+        <p class="text-text-secondary text-sm mb-6">El producto que buscas no esta disponible o fue eliminado.</p>
+        <router-link to="/#productos" class="btn-gold px-6 py-3 inline-block text-sm">
         >
           Ver catálogo
         </router-link>
@@ -205,25 +203,25 @@ function buyNow() {
       <div v-else-if="product" class="space-y-12">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <!-- Gallery -->
-          <div class="rounded-2xl p-[1px] bg-gradient-to-br from-neon-blue/40 via-transparent to-neon-purple/40 shadow-[0_0_15px_rgba(0,212,255,0.15)]">
+          <div class="bento-card rounded-2xl overflow-hidden">
             <ProductGallery :image="product.image" :name="product.name" />
           </div>
 
           <!-- Details -->
           <div class="space-y-6">
             <!-- Breadcrumb -->
-            <nav class="text-xs text-text-secondary flex items-center gap-1.5">
-              <router-link to="/" class="hover:text-neon-blue hover:drop-shadow-[0_0_6px_rgba(0,212,255,0.5)] transition-all">Home</router-link>
+            <nav class="text-xs text-text-tertiary flex items-center gap-1.5" style="font-family: var(--font-family-mono);">
+              <router-link to="/" class="hover:text-gold-light transition-colors">Home</router-link>
               <span class="text-text-tertiary">›</span>
-              <span class="hover:text-neon-blue hover:drop-shadow-[0_0_6px_rgba(0,212,255,0.5)] transition-all cursor-pointer">Categoría</span>
+              <span class="hover:text-gold-light transition-colors cursor-pointer">Tienda</span>
               <span class="text-text-tertiary">›</span>
-              <span class="text-text truncate">{{ product.name }}</span>
+              <span class="text-white truncate">{{ product.name }}</span>
             </nav>
 
             <!-- Name + brand -->
             <div>
-              <p class="text-secondary text-sm mb-1">{{ product.brand }}</p>
-              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text" itemprop="name">
+              <span class="category-badge mb-2">{{ product.brand }}</span>
+              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-white" style="font-family: var(--font-family-serif);" itemprop="name">
                 {{ product.name }}
               </h1>
               <p v-if="product.model" class="text-text-secondary text-sm mt-1">
@@ -239,7 +237,7 @@ function buyNow() {
                   :key="i"
                   :size="16"
                   :stroke-width="2"
-                  :class="i <= Math.round((product as any).rating ?? 0) ? 'text-amber-400 fill-amber-400' : 'text-border'"
+                  :class="i <= Math.round((product as any).rating ?? 0) ? 'text-gold fill-gold' : 'text-text-tertiary'"
                 />
               </div>
               <span class="text-sm text-text-secondary">
@@ -255,7 +253,7 @@ function buyNow() {
               itemtype="https://schema.org/Offer"
               class="flex items-baseline gap-2"
             >
-              <span class="text-4xl font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]">
+              <span class="text-4xl font-bold text-gold" style="font-family: var(--font-family-serif);">
                 <span itemprop="price" :content="String(Number(product.price))">${{ formatPrice(product.price) }}</span>
                 <meta itemprop="priceCurrency" content="MXN" />
               </span>
@@ -265,9 +263,9 @@ function buyNow() {
             <div class="flex items-center gap-2">
               <span
                 class="w-2.5 h-2.5 rounded-full"
-                :class="inStock ? 'bg-success' : 'bg-red-500'"
+                :class="inStock ? 'bg-success' : 'bg-danger'"
               ></span>
-              <span class="text-sm font-medium" :class="inStock ? 'text-success' : 'text-red-500'">
+              <span class="text-sm font-medium" :class="inStock ? 'text-success' : 'text-danger'">
                 {{ stockLabel }}
               </span>
             </div>
@@ -283,19 +281,19 @@ function buyNow() {
             <!-- Quantity + Add to cart -->
             <div v-if="inStock" class="flex items-center gap-4">
               <label class="text-sm text-text-secondary">Cantidad</label>
-              <div class="flex items-center rounded-xl border border-neon-blue/30 overflow-hidden">
+              <div class="flex items-center rounded-full glass overflow-hidden border border-border-strong">
                 <button
-                  class="px-3 py-2 text-text-secondary hover:bg-surface-dim transition-colors text-sm font-medium"
+                  class="px-3 py-2 text-text-secondary hover:text-white hover:bg-white/5 transition-colors text-sm font-medium"
                   :disabled="quantity <= 1"
                   @click="quantity--"
                 >
                   −
                 </button>
-                <span class="px-4 py-2 text-sm font-semibold min-w-[2.5rem] text-center border-x border-neon-blue/30">
+                <span class="px-4 py-2 text-sm font-semibold min-w-[2.5rem] text-center border-x border-border-strong text-white">
                   {{ quantity }}
                 </span>
                 <button
-                  class="px-3 py-2 text-text-secondary hover:bg-surface-dim transition-colors text-sm font-medium"
+                  class="px-3 py-2 text-text-secondary hover:text-white hover:bg-white/5 transition-colors text-sm font-medium"
                   :disabled="quantity >= product.stock"
                   @click="quantity++"
                 >
@@ -308,7 +306,7 @@ function buyNow() {
             <div class="space-y-3">
               <button
                 v-if="inStock"
-                class="px-6 py-3.5 w-full flex items-center justify-center gap-2 text-sm font-semibold rounded-full transition-all disabled:opacity-60 bg-neon-blue text-black hover:bg-neon-blue/90 hover:shadow-[0_0_20px_rgba(0,212,255,0.5),0_0_40px_rgba(0,212,255,0.2)] active:scale-[0.98]"
+                class="btn-gold px-6 py-3.5 w-full flex items-center justify-center gap-2 text-sm font-semibold rounded-full transition-all disabled:opacity-60"
                 :disabled="adding"
                 @click="addToCart"
               >
@@ -319,7 +317,7 @@ function buyNow() {
               <div class="flex gap-3">
                 <button
                   class="btn-secondary flex-1 flex items-center justify-center gap-2 py-3 text-sm transition-all"
-                  :class="isWishlisted ? 'text-red-500 border-red-200' : ''"
+                  :class="isWishlisted ? 'text-red-400 border-red-400/30' : ''"
                   :disabled="wishlistLoading"
                   @click="toggleWishlist"
                 >
@@ -330,7 +328,7 @@ function buyNow() {
                   :href="`https://wa.me/521234567890?text=${whatsappMessage}`"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="btn-ghost flex-1 flex items-center justify-center gap-2 py-3 text-sm"
+                  class="btn-secondary flex-1 flex items-center justify-center gap-2 py-3 text-sm"
                 >
                   <MessageCircle :size="18" :stroke-width="2" />
                   WhatsApp
@@ -338,43 +336,43 @@ function buyNow() {
               </div>
             </div>
 
-            <!-- Specs panel (glass) -->
-            <div class="rounded-2xl p-6 bg-black/60 backdrop-blur-md border border-neon-blue/20 shadow-[0_0_10px_rgba(0,212,255,0.05)]">
+            <!-- Specs panel -->
+            <div class="bento-card p-6">
               <ProductSpecs :product="product" />
             </div>
 
-            <!-- Shipping info (glass card) -->
-            <div class="rounded-2xl p-4 flex items-start gap-3 bg-black/60 backdrop-blur-md border border-neon-green/20">
-              <Truck :size="20" :stroke-width="2" class="text-neon-green mt-0.5 shrink-0" />
+            <!-- Shipping info -->
+            <div class="bento-card p-4 flex items-start gap-3">
+              <Truck :size="20" :stroke-width="2" class="text-accent mt-0.5 shrink-0" />
               <div class="text-sm">
-                <p class="font-medium text-text">Envío a todo México</p>
-                <p class="text-text-secondary text-xs mt-0.5">Envío gratis en compras mayores a $999 MXN</p>
+                <p class="font-medium text-white">Envio a todo Mexico</p>
+                <p class="text-text-secondary text-xs mt-0.5">Envio gratis en compras mayores a $999 MXN</p>
               </div>
             </div>
 
-            <div class="rounded-2xl p-4 flex items-start gap-3 bg-black/60 backdrop-blur-md border border-neon-blue/20">
-              <Shield :size="20" :stroke-width="2" class="text-neon-blue mt-0.5 shrink-0" />
+            <div class="bento-card p-4 flex items-start gap-3">
+              <Shield :size="20" :stroke-width="2" class="text-gold mt-0.5 shrink-0" />
               <div class="text-sm">
-                <p class="font-medium text-text">Garantía incluida</p>
-                <p class="text-text-secondary text-xs mt-0.5">3 meses de garantía del fabricante</p>
+                <p class="font-medium text-white">Garantia incluida</p>
+                <p class="text-text-secondary text-xs mt-0.5">3 meses de garantia del fabricante</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Tabs -->
-        <div class="rounded-2xl bg-black/60 backdrop-blur-md border border-border overflow-hidden">
+        <div class="bento-card overflow-hidden">
           <div class="flex border-b border-border">
             <button
               class="flex-1 px-6 py-4 text-sm font-semibold uppercase tracking-wide transition-all"
-              :class="activeTab === 'reviews' ? 'text-neon-blue border-b-2 border-neon-blue shadow-[0_2px_10px_rgba(0,212,255,0.2)]' : 'text-text-secondary hover:text-text hover:bg-surface-dim'"
+              :class="activeTab === 'reviews' ? 'text-white border-b-2 border-gold' : 'text-text-secondary hover:text-white hover:bg-white/5'"
               @click="activeTab = 'reviews'"
             >
               Reviews
             </button>
             <button
               class="flex-1 px-6 py-4 text-sm font-semibold uppercase tracking-wide transition-all"
-              :class="activeTab === 'related' ? 'text-neon-blue border-b-2 border-neon-blue shadow-[0_2px_10px_rgba(0,212,255,0.2)]' : 'text-text-secondary hover:text-text hover:bg-surface-dim'"
+              :class="activeTab === 'related' ? 'text-white border-b-2 border-gold' : 'text-text-secondary hover:text-white hover:bg-white/5'"
               @click="activeTab = 'related'"
             >
               Relacionados

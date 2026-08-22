@@ -8,20 +8,20 @@ function scrollToSection(id: string) {
 </script>
 
 <template>
-  <section id="hero" class="relative overflow-hidden bg-[#0a0a0f] dark">
-    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 25% 25%, #00f0ff 1px, transparent 1px); background-size: 48px 48px;"></div>
+  <section id="hero" class="relative overflow-hidden bg-surface dark">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 25% 25%, #3B82F6 1px, transparent 1px); background-size: 48px 48px;"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div class="space-y-8 relative z-10">
           <span class="badge badge-accent">
-            <span class="inline-block w-1.5 h-1.5 bg-accent rounded-full mr-2"></span>
+            <span class="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
             Envíos a todo el país
           </span>
 
           <h1 class="section-title leading-[1.05]">
             <span class="block text-white">Tu próximo</span>
-            <span class="block text-[#00f0ff] drop-shadow-[0_0_20px_rgba(0,240,255,0.5)]">celular</span>
+            <span class="block text-blue-500">celular</span>
             <span class="block text-white">te espera</span>
           </h1>
 
@@ -49,25 +49,25 @@ function scrollToSection(id: string) {
 
           <div class="flex items-center gap-4 pt-2">
             <div class="flex -space-x-2">
-              <div v-for="i in 4" :key="i" class="w-8 h-8 rounded-full border-2 border-[#0a0a0f] bg-[#1a1a2e] flex items-center justify-center text-[10px] font-semibold text-gray-400" :style="{ zIndex: 4 - i }">
+              <div v-for="i in 4" :key="i" class="w-8 h-8 rounded-full border-2 border-surface bg-surface-dim flex items-center justify-center text-[10px] font-semibold text-text-secondary" :style="{ zIndex: 4 - i }">
                 {{ ['M','C','R','A'][i-1] }}
               </div>
             </div>
-            <span class="text-sm text-gray-400">+2,500 clientes satisfechos</span>
+            <span class="text-sm text-text-secondary">+2,500 clientes satisfechos</span>
           </div>
         </div>
 
         <div class="relative flex justify-center lg:justify-end">
           <div class="relative w-full max-w-sm">
             <div class="bento-card p-6 sm:p-8 animate-float" style="animation-delay: 0.5s;">
-              <div class="aspect-[9/16] bg-[#12121a] rounded-2xl flex flex-col items-center justify-center p-6 text-center border border-[#00f0ff]/20">
-                <div class="w-20 h-20 rounded-3xl bg-[#00f0ff]/10 flex items-center justify-center mb-4">
-                  <Smartphone :size="40" :stroke-width="1.5" class="text-[#00f0ff]" />
+              <div class="aspect-[9/16] bg-surface-dim rounded-2xl flex flex-col items-center justify-center p-6 text-center border border-border">
+                <div class="w-20 h-20 rounded-3xl bg-blue-500/10 flex items-center justify-center mb-4">
+                  <Smartphone :size="40" :stroke-width="1.5" class="text-blue-500" />
                 </div>
                 <span class="font-bold text-xl text-white">iPhone 16</span>
-                <span class="text-gray-400 text-sm">Pro Max</span>
-                <span class="font-bold text-2xl text-[#00f0ff] mt-4">$28,999</span>
-                <span class="text-gray-500 line-through text-sm">$32,999</span>
+                <span class="text-text-secondary text-sm">Pro Max</span>
+                <span class="font-bold text-2xl text-blue-500 mt-4">$28,999</span>
+                <span class="text-text-tertiary line-through text-sm">$32,999</span>
                 <span class="mt-4 badge badge-accent">12% OFF</span>
               </div>
             </div>

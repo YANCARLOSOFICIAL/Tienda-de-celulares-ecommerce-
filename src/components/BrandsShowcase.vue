@@ -19,7 +19,7 @@ const brands = [
   <section
     id="marcas"
     ref="sectionRef"
-    class="section-clean bg-[#0a0a0f] border-y border-[#00f0ff]/20"
+    class="section-clean bg-surface border-y border-border"
     aria-labelledby="marcas-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,7 +44,7 @@ const brands = [
           :style="{ transitionDelay: `${index * 80}ms` }"
         >
           <span
-            class="font-bold text-center text-sm sm:text-base tracking-tight text-gray-500 group-hover:text-[#00f0ff] transition-colors duration-300"
+            class="font-bold text-center text-sm sm:text-base tracking-tight text-text-secondary group-hover:text-gold transition-colors duration-300"
             :style="{ '--brand-hover': brand.color }"
           >
             {{ brand.logo }}

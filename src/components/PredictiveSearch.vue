@@ -115,8 +115,8 @@ function formatPrice(price: string): string {
 <template>
   <div class="predictive-search relative">
     <div
-      class="flex items-center gap-2 bg-surface-dim border border-border rounded-xl px-3 py-2 transition-all focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(0,212,255,0.15)]"
-      :class="{ 'border-accent shadow-[0_0_0_3px_rgba(0,212,255,0.15)]': isOpen }"
+      class="flex items-center gap-2 bg-surface-dim border border-border rounded-xl px-3 py-2 transition-all focus-within:border-blue-500"
+      :class="{ 'border-blue-500': isOpen }"
     >
       <Search :size="16" :stroke-width="1.75" class="text-text-tertiary shrink-0" />
       <input
@@ -124,13 +124,13 @@ function formatPrice(price: string): string {
         v-model="query"
         type="text"
         placeholder="Buscar celulares, accesorios..."
-        class="flex-1 bg-transparent text-sm text-text outline-none placeholder:text-text-tertiary"
+        class="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-text-tertiary"
         @focus="isOpen = true"
         @keydown.enter="searchAll"
       />
       <button
         v-if="query"
-        class="p-0.5 text-text-tertiary hover:text-text transition-colors"
+        class="p-0.5 text-text-tertiary hover:text-white transition-colors"
         @click="query = ''; results = []"
       >
         <X :size="14" :stroke-width="2" />
@@ -173,14 +173,14 @@ function formatPrice(price: string): string {
                 class="w-10 h-10 rounded-lg object-cover bg-surface shrink-0"
               />
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-text truncate">{{ product.name }}</p>
+                <p class="text-sm font-medium text-white truncate">{{ product.name }}</p>
                 <p class="text-xs text-text-secondary">{{ product.brand }} · ${{ formatPrice(product.price) }}</p>
               </div>
               <ArrowRight :size="14" class="text-text-tertiary shrink-0" />
             </div>
           </div>
           <button
-            class="w-full px-4 py-2.5 text-sm font-medium text-accent hover:bg-surface-hover border-t border-border transition-colors flex items-center justify-center gap-2"
+            class="w-full px-4 py-2.5 text-sm font-medium text-blue-500 hover:bg-surface-hover border-t border-border transition-colors flex items-center justify-center gap-2"
             @click="searchAll"
           >
             Ver todos los resultados
@@ -201,7 +201,7 @@ function formatPrice(price: string): string {
             class="flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer hover:bg-surface-hover transition-colors group"
             @click="selectRecent(term)"
           >
-            <span class="text-sm text-text-secondary group-hover:text-text transition-colors">{{ term }}</span>
+            <span class="text-sm text-text-secondary group-hover:text-white transition-colors">{{ term }}</span>
             <button
               class="p-0.5 text-text-tertiary hover:text-danger opacity-0 group-hover:opacity-100 transition-all"
               @click.stop="removeRecentSearch(term)"

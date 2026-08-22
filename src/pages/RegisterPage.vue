@@ -37,9 +37,9 @@ async function submit() {
 <template>
   <section class="py-16 sm:py-24 min-h-[70vh] flex items-center">
     <div class="max-w-md w-full mx-auto px-4">
-      <div class="bento-card-static p-8 register-glass">
+      <div class="bg-surface-dim border border-border rounded-2xl p-8">
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-semibold tracking-tight">Crear cuenta</h1>
+          <h1 class="text-3xl font-semibold tracking-tight text-white" style="font-family: var(--font-family-serif);">Crear cuenta</h1>
           <p class="text-text-secondary mt-2">Regístrate para comprar en Tienda Cell.</p>
         </div>
 
@@ -100,7 +100,7 @@ async function submit() {
           <button
             type="submit"
             :disabled="authStore.loading"
-            class="btn-primary w-full flex items-center justify-center gap-2"
+            class="btn-gold w-full flex items-center justify-center gap-2"
           >
             <UserPlus :size="18" :stroke-width="2" />
             {{ authStore.loading ? 'Creando...' : 'Crear cuenta' }}
@@ -109,22 +109,9 @@ async function submit() {
 
         <p class="mt-6 text-center text-sm text-text-secondary">
           ¿Ya tienes cuenta?
-          <router-link to="/login" class="text-accent font-medium hover:underline">Inicia sesión</router-link>
+          <router-link to="/login" class="text-gold font-medium hover:underline">Inicia sesión</router-link>
         </p>
       </div>
     </div>
   </section>
 </template>
-
-<style scoped>
-.register-glass {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: border-color 0.3s;
-}
-.register-glass:focus-within {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
-}
-</style>

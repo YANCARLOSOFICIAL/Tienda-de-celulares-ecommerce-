@@ -157,7 +157,7 @@ watch(ordering, applyFilters)
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 class="text-3xl sm:text-4xl font-bold text-text tracking-tight">Tienda</h1>
+          <h1 class="text-3xl sm:text-4xl font-bold text-text tracking-tight" style="font-family: var(--font-family-serif);">Tienda</h1>
           <p class="text-text-secondary text-sm mt-1">{{ total }} productos encontrados</p>
         </div>
         <div class="flex items-center gap-3">
@@ -172,7 +172,7 @@ watch(ordering, applyFilters)
             />
           </div>
           <button
-            class="lg:hidden btn-secondary p-2.5 rounded-xl border-border hover:border-accent"
+            class="lg:hidden btn-secondary p-2.5 rounded-xl border-border hover:border-white/10"
             @click="showFilters = !showFilters"
           >
             <SlidersHorizontal :size="18" />
@@ -208,14 +208,14 @@ watch(ordering, applyFilters)
             </button>
           </div>
 
-          <div class="glass-dark p-5 rounded-2xl border border-border hover:border-accent transition-colors">
-            <h3 class="text-sm font-semibold text-text mb-3">Categoria</h3>
+          <div class="bento-card p-5">
+            <h3 class="text-sm font-semibold text-text mb-3" style="font-family: var(--font-family-serif);">Categoria</h3>
             <div class="space-y-2.5">
               <label class="flex items-center gap-2.5 cursor-pointer group">
                 <input
                   type="radio"
                   :checked="!selectedCategory"
-                  class="accent-accent w-4 h-4"
+                  class="accent-blue-500 w-4 h-4"
                   @change="selectedCategory = undefined; applyFilters()"
                 />
                 <span class="text-sm text-text-secondary group-hover:text-text transition-colors">Todas</span>
@@ -225,7 +225,7 @@ watch(ordering, applyFilters)
                   type="radio"
                   :value="cat.id"
                   :checked="selectedCategory === cat.id"
-                  class="accent-accent w-4 h-4"
+                  class="accent-blue-500 w-4 h-4"
                   @change="selectedCategory = cat.id; applyFilters()"
                 />
                 <span class="text-sm text-text-secondary group-hover:text-text transition-colors">{{ cat.name }}</span>
@@ -233,14 +233,14 @@ watch(ordering, applyFilters)
             </div>
           </div>
 
-          <div class="glass-dark p-5 rounded-2xl border border-border hover:border-accent transition-colors">
-            <h3 class="text-sm font-semibold text-text mb-3">Marca</h3>
+          <div class="bento-card p-5">
+            <h3 class="text-sm font-semibold text-text mb-3" style="font-family: var(--font-family-serif);">Marca</h3>
             <div class="space-y-2.5">
               <label class="flex items-center gap-2.5 cursor-pointer group">
                 <input
                   type="radio"
                   :checked="!selectedBrand"
-                  class="accent-accent w-4 h-4"
+                  class="accent-blue-500 w-4 h-4"
                   @change="selectedBrand = ''; applyFilters()"
                 />
                 <span class="text-sm text-text-secondary group-hover:text-text transition-colors">Todas</span>
@@ -250,7 +250,7 @@ watch(ordering, applyFilters)
                   type="radio"
                   :value="brand"
                   :checked="selectedBrand === brand"
-                  class="accent-accent w-4 h-4"
+                  class="accent-blue-500 w-4 h-4"
                   @change="selectedBrand = brand; applyFilters()"
                 />
                 <span class="text-sm text-text-secondary group-hover:text-text transition-colors">{{ brand }}</span>
@@ -258,8 +258,8 @@ watch(ordering, applyFilters)
             </div>
           </div>
 
-          <div class="glass-dark p-5 rounded-2xl border border-border hover:border-accent transition-colors">
-            <h3 class="text-sm font-semibold text-text mb-3">Precio</h3>
+          <div class="bento-card p-5">
+            <h3 class="text-sm font-semibold text-text mb-3" style="font-family: var(--font-family-serif);">Precio</h3>
             <div class="flex items-center gap-2">
               <input
                 v-model="minPrice"
@@ -297,7 +297,7 @@ watch(ordering, applyFilters)
               <div class="relative">
                 <select
                   v-model="ordering"
-                  class="appearance-none bg-surface-dim border border-border rounded-xl px-3 py-1.5 text-sm font-semibold text-text cursor-pointer focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-colors pr-6"
+                  class="appearance-none bg-surface-dim border border-border rounded-xl px-3 py-1.5 text-sm font-semibold text-text cursor-pointer focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors pr-6"
                 >
                   <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                 </select>
@@ -320,11 +320,11 @@ watch(ordering, applyFilters)
 
           <div v-else-if="products.length === 0" class="bento-card p-16 text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface-dim flex items-center justify-center">
-              <Search :size="28" class="text-text-secondary" />
+              <Search :size="28" class="text-text-tertiary" />
             </div>
             <p class="font-semibold text-lg text-text mb-1">No se encontraron productos</p>
-            <p class="text-text-secondary text-sm mb-6">Intenta ajustar los filtros de busqueda.</p>
-            <button class="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold" @click="clearFilters">
+            <p class="text-text-tertiary text-sm mb-6">Intenta ajustar los filtros de busqueda.</p>
+            <button class="btn-gold px-6 py-2.5 rounded-full text-sm font-semibold" @click="clearFilters">
               Limpiar filtros
             </button>
           </div>
@@ -346,7 +346,7 @@ watch(ordering, applyFilters)
               :key="p"
               :class="[
                 'w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors',
-                p === currentPage ? 'bg-accent text-black shadow-[0_0_12px_rgba(0,212,255,0.4)]' : 'text-text-secondary hover:text-text hover:bg-surface-dim'
+                p === currentPage ? 'bg-gold text-[#0e0f12]' : 'text-text-secondary hover:text-text hover:bg-surface-dim'
               ]"
               @click="goToPage(p)"
             >

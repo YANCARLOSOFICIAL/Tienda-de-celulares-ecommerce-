@@ -72,7 +72,7 @@ onMounted(load)
 <template>
   <div class="space-y-6">
     <div>
-      <h2 class="text-2xl font-bold text-text flex items-center gap-2">
+      <h2 class="text-2xl font-bold text-text flex items-center gap-2" style="font-family: var(--font-family-serif);">
         <PackageOpen :size="24" :stroke-width="2" />
         Pedidos
       </h2>
@@ -142,7 +142,7 @@ onMounted(load)
                       <p class="text-xs font-medium text-text-secondary uppercase tracking-wider mb-2">Artículos</p>
                       <div class="space-y-1.5">
                         <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                          <span class="text-text">{{ item.quantity }} × {{ item.product_name }}</span>
+                          <span class="text-white">{{ item.quantity }} × {{ item.product_name }}</span>
                           <span class="font-medium text-text">${{ Number(item.subtotal).toLocaleString('es-MX') }}</span>
                         </div>
                       </div>

@@ -61,14 +61,3 @@ watch(() => props.categoryId, fetchRelated)
     </div>
   </section>
 </template>
-
-<style scoped>
-:deep(.bento-card-static) {
-  border: 1px solid var(--color-border);
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-:deep(.bento-card-static:hover) {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
-}
-</style>

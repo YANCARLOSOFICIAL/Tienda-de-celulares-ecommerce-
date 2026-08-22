@@ -53,7 +53,7 @@ function addToCart(productId: number) {
       </button>
 
       <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-text">
+        <h1 class="text-3xl font-bold text-text" style="font-family: var(--font-family-serif);">
           Comparar productos
         </h1>
         <button
@@ -66,7 +66,7 @@ function addToCart(productId: number) {
 
       <div v-if="products.length === 0" class="text-center py-20">
         <p class="text-text-secondary text-lg mb-4">No hay productos para comparar</p>
-        <router-link to="/shop" class="btn-primary px-6 py-3 inline-block text-sm">
+        <router-link to="/shop" class="btn-gold px-6 py-3 inline-block text-sm">
           Ir a la tienda
         </router-link>
       </div>
@@ -97,7 +97,7 @@ function addToCart(productId: number) {
                   <p class="text-xs text-text-secondary mb-3">{{ product.brand }}</p>
                   <div class="flex gap-2 justify-center">
                     <button
-                      class="btn-primary text-xs px-3 py-1.5"
+                      class="btn-gold text-xs px-3 py-1.5"
                       @click="addToCart(product.id)"
                     >
                       <ShoppingCart :size="12" :stroke-width="2" class="inline mr-1" />

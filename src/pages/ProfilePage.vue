@@ -84,18 +84,18 @@ async function changePassword() {
   <section class="py-10 sm:py-16 min-h-[70vh]">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-        <div class="bento-card-static p-8 flex flex-col items-center text-center profile-card-neon">
-          <div class="w-24 h-24 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-            <span class="text-2xl font-semibold text-accent">{{ initials }}</span>
+        <div class="bg-surface-dim border border-border rounded-2xl p-8 flex flex-col items-center text-center hover:border-white/10 transition-colors">
+          <div class="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center mb-4">
+            <span class="text-2xl font-semibold text-gold">{{ initials }}</span>
           </div>
-          <h1 class="text-xl font-semibold tracking-tight">{{ fullName || 'Usuario' }}</h1>
+          <h1 class="text-xl font-semibold tracking-tight text-white" style="font-family: var(--font-family-serif);">{{ fullName || 'Usuario' }}</h1>
           <p class="text-text-secondary text-sm mt-1">{{ email }}</p>
           <div class="mt-3 badge badge-accent">{{ authStore.user?.role?.name || 'Usuario' }}</div>
         </div>
 
         <div class="space-y-6">
-          <div class="bento-card-static p-6 sm:p-8 profile-card-neon">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+          <div class="bg-surface-dim border border-border rounded-2xl p-6 sm:p-8 hover:border-white/10 transition-colors">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-white" style="font-family: var(--font-family-serif);">
               Datos personales
             </h2>
 
@@ -121,7 +121,7 @@ async function changePassword() {
               </div>
               <button
                 type="submit"
-                class="btn-primary flex items-center gap-2"
+                class="btn-gold flex items-center gap-2"
                 :disabled="saving"
               >
                 <Save :size="18" :stroke-width="2" />
@@ -130,8 +130,8 @@ async function changePassword() {
             </form>
           </div>
 
-          <div class="bento-card-static p-6 sm:p-8 profile-card-neon">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+          <div class="bg-surface-dim border border-border rounded-2xl p-6 sm:p-8 hover:border-white/10 transition-colors">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-white" style="font-family: var(--font-family-serif);">
               <Lock :size="18" :stroke-width="2" />
               Cambiar contraseña
             </h2>
@@ -153,7 +153,7 @@ async function changePassword() {
               </div>
               <button
                 type="submit"
-                class="btn-primary flex items-center gap-2"
+                class="btn-gold flex items-center gap-2"
                 :disabled="savingPassword"
               >
                 <Lock :size="18" :stroke-width="2" />
@@ -162,8 +162,8 @@ async function changePassword() {
             </form>
           </div>
 
-          <div class="bento-card-static p-6 sm:p-8 profile-card-neon">
-            <h2 class="text-lg font-semibold text-danger mb-2">Zona de peligro</h2>
+          <div class="bg-surface-dim border border-border rounded-2xl p-6 sm:p-8 hover:border-white/10 transition-colors">
+            <h2 class="text-lg font-semibold text-danger mb-2" style="font-family: var(--font-family-serif);">Zona de peligro</h2>
             <p class="text-text-secondary text-sm mb-4">Eliminar tu cuenta es permanente y no se puede deshacer.</p>
             <button class="border border-danger text-danger font-semibold py-2.5 px-6 rounded-full transition hover:bg-danger/5 cursor-not-allowed" disabled>
               Eliminar cuenta
@@ -174,14 +174,3 @@ async function changePassword() {
     </div>
   </section>
 </template>
-
-<style scoped>
-.profile-card-neon {
-  border: 1px solid var(--color-border);
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-.profile-card-neon:hover {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.12);
-}
-</style>

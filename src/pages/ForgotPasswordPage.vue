@@ -32,12 +32,12 @@ async function requestReset() {
 <template>
   <section class="py-16 sm:py-24 min-h-[70vh] flex items-center">
     <div class="max-w-md mx-auto px-4 w-full">
-      <div class="bento-card-static p-8">
+      <div class="bg-surface-dim border border-border rounded-2xl p-8">
         <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/10 mb-4">
-            <Mail :size="22" :stroke-width="2" class="text-accent" />
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gold/10 mb-4">
+            <Mail :size="22" :stroke-width="2" class="text-gold" />
           </div>
-          <h1 class="text-2xl font-semibold tracking-tight">Recuperar contraseña</h1>
+          <h1 class="text-2xl font-semibold tracking-tight text-white" style="font-family: var(--font-family-serif);">Recuperar contraseña</h1>
           <p class="text-text-secondary text-sm mt-2">
             Ingresa tu email y te enviaremos un token para restablecer tu contraseña.
           </p>
@@ -61,7 +61,7 @@ async function requestReset() {
             </div>
             <button
               type="submit"
-              class="btn-primary w-full"
+              class="btn-gold w-full"
               :disabled="loading || !email"
             >
               {{ loading ? 'Enviando...' : 'Enviar token' }}
@@ -71,14 +71,14 @@ async function requestReset() {
 
         <div v-else class="text-center space-y-4">
           <CheckCircle2 :size="48" :stroke-width="1.5" class="mx-auto text-success" />
-          <p class="font-semibold">Token enviado.</p>
-          <div v-if="token" class="bg-surface-dim rounded-xl p-4">
+          <p class="font-semibold text-white">Token enviado.</p>
+          <div v-if="token" class="bg-surface-dim rounded-2xl p-4">
             <p class="text-text-secondary text-sm mb-1">Token de prueba:</p>
-            <code class="font-mono text-xs text-text break-all">{{ token }}</code>
+            <code class="font-mono text-xs text-white break-all">{{ token }}</code>
           </div>
           <router-link
             :to="{ name: 'reset-password', query: { token } }"
-            class="btn-primary inline-flex items-center gap-2"
+            class="btn-gold inline-flex items-center gap-2"
           >
             Restablecer contraseña
           </router-link>

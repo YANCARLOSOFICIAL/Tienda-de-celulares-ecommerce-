@@ -79,7 +79,7 @@ const statusBadge: Record<string, string> = {
   <section class="py-16 sm:py-20 min-h-[70vh]" style="background: var(--color-surface-dim)">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="mb-8">
-        <h1 class="text-2xl sm:text-3xl font-semibold mb-1" style="color: var(--color-text)">Pedido #{{ route.params.id }}</h1>
+        <h1 class="text-2xl sm:text-3xl font-semibold mb-1" style="font-family: var(--font-family-serif); color: var(--color-text)">Pedido #{{ route.params.id }}</h1>
         <router-link to="/orders" class="text-sm hover:underline" style="color: var(--color-accent)">
           ← Volver a mis pedidos
         </router-link>
@@ -204,6 +204,6 @@ const statusBadge: Record<string, string> = {
 }
 .order-detail-glass > :deep(.bento-card:hover) {
   border-color: var(--color-accent);
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 12px rgba(212, 169, 74, 0.1);
 }
 </style>

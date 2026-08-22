@@ -62,14 +62,14 @@ function toggleSection(title: string) {
     <div
       v-for="section in sections"
       :key="section.title"
-      class="glass-dark rounded-2xl overflow-hidden neon-border"
+      class="bg-surface-dim border border-border rounded-2xl overflow-hidden"
     >
       <button
         class="w-full flex items-center justify-between p-4 hover:bg-accent/5 transition-colors"
         @click="toggleSection(section.title)"
       >
         <div class="flex items-center gap-3">
-          <component :is="section.icon" :size="18" :stroke-width="1.75" class="text-accent neon-text" />
+          <component :is="section.icon" :size="18" :stroke-width="1.75" class="text-blue-500" />
           <span class="font-semibold text-sm text-text">{{ section.title }}</span>
         </div>
         <ChevronDown
@@ -98,7 +98,7 @@ function toggleSection(title: string) {
               class="space-y-1 p-2 rounded-lg hover:bg-accent/5 transition-colors"
             >
               <span class="text-xs uppercase tracking-wide text-text-secondary">{{ spec.label }}</span>
-              <p class="font-semibold text-sm text-text" style="text-shadow: 0 0 8px rgba(255,255,255,0.1)">{{ spec.value }}</p>
+              <p class="font-semibold text-sm text-text">{{ spec.value }}</p>
             </div>
           </div>
         </div>

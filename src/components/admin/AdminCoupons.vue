@@ -108,7 +108,7 @@ function couponLabel(coupon: Coupon): string {
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-text flex items-center gap-2">
+        <h2 class="text-2xl font-bold text-text flex items-center gap-2" style="font-family: var(--font-family-serif);">
           <Tag :size="24" :stroke-width="2" />
           Cupones de descuento
         </h2>
@@ -219,8 +219,8 @@ function couponLabel(coupon: Coupon): string {
         v-if="showModal"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div class="absolute inset-0 bg-glass-dark backdrop-blur-sm" @click="showModal = false"></div>
-        <div class="relative bg-surface-dim rounded-2xl border border-glass-border shadow-xl w-full max-w-md space-y-0 overflow-hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showModal = false"></div>
+        <div class="relative bg-surface-dim rounded-2xl border border-border shadow-xl w-full max-w-md space-y-0 overflow-hidden">
           <div class="flex items-center justify-between p-6 pb-0">
             <h3 class="text-lg font-semibold text-text">
               {{ editingId ? 'Editar cupón' : 'Crear cupón' }}

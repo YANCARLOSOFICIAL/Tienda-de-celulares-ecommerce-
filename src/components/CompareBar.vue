@@ -24,14 +24,14 @@ function goToCompare() {
   >
     <div
       v-if="compareStore.count > 0"
-      class="fixed bottom-0 left-0 right-0 z-50 bg-surface-dim/95 backdrop-blur-xl border-t border-accent/30 shadow-[0_-4px_20px_rgba(0,212,255,0.1)]"
+      class="fixed bottom-0 left-0 right-0 z-50 bg-surface-dim/95 backdrop-blur-xl border-t border-blue-500/30"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-3 overflow-x-auto no-scrollbar">
             <div class="flex items-center gap-2 shrink-0">
-              <Scale :size="18" :stroke-width="2" class="text-accent" />
-              <span class="text-sm font-semibold text-text">
+              <Scale :size="18" :stroke-width="2" class="text-blue-500" />
+              <span class="text-sm font-semibold text-white">
                 Comparar ({{ compareStore.count }}/3)
               </span>
             </div>
@@ -47,8 +47,8 @@ function goToCompare() {
                   class="w-8 h-8 rounded-lg object-cover"
                 />
                 <div class="max-w-[120px]">
-                  <p class="text-xs font-medium text-text truncate">{{ product.name }}</p>
-                  <p class="text-[10px] text-accent">${{ formatPrice(product.price) }}</p>
+                  <p class="text-xs font-medium text-white truncate">{{ product.name }}</p>
+                  <p class="text-[10px] text-blue-500">${{ formatPrice(product.price) }}</p>
                 </div>
                 <button
                   class="p-0.5 text-text-tertiary hover:text-danger transition-colors shrink-0"

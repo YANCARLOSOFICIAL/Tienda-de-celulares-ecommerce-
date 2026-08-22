@@ -24,7 +24,7 @@ const displayedProducts = computed(() => store.products)
   <section
     id="productos"
     ref="sectionRef"
-    class="section-clean bg-[#0a0a0f]"
+    class="section-clean bg-surface"
     aria-labelledby="productos-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,8 +39,8 @@ const displayedProducts = computed(() => store.products)
       </div>
 
       <div v-if="store.loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="i in 6" :key="i" class="bento-card-static overflow-hidden bg-[#12121a]">
-          <div class="skeleton aspect-square rounded-none bg-[#1a1a2e]"></div>
+        <div v-for="i in 6" :key="i" class="bento-card-static overflow-hidden bg-surface-dim">
+          <div class="skeleton aspect-square rounded-none bg-surface-dim"></div>
           <div class="p-5 space-y-3">
             <div class="skeleton h-5 w-3/4"></div>
             <div class="skeleton h-3.5 w-full"></div>

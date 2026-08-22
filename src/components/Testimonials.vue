@@ -12,7 +12,7 @@ const { isVisible } = useIntersectionObserver(sectionRef)
 <template>
   <section
     ref="sectionRef"
-    class="section-clean bg-[#12121a]"
+    class="section-clean bg-surface-dim"
     aria-labelledby="testimonios-title"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +31,7 @@ const { isVisible } = useIntersectionObserver(sectionRef)
           v-for="(testimonial, index) in store.testimonials"
           :key="testimonial.id"
           :class="[
-            'glass-strong rounded-2xl p-6 sm:p-8 flex flex-col bg-[#12121a]/80 backdrop-blur-xl border border-[#00f0ff]/10',
+            'rounded-2xl p-6 sm:p-8 flex flex-col bg-surface-dim border border-border',
             'animate-fade-in-up',
             isVisible ? 'visible' : ''
           ]"
@@ -49,16 +49,16 @@ const { isVisible } = useIntersectionObserver(sectionRef)
             />
           </div>
 
-          <blockquote class="flex-1 text-sm sm:text-base text-gray-400 mb-6 leading-relaxed">
-            <span class="text-[#00f0ff] text-lg font-bold">"</span>{{ testimonial.text }}<span class="text-[#00f0ff] text-lg font-bold">"</span>
+          <blockquote class="flex-1 text-sm sm:text-base text-text-secondary mb-6 leading-relaxed">
+            <span class="text-blue-500 text-lg font-bold">"</span>{{ testimonial.text }}<span class="text-blue-500 text-lg font-bold">"</span>
           </blockquote>
 
-          <div class="flex items-center gap-3 mt-auto pt-4 border-t border-[#00f0ff]/10">
+          <div class="flex items-center gap-3 mt-auto pt-4 border-t border-border">
             <img
               :src="testimonial.avatar"
               :alt="testimonial.name"
               loading="lazy"
-              class="w-9 h-9 rounded-full object-cover border border-[#00f0ff]/20"
+              class="w-9 h-9 rounded-full object-cover border border-border"
             />
             <span class="font-medium text-sm text-white" itemprop="author">{{ testimonial.name }}</span>
           </div>

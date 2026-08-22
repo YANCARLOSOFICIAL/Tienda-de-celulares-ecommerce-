@@ -7,7 +7,7 @@ import CompareBar from './components/CompareBar.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-surface-dim flex flex-col">
+  <div class="min-h-screen bg-surface flex flex-col">
     <Navbar />
     <main class="flex-1">
       <router-view />

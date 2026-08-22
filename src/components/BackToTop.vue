@@ -26,7 +26,7 @@ onUnmounted(() => {
     <button
       v-show="showButton"
       type="button"
-      class="fixed bottom-6 left-6 z-40 bg-accent text-white rounded-full p-4 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 back-to-top-neon"
+      class="fixed bottom-6 left-6 z-40 bg-blue-500 text-white rounded-full p-4 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
       @click="scrollToTop"
       aria-label="Volver arriba"
     >
@@ -34,12 +34,3 @@ onUnmounted(() => {
     </button>
   </Teleport>
 </template>
-
-<style scoped>
-.back-to-top-neon {
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4), 0 0 30px rgba(0, 212, 255, 0.15);
-}
-.back-to-top-neon:hover {
-  box-shadow: 0 0 25px rgba(0, 212, 255, 0.5), 0 0 50px rgba(0, 212, 255, 0.2);
-}
-</style>

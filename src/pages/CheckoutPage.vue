@@ -272,8 +272,8 @@ function shipLabel(method: string) {
 
       <!-- SUCCESS SCREEN -->
       <div v-if="createdOrderId" class="text-center py-16">
-        <div class="w-16 h-16 rounded-full bg-neon-green/10 flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 :size="32" :stroke-width="1.5" class="text-neon-green" />
+        <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle2 :size="32" :stroke-width="1.5" class="text-gold" />
         </div>
         <h2 class="text-3xl font-semibold text-text tracking-tight mb-2">Pedido confirmado</h2>
         <p class="text-text-secondary mb-8">
@@ -281,7 +281,7 @@ function shipLabel(method: string) {
         </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <button
-            class="btn-primary px-8 py-3 flex items-center justify-center gap-2"
+            class="btn-gold px-8 py-3 flex items-center justify-center gap-2"
             :disabled="paying"
             @click="payNow"
           >
@@ -315,7 +315,7 @@ function shipLabel(method: string) {
         <p class="text-text-secondary mb-6">No hay productos en tu carrito.</p>
         <router-link
           to="/#productos"
-          class="btn-primary px-8 py-3 inline-block"
+          class="btn-gold px-8 py-3 inline-block"
         >
           Ver catalogo
         </router-link>
@@ -324,7 +324,7 @@ function shipLabel(method: string) {
       <!-- CHECKOUT FLOW -->
       <div v-else>
         <div class="mb-10">
-          <h1 class="text-3xl font-semibold text-text tracking-tight">Checkout</h1>
+          <h1 class="text-3xl font-semibold text-text tracking-tight" style="font-family: var(--font-family-serif);">Checkout</h1>
         </div>
 
         <!-- Progress Steps -->
@@ -334,17 +334,17 @@ function shipLabel(method: string) {
               <div
                 class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all"
                 :class="step === i + 1
-                  ? 'bg-accent text-black neon-border'
+                  ? 'bg-gold text-surface'
                   : step > i + 1
-                    ? 'bg-neon-green text-black'
-                    : 'bg-surface-dim text-text-secondary border border-border'"
+                    ? 'bg-gold/70 text-surface'
+                    : 'bg-surface-dim text-text-tertiary border border-border'"
               >
                 <CheckCircle2 v-if="step > i + 1" :size="14" :stroke-width="2.5" />
                 <span v-else>{{ i + 1 }}</span>
               </div>
               <span
                 class="text-xs font-medium hidden sm:block"
-                :class="step === i + 1 ? 'text-text neon-text' : 'text-text-secondary'"
+                :class="step === i + 1 ? 'text-white' : 'text-text-tertiary'"
               >
                 {{ label }}
               </span>
@@ -352,7 +352,7 @@ function shipLabel(method: string) {
             <div
               v-if="i < stepLabels.length - 1"
               class="flex-1 h-px mx-3"
-              :class="step > i + 1 ? 'bg-neon-green' : 'bg-border'"
+              :class="step > i + 1 ? 'bg-gold' : 'bg-white/10'"
             ></div>
           </template>
         </div>
@@ -370,7 +370,7 @@ function shipLabel(method: string) {
         <div v-if="step === 1" class="space-y-6">
           <div>
             <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
-              <MapPin :size="18" :stroke-width="1.5" class="text-text-secondary" />
+              <MapPin :size="18" :stroke-width="1.5" class="text-text-tertiary" />
               Direccion de entrega
             </h2>
 
@@ -384,8 +384,8 @@ function shipLabel(method: string) {
                 :key="addr.id"
                 class="w-full text-left rounded-xl p-4 transition-all"
                 :class="selectedAddressId === addr.id
-                  ? 'neon-border bg-accent/[0.03]'
-                  : 'border border-border hover:border-accent/40 bg-surface-dim'"
+                  ? 'border-gold bg-gold/[0.03]'
+                  : 'border border-border hover:border-white/10 bg-surface-dim'"
                 @click="selectAddress(addr.id)"
               >
                 <div class="flex items-start justify-between">
@@ -409,9 +409,9 @@ function shipLabel(method: string) {
                   </div>
                   <div
                     v-if="selectedAddressId === addr.id"
-                    class="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-0.5"
+                    class="w-5 h-5 rounded-full bg-gold flex items-center justify-center flex-shrink-0 mt-0.5"
                   >
-                    <CheckCircle2 :size="12" class="text-black" :stroke-width="2.5" />
+                    <CheckCircle2 :size="12" class="text-white" :stroke-width="2.5" />
                   </div>
                   <div
                     v-else
@@ -431,7 +431,7 @@ function shipLabel(method: string) {
           </div>
 
           <!-- NEW ADDRESS FORM -->
-          <div v-if="showNewAddress" class="glass-dark rounded-2xl p-6 space-y-4">
+          <div v-if="showNewAddress" class="glass rounded-2xl p-6 space-y-4">
             <h3 class="text-base font-semibold text-text">Nueva direccion</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -439,75 +439,75 @@ function shipLabel(method: string) {
                 <input
                   v-model="newAddress.label"
                   placeholder="Casa, Oficina..."
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Nombre completo *</label>
                 <input
                   v-model="newAddress.full_name"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Telefono *</label>
                 <input
                   v-model="newAddress.phone"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Calle *</label>
                 <input
                   v-model="newAddress.street"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Numero</label>
                 <input
                   v-model="newAddress.street_number"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Interior</label>
                 <input
                   v-model="newAddress.interior"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Colonia *</label>
                 <input
                   v-model="newAddress.neighborhood"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Ciudad *</label>
                 <input
                   v-model="newAddress.city"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Estado *</label>
                 <input
                   v-model="newAddress.state"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
                 <label class="text-xs font-medium text-text-secondary block mb-1.5">Codigo postal *</label>
                 <input
                   v-model="newAddress.zip_code"
-                  class="input-minimal"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
             </div>
             <button
-              class="btn-primary px-5 py-2.5"
+              class="btn-gold px-5 py-2.5"
               @click="saveNewAddress"
             >
               Guardar direccion
@@ -516,7 +516,7 @@ function shipLabel(method: string) {
 
           <div class="flex justify-end pt-2">
             <button
-              class="btn-primary px-8 py-3 flex items-center gap-2"
+              class="btn-gold px-8 py-3 flex items-center gap-2"
               :disabled="!selectedAddressId && !showNewAddress"
               @click="goNext"
             >
@@ -530,7 +530,7 @@ function shipLabel(method: string) {
         <div v-if="step === 2" class="space-y-6">
           <div>
             <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
-              <Truck :size="18" :stroke-width="1.5" class="text-text-secondary" />
+              <Truck :size="18" :stroke-width="1.5" class="text-text-tertiary" />
               Metodo de envio
             </h2>
 
@@ -540,14 +540,14 @@ function shipLabel(method: string) {
                 :key="method"
                 class="flex items-center gap-4 rounded-xl p-4 cursor-pointer transition-all"
                 :class="shippingMethod === method
-                  ? 'neon-border bg-accent/[0.03]'
-                  : 'border border-border hover:border-accent/40 bg-surface-dim'"
+                  ? 'border-gold bg-gold/[0.03]'
+                  : 'border border-border hover:border-white/10 bg-surface-dim'"
               >
                 <input
                   v-model="shippingMethod"
                   type="radio"
                   :value="method"
-                  class="w-4 h-4 accent-accent"
+                  class="w-4 h-4 accent-gold"
                 />
                 <div class="flex-1">
                   <span class="text-sm font-medium text-text">
@@ -573,7 +573,7 @@ function shipLabel(method: string) {
               Volver
             </button>
             <button
-              class="btn-primary px-8 py-3 flex items-center gap-2"
+              class="btn-gold px-8 py-3 flex items-center gap-2"
               @click="goNext"
             >
               Continuar
@@ -587,7 +587,7 @@ function shipLabel(method: string) {
           <!-- Products -->
           <div>
             <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
-              <FileText :size="18" :stroke-width="1.5" class="text-text-secondary" />
+              <FileText :size="18" :stroke-width="1.5" class="text-text-tertiary" />
               Resumen del pedido
             </h2>
             <div class="space-y-3">
@@ -603,7 +603,7 @@ function shipLabel(method: string) {
                     :alt="item.product.name"
                     class="w-full h-full object-cover"
                   />
-                  <ShoppingBag v-else :size="20" :stroke-width="1.5" class="text-text-secondary" />
+                  <ShoppingBag v-else :size="20" :stroke-width="1.5" class="text-text-tertiary" />
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-sm font-medium text-text truncate">{{ item.product.name }}</p>
@@ -617,7 +617,7 @@ function shipLabel(method: string) {
           </div>
 
           <!-- Address & Shipping -->
-          <div class="glass-dark rounded-2xl p-5 space-y-3">
+          <div class="bento-card p-5 space-y-3">
             <div v-if="selectedAddress" class="flex items-start gap-3">
               <MapPin :size="18" :stroke-width="1.5" class="text-text-secondary mt-0.5 flex-shrink-0" />
               <div>
@@ -632,7 +632,7 @@ function shipLabel(method: string) {
               </div>
             </div>
             <div class="flex items-center gap-3">
-              <Truck :size="18" :stroke-width="1.5" class="text-text-secondary" />
+              <Truck :size="18" :stroke-width="1.5" class="text-text-tertiary" />
               <span class="text-sm text-text">{{ shipLabel(shippingMethod) }}</span>
             </div>
           </div>
@@ -647,7 +647,7 @@ function shipLabel(method: string) {
               v-model="notes"
               rows="3"
               placeholder="Instrucciones de entrega, referencias..."
-              class="input-minimal resize-none"
+              class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary resize-none focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
             />
           </div>
 
@@ -657,7 +657,7 @@ function shipLabel(method: string) {
             <div v-if="!appliedCoupon" class="flex gap-2">
               <input
                 v-model="couponCode"
-                class="input-minimal flex-1 uppercase"
+                class="glass flex-1 uppercase px-3 py-2 rounded-xl text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 placeholder="Codigo del cupon"
                 @keyup.enter="applyCoupon"
               />
@@ -669,9 +669,9 @@ function shipLabel(method: string) {
                 {{ validatingCoupon ? 'Validando...' : 'Aplicar' }}
               </button>
             </div>
-            <div v-else class="flex items-center justify-between bg-neon-green/5 border border-neon-green/20 rounded-xl p-3">
+            <div v-else class="flex items-center justify-between bg-gold/5 border border-gold/20 rounded-xl p-3">
               <div>
-                <p class="text-sm font-medium text-neon-green">
+                <p class="text-sm font-medium text-gold">
                   {{ appliedCoupon.code }}
                   <span v-if="appliedCoupon.discount_type === 'PERCENTAGE'">
                     - {{ appliedCoupon.discount_value }}%
@@ -680,17 +680,17 @@ function shipLabel(method: string) {
                     - ${{ formatPrice(appliedCoupon.discount_value) }}
                   </span>
                 </p>
-                <p class="text-xs text-neon-green/70 mt-0.5">Cupon aplicado correctamente</p>
+                <p class="text-xs text-gold/70 mt-0.5">Cupon aplicado correctamente</p>
               </div>
-              <button class="p-1.5 rounded-full hover:bg-neon-green/10 transition-colors" @click="removeCoupon">
-                <XCircle :size="18" :stroke-width="2" class="text-neon-green" />
+              <button class="p-1.5 rounded-full hover:bg-gold/10 transition-colors" @click="removeCoupon">
+                <XCircle :size="18" :stroke-width="2" class="text-gold" />
               </button>
             </div>
             <p v-if="couponError" class="text-xs text-danger mt-2">{{ couponError }}</p>
           </div>
 
           <!-- Totals -->
-          <div class="glass-dark rounded-2xl p-5">
+          <div class="bento-card p-5">
             <div class="space-y-2.5 mb-4">
               <div class="flex justify-between text-sm text-text">
                 <span>Subtotal</span>
@@ -700,7 +700,7 @@ function shipLabel(method: string) {
                 <span>Envio</span>
                 <span>${{ formatPrice(String(shippingCost)) }}</span>
               </div>
-              <div v-if="appliedCoupon" class="flex justify-between text-sm text-neon-green">
+              <div v-if="appliedCoupon" class="flex justify-between text-sm text-gold">
                 <span>Descuento ({{ appliedCoupon.code }})</span>
                 <span>-${{ formatPrice(String(couponDiscount)) }}</span>
               </div>
@@ -711,7 +711,7 @@ function shipLabel(method: string) {
             </div>
             <p class="text-xs text-text-secondary mb-5">
               Al confirmar se creara tu pedido y se descontara el inventario.
-              Estado inicial: <strong class="text-text">{{ orderStatusLabels.PENDING }}</strong>.
+              Estado inicial: <strong class="text-white">{{ orderStatusLabels.PENDING }}</strong>.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-3">
@@ -723,7 +723,7 @@ function shipLabel(method: string) {
                 Volver
               </button>
               <button
-                class="btn-primary px-8 py-4 flex-1 flex items-center justify-center gap-2"
+                class="btn-gold px-8 py-4 flex-1 flex items-center justify-center gap-2"
                 :disabled="processing"
                 @click="placeOrder"
               >
@@ -745,9 +745,9 @@ function shipLabel(method: string) {
       class="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showSandboxConfirm = false"></div>
-      <div class="relative glass-dark rounded-2xl p-8 w-full max-w-md text-center space-y-5 shadow-lg">
-        <div class="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-          <CheckCircle2 :size="28" :stroke-width="1.5" class="text-accent" />
+      <div class="relative glass rounded-2xl p-8 w-full max-w-md text-center space-y-5">
+        <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center mx-auto">
+          <CheckCircle2 :size="28" :stroke-width="1.5" class="text-gold" />
         </div>
         <h3 class="text-xl font-semibold text-text">Confirmar pago (sandbox)</h3>
         <p class="text-text-secondary text-sm leading-relaxed">
@@ -755,7 +755,7 @@ function shipLabel(method: string) {
         </p>
         <div class="flex flex-col gap-2.5 pt-1">
           <button
-            class="bg-neon-green text-black px-6 py-3 rounded-full text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+            class="btn-gold px-6 py-3 text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
             :disabled="paying"
             @click="confirmSandboxPayment"
           >

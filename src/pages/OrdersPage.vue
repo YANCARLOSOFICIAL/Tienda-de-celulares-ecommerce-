@@ -55,28 +55,28 @@ const statusBadge: Record<string, string> = {
 </script>
 
 <template>
-  <section class="py-16 sm:py-20 min-h-[70vh]" style="background: var(--color-surface-dim)">
+  <section class="py-16 sm:py-20 min-h-[70vh]">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-3 mb-10">
-        <Package :size="20" :stroke-width="2" style="color: var(--color-text-secondary)" />
-        <h1 class="text-2xl sm:text-3xl font-semibold" style="color: var(--color-text)">Mis pedidos</h1>
+        <Package :size="20" :stroke-width="2" class="text-text-secondary" />
+        <h1 class="text-2xl sm:text-3xl font-semibold text-white" style="font-family: var(--font-family-serif);">Mis pedidos</h1>
       </div>
 
-      <div v-if="loading" class="bento-card p-10 text-center">
+      <div v-if="loading" class="bg-surface-dim border border-border rounded-2xl p-10 text-center">
         <div class="skeleton h-5 w-48 mx-auto mb-3"></div>
         <div class="skeleton h-4 w-32 mx-auto"></div>
       </div>
 
-      <div v-else-if="error" class="bento-card p-10 text-center">
-        <p class="text-sm" style="color: var(--color-text-secondary)">{{ error }}</p>
+      <div v-else-if="error" class="bg-surface-dim border border-border rounded-2xl p-10 text-center">
+        <p class="text-sm text-text-secondary">{{ error }}</p>
         <button class="btn-secondary mt-4 text-sm" @click="loadOrders">Reintentar</button>
       </div>
 
-      <div v-else-if="orders.length === 0" class="bento-card p-12 text-center">
-        <Package :size="40" :stroke-width="1.5" class="mx-auto mb-4" style="color: var(--color-border)" />
-        <p class="text-lg font-medium mb-1" style="color: var(--color-text)">Aún no tienes pedidos</p>
-        <p class="text-sm mb-6" style="color: var(--color-text-secondary)">Cuando realices tu primera compra, aparecerá aquí.</p>
-        <router-link to="/#productos" class="btn-primary text-sm">
+      <div v-else-if="orders.length === 0" class="bg-surface-dim border border-border rounded-2xl p-12 text-center">
+        <Package :size="40" :stroke-width="1.5" class="mx-auto mb-4 text-text-tertiary" />
+        <p class="text-lg font-medium mb-1 text-white">Aún no tienes pedidos</p>
+        <p class="text-sm mb-6 text-text-secondary">Cuando realices tu primera compra, aparecerá aquí.</p>
+        <router-link to="/#productos" class="btn-gold text-sm">
           Ir al catálogo
         </router-link>
       </div>
@@ -86,12 +86,12 @@ const statusBadge: Record<string, string> = {
           v-for="order in orders"
           :key="order.id"
           :to="`/orders/${order.id}`"
-          class="bento-card p-5 block transition-colors order-card-neon"
+          class="bg-surface-dim border border-border rounded-2xl p-5 block transition-colors hover:border-white/10"
         >
           <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
             <div>
-              <span class="text-base font-semibold" style="color: var(--color-text)">Pedido #{{ order.id }}</span>
-              <span class="block text-xs mt-0.5" style="color: var(--color-text-secondary)">{{ formatDate(order.created_at) }}</span>
+              <span class="text-base font-semibold text-white">Pedido #{{ order.id }}</span>
+              <span class="block text-xs mt-0.5 text-text-secondary">{{ formatDate(order.created_at) }}</span>
             </div>
             <span :class="['badge', statusBadge[order.status]]">
               {{ orderStatusLabels[order.status] }}
@@ -100,7 +100,7 @@ const statusBadge: Record<string, string> = {
           <div class="divider mb-3"></div>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <span class="text-sm" style="color: var(--color-text-secondary)">
+              <span class="text-sm text-text-secondary">
                 {{ order.items.reduce((acc, i) => acc + i.quantity, 0) }} artículo(s)
               </span>
               <span
@@ -110,21 +110,10 @@ const statusBadge: Record<string, string> = {
                 {{ order.coupon_code }}
               </span>
             </div>
-            <span class="text-lg font-semibold" style="color: var(--color-text)">${{ formatPrice(order.total) }}</span>
+            <span class="text-lg font-semibold text-white">${{ formatPrice(order.total) }}</span>
           </div>
         </router-link>
       </div>
     </div>
   </section>
 </template>
-
-<style scoped>
-.order-card-neon {
-  border: 1px solid var(--color-border);
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-.order-card-neon:hover {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.12);
-}
-</style>

@@ -52,7 +52,7 @@ async function removeItem(productId: number) {
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-3 mb-10">
         <Heart :size="20" :stroke-width="2" style="color: var(--color-text-secondary)" />
-        <h1 class="text-2xl sm:text-3xl font-semibold" style="color: var(--color-text)">Mis favoritos</h1>
+        <h1 class="text-2xl sm:text-3xl font-semibold" style="font-family: var(--font-family-serif); color: var(--color-text)">Mis favoritos</h1>
       </div>
 
       <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -68,7 +68,7 @@ async function removeItem(productId: number) {
         <Heart :size="40" :stroke-width="1.5" class="mx-auto mb-4" style="color: var(--color-border)" />
         <p class="text-lg font-medium mb-1" style="color: var(--color-text)">Sin favoritos</p>
         <p class="text-sm mb-6" style="color: var(--color-text-secondary)">Aún no has agregado productos a tu lista de favoritos.</p>
-        <router-link to="/shop" class="btn-primary text-sm">
+        <router-link to="/shop" class="btn-gold text-sm">
           Ver tienda
         </router-link>
       </div>
@@ -105,7 +105,7 @@ async function removeItem(productId: number) {
 
           <div class="flex flex-col gap-2 mt-auto">
             <button
-              class="btn-primary text-xs w-full"
+              class="btn-gold text-xs w-full"
               :disabled="addingId === item.product.id || item.product.stock <= 0"
               @click="addToCart(item.product.id)"
             >
@@ -134,6 +134,6 @@ async function removeItem(productId: number) {
 }
 .wishlist-card-neon:hover {
   border-color: var(--color-accent);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 15px rgba(212, 169, 74, 0.15);
 }
 </style>
