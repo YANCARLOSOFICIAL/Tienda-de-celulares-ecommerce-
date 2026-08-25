@@ -79,6 +79,28 @@ export class Api {
     return Api.request<T>(path, { method: 'DELETE' })
   }
 
+  /** Descarga binaria autenticada (ej. PDF/XML de facturas). */
+  static async download(path: string, fallbackName: string): Promise<{ blob: Blob; filename: string }> {
+    const headers: Record<string, string> = {}
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`
+    }
+    const response = await fetch(`${API_BASE}${path}`, { headers })
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as Envelope<unknown> | null
+      throw new ApiError(body?.message || `Error del servidor (${response.status})`, response.status)
+    }
+    return {
+      blob: await response.blob(),
+      filename: Api.getFilename(response.headers.get('Content-Disposition'), fallbackName),
+    }
+  }
+
+  static getFilename(disposition: string | null, fallback: string): string {
+    const match = disposition?.match(/filename="?([^";]+)"?/)
+    return match?.[1] ?? fallback
+  }
+
   static login(email: string, password: string) {
     const form = new URLSearchParams()
     form.append('username', email)

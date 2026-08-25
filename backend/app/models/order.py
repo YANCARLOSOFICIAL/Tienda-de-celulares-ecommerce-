@@ -40,6 +40,7 @@ class Order(Base, TimestampMixin):
         back_populates="order", cascade="all, delete-orphan", lazy="selectin"
     )
     payments: Mapped[list["Payment"]] = relationship(back_populates="order", cascade="all, delete-orphan")
+    invoice: Mapped["Invoice | None"] = relationship(back_populates="order", uselist=False, lazy="selectin")
 
     def __repr__(self) -> str:
         return f"<Order id={self.id} user_id={self.user_id} status={self.status.value}>"

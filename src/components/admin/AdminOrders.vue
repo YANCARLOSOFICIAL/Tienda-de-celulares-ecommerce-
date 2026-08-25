@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { PackageOpen, Pencil, ChevronDown, ChevronUp } from '@lucide/vue'
+import { onMounted, reactive, ref } from 'vue'
+import { PackageOpen, Pencil, ChevronDown, ChevronUp, FileText, Download } from '@lucide/vue'
 
 import { ordersApi, orderStatusLabels, type Order, type OrderStatus } from '../../api/orders'
+import {
+  invoicesApi,
+  invoiceStatusLabels,
+  type Invoice,
+  type InvoiceCreatePayload,
+  type InvoiceStatus,
+} from '../../api/invoices'
 
 const orders = ref<Order[]>([])
 const loading = ref(false)
@@ -14,6 +21,14 @@ const editingStatus = ref<OrderStatus>('PENDING')
 const formBusy = ref(false)
 const expandedId = ref<number | null>(null)
 
+// Facturación electrónica
+const invoicesByOrder = ref<Record<number, Invoice | null>>({})
+const invoicingOrderId = ref<number | null>(null)
+const invoiceBusy = ref(false)
+const invoiceForm = reactive<InvoiceCreatePayload>({
+  customer: { identification: '', names: '', email: '', phone: '', address: '' },
+})
+
 const statusOptions = Object.keys(orderStatusLabels) as OrderStatus[]
 
 const statusBadgeMap: Record<string, string> = {
@@ -24,11 +39,18 @@ const statusBadgeMap: Record<string, string> = {
   CANCELLED: 'badge-danger',
 }
 
+const invoiceBadgeMap: Record<InvoiceStatus, string> = {
+  PENDING: 'badge-warning',
+  VALIDATED: 'badge-success',
+  FAILED: 'badge-danger',
+}
+
 async function load() {
   loading.value = true
   error.value = null
   try {
     orders.value = await ordersApi.list()
+    invoicesByOrder.value = {}
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Error al cargar pedidos.'
   } finally {
@@ -60,6 +82,59 @@ async function saveStatus() {
 
 function toggleExpand(orderId: number) {
   expandedId.value = expandedId.value === orderId ? null : orderId
+  if (expandedId.value === orderId) void ensureInvoice(orderId)
+}
+
+async function ensureInvoice(orderId: number) {
+  if (orderId in invoicesByOrder.value) return
+  invoicesByOrder.value[orderId] = await invoicesApi.getForOrder(orderId).catch(() => null)
+}
+
+function openInvoiceForm(order: Order) {
+  invoicingOrderId.value = order.id
+  invoiceForm.customer.identification = ''
+  invoiceForm.customer.names = ''
+  invoiceForm.customer.email = ''
+  invoiceForm.customer.phone = ''
+  invoiceForm.customer.address = ''
+}
+
+async function emitInvoice(order: Order) {
+  if (!invoiceForm.customer.identification.trim()) {
+    error.value = 'La identificación del cliente es obligatoria para facturar.'
+    return
+  }
+  invoiceBusy.value = true
+  error.value = null
+  try {
+    const created = await invoicesApi.create(order.id, { customer: { ...invoiceForm.customer } })
+    invoicesByOrder.value[order.id] = created
+    invoicingOrderId.value = null
+    banner.value =
+      created.status === 'VALIDATED'
+        ? `Factura ${created.bill_number} emitida y validada por la DIAN.`
+        : `Factura registrada (pendiente de validación DIAN).`
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Error al emitir la factura.'
+    void ensureInvoiceRefresh(order.id)
+  } finally {
+    invoiceBusy.value = false
+  }
+}
+
+async function ensureInvoiceRefresh(orderId: number) {
+  delete invoicesByOrder.value[orderId]
+  await ensureInvoice(orderId)
+}
+
+async function downloadInvoice(kind: 'pdf' | 'xml', billNumber: string | null) {
+  if (!billNumber) return
+  try {
+    if (kind === 'pdf') await invoicesApi.downloadPdf(billNumber)
+    else await invoicesApi.downloadXml(billNumber)
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Error al descargar la factura.'
+  }
 }
 
 function formatDate(iso: string): string {
@@ -151,6 +226,64 @@ onMounted(load)
                     <div class="flex items-center justify-between">
                       <span class="text-sm font-medium text-text-secondary">Total</span>
                       <span class="text-lg font-bold text-text">${{ Number(order.total).toLocaleString('es-MX') }}</span>
+                    </div>
+
+                    <!-- Facturación electrónica (Factus) -->
+                    <div class="pt-2 space-y-2">
+                      <p class="text-xs font-medium text-text-secondary uppercase tracking-wider">Facturación electrónica</p>
+
+                      <div v-if="invoicesByOrder[order.id]" class="flex flex-wrap items-center gap-3 text-sm">
+                        <FileText :size="16" :stroke-width="2" class="text-accent" />
+                        <span class="font-medium text-text">{{ invoicesByOrder[order.id]?.bill_number || 'Sin número' }}</span>
+                        <span :class="['badge text-xs', invoiceBadgeMap[invoicesByOrder[order.id]!.status]]">
+                          {{ invoiceStatusLabels[invoicesByOrder[order.id]!.status] }}
+                        </span>
+                        <button
+                          v-if="invoicesByOrder[order.id]?.bill_number"
+                          class="btn-ghost text-xs inline-flex items-center gap-1"
+                          @click="downloadInvoice('pdf', invoicesByOrder[order.id]?.bill_number ?? null)"
+                        >
+                          <Download :size="12" :stroke-width="2" /> PDF
+                        </button>
+                        <button
+                          v-if="invoicesByOrder[order.id]?.bill_number"
+                          class="btn-ghost text-xs inline-flex items-center gap-1"
+                          @click="downloadInvoice('xml', invoicesByOrder[order.id]?.bill_number ?? null)"
+                        >
+                          <Download :size="12" :stroke-width="2" /> XML
+                        </button>
+                      </div>
+
+                      <div v-else-if="invoicingOrderId === order.id" class="space-y-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <input v-model="invoiceForm.customer.identification" class="input-minimal" placeholder="Identificación (CC/NIT) *" />
+                          <input v-model="invoiceForm.customer.names" class="input-minimal" placeholder="Nombre / Razón social" />
+                          <input v-model="invoiceForm.customer.email" type="email" class="input-minimal" placeholder="Correo electrónico" />
+                          <input v-model="invoiceForm.customer.phone" class="input-minimal" placeholder="Teléfono" />
+                          <input v-model="invoiceForm.customer.address" class="input-minimal sm:col-span-2" placeholder="Dirección" />
+                        </div>
+                        <div class="flex gap-2 justify-end">
+                          <button class="btn-secondary text-xs" @click="invoicingOrderId = null">
+                            Cancelar
+                          </button>
+                          <button :disabled="invoiceBusy" class="btn-primary text-xs disabled:opacity-50" @click="emitInvoice(order)">
+                            {{ invoiceBusy ? 'Emitiendo...' : 'Emitir factura' }}
+                          </button>
+                        </div>
+                      </div>
+
+                      <button
+                        v-else-if="order.status !== 'CANCELLED'"
+                        class="btn-ghost text-sm w-full flex items-center justify-center gap-2"
+                        @click="openInvoiceForm(order)"
+                      >
+                        <FileText :size="14" :stroke-width="2" />
+                        Emitir factura electrónica
+                      </button>
+
+                      <p v-else class="text-xs text-text-tertiary">
+                        Los pedidos cancelados no pueden facturarse.
+                      </p>
                     </div>
 
                     <div v-if="editingId === order.id" class="pt-2 space-y-2">

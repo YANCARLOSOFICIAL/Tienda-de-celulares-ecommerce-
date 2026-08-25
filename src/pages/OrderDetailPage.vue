@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Package, MapPin, Truck, XCircle } from '@lucide/vue'
+import { Package, MapPin, Truck, XCircle, FileText, Download } from '@lucide/vue'
 
 import { formatPrice } from '../api/products'
 import { ordersApi, orderStatusLabels, type Order } from '../api/orders'
 import { paymentsApi, paymentStatusLabel, type Payment } from '../api/payments'
+import {
+  invoicesApi,
+  invoiceStatusLabels,
+  type Invoice,
+  type InvoiceStatus,
+} from '../api/invoices'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -14,9 +20,11 @@ const authStore = useAuthStore()
 
 const order = ref<Order | null>(null)
 const payment = ref<Payment | null>(null)
+const invoice = ref<Invoice | null>(null)
 const loading = ref(false)
 const cancelling = ref(false)
 const error = ref<string | null>(null)
+const downloadBusy = ref(false)
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
@@ -36,10 +44,29 @@ async function load() {
     } catch {
       payment.value = null
     }
+    try {
+      invoice.value = await invoicesApi.getForOrder(order.value.id)
+    } catch {
+      invoice.value = null
+    }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Error al cargar el pedido.'
   } finally {
     loading.value = false
+  }
+}
+
+async function download(kind: 'pdf' | 'xml') {
+  const number = invoice.value?.bill_number
+  if (!number) return
+  downloadBusy.value = true
+  try {
+    if (kind === 'pdf') await invoicesApi.downloadPdf(number)
+    else await invoicesApi.downloadXml(number)
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Error al descargar la factura.'
+  } finally {
+    downloadBusy.value = false
   }
 }
 
@@ -72,6 +99,12 @@ const statusBadge: Record<string, string> = {
   SHIPPED: 'badge-warning',
   DELIVERED: 'badge-success',
   CANCELLED: 'badge-danger',
+}
+
+const invoiceBadge: Record<InvoiceStatus, string> = {
+  PENDING: 'badge-warning',
+  VALIDATED: 'badge-success',
+  FAILED: 'badge-danger',
 }
 </script>
 
@@ -172,6 +205,45 @@ const statusBadge: Record<string, string> = {
           <div class="flex justify-between items-center">
             <span class="text-base font-medium" style="color: var(--color-text)">Total</span>
             <span class="text-xl font-semibold" style="color: var(--color-text)">${{ formatPrice(order.total) }}</span>
+          </div>
+        </div>
+
+        <div v-if="invoice" class="bento-card p-5">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <FileText :size="18" :stroke-width="2" style="color: var(--color-accent)" />
+            <span class="text-sm font-medium" style="color: var(--color-text)">Factura electrónica</span>
+            <span :class="['badge', invoiceBadge[invoice.status]]">
+              {{ invoiceStatusLabels[invoice.status] }}
+            </span>
+          </div>
+          <div class="text-sm space-y-1 mb-4">
+            <p style="color: var(--color-text-secondary)">
+              Número: <span class="font-medium" style="color: var(--color-text)">{{ invoice.bill_number || '—' }}</span>
+            </p>
+            <p v-if="invoice.cufe" class="truncate" :title="invoice.cufe" style="color: var(--color-text-secondary)">
+              CUFE: <span style="color: var(--color-text)">{{ invoice.cufe.slice(0, 24) }}…</span>
+            </p>
+            <p v-if="invoice.status === 'FAILED' && invoice.error_message" class="text-xs" style="color: var(--color-danger)">
+              {{ invoice.error_message }}
+            </p>
+          </div>
+          <div v-if="invoice.bill_number" class="flex flex-wrap gap-2">
+            <button
+              class="btn-secondary text-sm inline-flex items-center gap-1.5"
+              :disabled="downloadBusy"
+              @click="download('pdf')"
+            >
+              <Download :size="14" :stroke-width="2" />
+              Descargar PDF
+            </button>
+            <button
+              class="btn-secondary text-sm inline-flex items-center gap-1.5"
+              :disabled="downloadBusy"
+              @click="download('xml')"
+            >
+              <Download :size="14" :stroke-width="2" />
+              Descargar XML
+            </button>
           </div>
         </div>
 

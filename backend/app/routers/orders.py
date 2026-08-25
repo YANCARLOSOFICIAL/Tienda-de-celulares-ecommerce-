@@ -24,7 +24,7 @@ router = APIRouter(prefix="/orders", tags=["Pedidos"])
         "y vacía el carrito, todo dentro de una única transacción."
     ),
 )
-def create_order(payload: OrderCreate, db: DbDep, current_user: CurrentUser) -> OrderApiResponse:
+def create_order(db: DbDep, current_user: CurrentUser, payload: OrderCreate | None = None) -> OrderApiResponse:
     order = order_service.create_order(db, current_user, payload)
     return OrderApiResponse(
         success=True,

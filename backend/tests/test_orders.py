@@ -23,7 +23,8 @@ def test_create_order(client, user_token, product_id):
     assert response.status_code == 201
     order = response.json()["data"]
     assert order["status"] == "PENDING"
-    assert order["total"] == "2000.00"
+    assert order["total"] == "2099.00"  # 2000 de productos + 99 de envío estándar
+    assert order["shipping_cost"] == "99.00"
     assert len(order["items"]) == 1
     assert order["items"][0]["product_name"] == "Test Phone"
     assert order["items"][0]["quantity"] == 2
@@ -47,7 +48,7 @@ def test_order_clears_cart(client, user_token, product_id):
 def test_order_with_empty_cart_rejected(client, user_token):
     response = client.post("/api/orders", headers={"Authorization": f"Bearer {user_token}"})
     assert response.status_code == 400
-    assert "vacío" in response.json()["message"]
+    assert "vacio" in response.json()["message"].lower()
 
 
 def test_order_requires_auth(client):
@@ -79,7 +80,7 @@ def test_order_cannot_manipulate_price(client, user_token, product_id):
     add_to_cart(client, user_token, product_id, quantity=3)
     response = client.post("/api/orders", headers={"Authorization": f"Bearer {user_token}"})
     order = response.json()["data"]
-    assert order["total"] == "3000.00"
+    assert order["total"] == "3099.00"  # 3000 de productos + 99 de envío
     assert order["items"][0]["unit_price"] == "1000.00"
 
 
@@ -92,7 +93,8 @@ def test_order_uses_db_price_after_update(client, admin_token, user_token, produ
     )
     response = client.post("/api/orders", headers={"Authorization": f"Bearer {user_token}"})
     order = response.json()["data"]
-    assert order["total"] == "2500.00"
+    assert order["total"] == "2599.00"  # precio actualizado + envío
+    assert order["items"][0]["unit_price"] == "2500.00"
 
 
 def test_list_my_orders(client, user_token, product_id):

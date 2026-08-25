@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Package } from '@lucide/vue'
+import { Package, FileText, Download } from '@lucide/vue'
 
 import { formatPrice } from '../api/products'
 import { ordersApi, orderStatusLabels, type Order } from '../api/orders'
+import { invoicesApi } from '../api/invoices'
 import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
@@ -13,6 +14,7 @@ const authStore = useAuthStore()
 const orders = ref<Order[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+const downloadingOrderId = ref<number | null>(null)
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
@@ -42,6 +44,18 @@ function formatDate(value: string): string {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+async function downloadInvoicePdf(order: Order) {
+  if (!order.invoice?.bill_number) return
+  downloadingOrderId.value = order.id
+  try {
+    await invoicesApi.downloadPdf(order.invoice.bill_number)
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Error al descargar la factura.'
+  } finally {
+    downloadingOrderId.value = null
+  }
 }
 
 const statusBadge: Record<string, string> = {
@@ -111,6 +125,28 @@ const statusBadge: Record<string, string> = {
               </span>
             </div>
             <span class="text-lg font-semibold text-white">${{ formatPrice(order.total) }}</span>
+          </div>
+
+          <div
+            v-if="order.invoice"
+            class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-border-light"
+          >
+            <span class="inline-flex items-center gap-1.5 text-xs text-text-secondary">
+              <FileText :size="13" :stroke-width="2" />
+              Factura {{ order.invoice.bill_number }}
+              <span v-if="order.invoice.status !== 'VALIDATED'" class="badge badge-warning text-[10px]">
+                {{ order.invoice.status === 'PENDING' ? 'Pendiente DIAN' : 'Con error' }}
+              </span>
+            </span>
+            <button
+              v-if="order.invoice.status === 'VALIDATED' && order.invoice.bill_number"
+              class="btn-ghost text-xs inline-flex items-center gap-1.5"
+              :disabled="downloadingOrderId === order.id"
+              @click.stop.prevent="downloadInvoicePdf(order)"
+            >
+              <Download :size="13" :stroke-width="2" />
+              {{ downloadingOrderId === order.id ? 'Descargando...' : 'Descargar PDF' }}
+            </button>
           </div>
         </router-link>
       </div>

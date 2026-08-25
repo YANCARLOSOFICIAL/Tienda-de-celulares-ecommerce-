@@ -49,6 +49,35 @@ class Settings(BaseSettings):
     mercadopago_access_token: str | None = Field(default=None, description="Access token de MercadoPago (opcional)")
     frontend_url: str = Field(default="http://localhost:5173", description="URL del frontend para back_urls")
 
+    # Factus (facturación electrónica DIAN - opcional; si no se configura, la facturación queda deshabilitada)
+    factus_base_url: str = Field(
+        default="https://api-sandbox.factus.com.co",
+        description="URL base de la API de Factus (sandbox o producción).",
+    )
+    factus_api_version: str = Field(
+        default="v2",
+        description="Versión de la API de Factus contratada por la empresa ('v1' o 'v2').",
+    )
+    factus_client_id: str | None = Field(default=None, description="Client ID OAuth de Factus.")
+    factus_client_secret: str | None = Field(default=None, description="Client Secret OAuth de Factus.")
+    factus_username: str | None = Field(default=None, description="Usuario (correo) de Factus.")
+    factus_password: str | None = Field(default=None, description="Contraseña del usuario de Factus.")
+    factus_numbering_range_id: int | None = Field(
+        default=None,
+        description="ID del rango de numeración activo. Si hay un solo rango, la API lo toma por defecto.",
+    )
+    factus_default_tax_rate: str = Field(
+        default="19.00",
+        description="Porcentaje de IVA por defecto aplicado a los productos al facturar.",
+    )
+    factus_timeout_seconds: float = Field(default=30.0, description="Timeout HTTP para llamadas a Factus.")
+
+    @property
+    def factus_configured(self) -> bool:
+        return all(
+            [self.factus_client_id, self.factus_client_secret, self.factus_username, self.factus_password]
+        )
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, v):

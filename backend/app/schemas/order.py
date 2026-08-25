@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, Field
 
 from app.schemas.common import ApiResponse, ORMModel
+from app.schemas.invoice import InvoiceSummary
 from app.schemas.order_status import OrderStatus
 
 
@@ -25,6 +26,7 @@ class OrderOut(ORMModel):
     coupon_code: str | None = None
     discount_amount: Decimal = Decimal("0.00")
     items: list[OrderItemOut]
+    invoice: InvoiceSummary | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -42,6 +44,7 @@ class OrderDetailOut(ORMModel):
     shipping_address_snapshot: str | None = None
     notes: str | None = None
     items: list[OrderItemOut]
+    invoice: InvoiceSummary | None = None
     created_at: datetime
     updated_at: datetime
 

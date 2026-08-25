@@ -17,6 +17,11 @@ export interface OrderItem {
   subtotal: string
 }
 
+export interface OrderInvoiceInfo {
+  bill_number: string | null
+  status: string
+}
+
 export interface Order {
   id: number
   status: OrderStatus
@@ -26,6 +31,7 @@ export interface Order {
   coupon_code?: string | null
   discount_amount?: string
   items: OrderItem[]
+  invoice?: OrderInvoiceInfo | null
   created_at: string
   updated_at: string
 }
