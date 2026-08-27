@@ -4,12 +4,45 @@ import { useRouter } from 'vue-router'
 import { Minus, Plus, ShoppingCart, Trash2, X } from '@lucide/vue'
 
 import { formatPrice } from '@/api/products'
+import { ApiError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
+import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const toast = useToast()
+
+function toastError(e: unknown, fallback: string) {
+  toast.error(e instanceof ApiError ? e.message : fallback)
+}
+
+async function changeQuantity(itemId: number, quantity: number) {
+  try {
+    await cartStore.updateQuantity(itemId, quantity)
+  } catch (e) {
+    toastError(e, 'No se pudo actualizar la cantidad')
+  }
+}
+
+async function removeItem(itemId: number) {
+  try {
+    await cartStore.remove(itemId)
+    toast.success('Producto eliminado del carrito')
+  } catch (e) {
+    toastError(e, 'No se pudo eliminar el producto')
+  }
+}
+
+async function clearCart() {
+  try {
+    await cartStore.clear()
+    toast.success('Carrito vaciado')
+  } catch (e) {
+    toastError(e, 'No se pudo vaciar el carrito')
+  }
+}
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
@@ -67,7 +100,7 @@ const isEmpty = computed(() => items.value.length === 0)
                 class="input-minimal p-2 hover:bg-white/5 transition-colors rounded-lg border border-white/10"
                 :disabled="item.quantity <= 1"
                 aria-label="Disminuir cantidad"
-                @click="cartStore.updateQuantity(item.id, item.quantity - 1)"
+                @click="changeQuantity(item.id, item.quantity - 1)"
               >
                 <Minus :size="16" :stroke-width="2" />
               </button>
@@ -78,7 +111,7 @@ const isEmpty = computed(() => items.value.length === 0)
                 class="input-minimal p-2 hover:bg-white/5 transition-colors rounded-lg border border-white/10"
                 :disabled="item.quantity >= item.product.stock"
                 aria-label="Aumentar cantidad"
-                @click="cartStore.updateQuantity(item.id, item.quantity + 1)"
+                @click="changeQuantity(item.id, item.quantity + 1)"
               >
                 <Plus :size="16" :stroke-width="2" />
               </button>
@@ -89,7 +122,7 @@ const isEmpty = computed(() => items.value.length === 0)
               <button
                 class="p-2 text-red-400 hover:bg-red-400/10 transition-colors rounded-lg"
                 aria-label="Eliminar producto"
-                @click="cartStore.remove(item.id)"
+                @click="removeItem(item.id)"
               >
                 <Trash2 :size="16" :stroke-width="2" />
               </button>
@@ -115,7 +148,7 @@ const isEmpty = computed(() => items.value.length === 0)
             </router-link>
             <button
               class="btn-ghost mt-3 w-full flex items-center justify-center gap-2 text-sm text-text-tertiary hover:text-white hover:bg-white/5"
-              @click="cartStore.clear()"
+              @click="clearCart()"
             >
               <X :size="16" :stroke-width="2" />
               Vaciar carrito

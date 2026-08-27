@@ -16,7 +16,7 @@ async function fetchRelated() {
   loading.value = true
   try {
     const data: ProductPage = await productsApi.list({
-      category_id: props.categoryId,
+      category_id: [props.categoryId],
       page_size: 4,
     })
     products.value = data.items.filter((p) => p.id !== props.currentProductId).slice(0, 3)

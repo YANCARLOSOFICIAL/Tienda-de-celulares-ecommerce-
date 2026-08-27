@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from sqlalchemy import Boolean, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import JSON, Boolean, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -19,6 +19,7 @@ class Product(Base, TimestampMixin):
     brand: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
     model: Mapped[str | None] = mapped_column(String(100), nullable=True)
     image: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    images: Mapped[list[str]] = mapped_column(JSON, default=list, server_default="[]", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True, nullable=False)
 
     category_id: Mapped[int | None] = mapped_column(

@@ -16,11 +16,13 @@ const loading = ref(true)
 const total = ref(0)
 const pages = ref(0)
 
+function parseCsv(value: unknown): string[] {
+  return typeof value === 'string' && value ? value.split(',').filter(Boolean) : []
+}
+
 const search = ref((route.query.search as string) || '')
-const selectedCategory = ref<number | undefined>(
-  route.query.category_id ? Number(route.query.category_id) : undefined
-)
-const selectedBrand = ref((route.query.brand as string) || '')
+const selectedCategories = ref<number[]>(parseCsv(route.query.category_id).map(Number).filter((n) => !Number.isNaN(n)))
+const selectedBrands = ref<string[]>(parseCsv(route.query.brand))
 const minPrice = ref((route.query.min_price as string) || '')
 const maxPrice = ref((route.query.max_price as string) || '')
 const ordering = ref((route.query.ordering as string) || '-created_at')
@@ -29,11 +31,27 @@ const pageSize = 12
 
 const showFilters = ref(false)
 
-const brands = ['Apple', 'Samsung', 'Xiaomi', 'Motorola', 'Honor', 'Oppo']
+const brands = ref<string[]>([])
+
+function toggleInArray<T>(arr: T[], value: T) {
+  const i = arr.indexOf(value)
+  if (i === -1) arr.push(value)
+  else arr.splice(i, 1)
+}
+
+function toggleCategory(id: number) {
+  toggleInArray(selectedCategories.value, id)
+  applyFilters()
+}
+
+function toggleBrand(brand: string) {
+  toggleInArray(selectedBrands.value, brand)
+  applyFilters()
+}
 
 const sortOptions = [
-  { value: '-created_at', label: 'Mas recientes' },
-  { value: 'created_at', label: 'Mas antiguos' },
+  { value: '-created_at', label: 'Más recientes' },
+  { value: 'created_at', label: 'Más antiguos' },
   { value: 'price', label: 'Menor precio' },
   { value: '-price', label: 'Mayor precio' },
   { value: 'name', label: 'Nombre A-Z' },
@@ -45,12 +63,12 @@ const activeFilters = computed(() => {
   if (search.value) {
     filters.push({ key: 'search', label: `"${search.value}"`, clear: () => { search.value = '' } })
   }
-  if (selectedCategory.value) {
-    const cat = categories.value.find(c => c.id === selectedCategory.value)
-    filters.push({ key: 'category', label: cat?.name || 'Categoria', clear: () => { selectedCategory.value = undefined } })
+  for (const id of selectedCategories.value) {
+    const cat = categories.value.find(c => c.id === id)
+    filters.push({ key: `category-${id}`, label: cat?.name || 'Categoría', clear: () => toggleInArray(selectedCategories.value, id) })
   }
-  if (selectedBrand.value) {
-    filters.push({ key: 'brand', label: selectedBrand.value, clear: () => { selectedBrand.value = '' } })
+  for (const brand of selectedBrands.value) {
+    filters.push({ key: `brand-${brand}`, label: brand, clear: () => toggleInArray(selectedBrands.value, brand) })
   }
   if (minPrice.value) {
     filters.push({ key: 'min_price', label: `Min $${minPrice.value}`, clear: () => { minPrice.value = '' } })
@@ -72,8 +90,8 @@ async function fetchProducts() {
       ordering: ordering.value,
     }
     if (search.value) filters.search = search.value
-    if (selectedCategory.value) filters.category_id = selectedCategory.value
-    if (selectedBrand.value) filters.brand = selectedBrand.value
+    if (selectedCategories.value.length) filters.category_id = [...selectedCategories.value]
+    if (selectedBrands.value.length) filters.brand = [...selectedBrands.value]
     if (minPrice.value) filters.min_price = minPrice.value
     if (maxPrice.value) filters.max_price = maxPrice.value
 
@@ -96,6 +114,14 @@ async function fetchCategories() {
   }
 }
 
+async function fetchBrands() {
+  try {
+    brands.value = await productsApi.brands()
+  } catch {
+    brands.value = []
+  }
+}
+
 function applyFilters() {
   currentPage.value = 1
   updateUrl()
@@ -104,8 +130,8 @@ function applyFilters() {
 
 function clearFilters() {
   search.value = ''
-  selectedCategory.value = undefined
-  selectedBrand.value = ''
+  selectedCategories.value = []
+  selectedBrands.value = []
   minPrice.value = ''
   maxPrice.value = ''
   ordering.value = '-created_at'
@@ -122,8 +148,8 @@ function removeFilter(filter: { key: string; clear: () => void }) {
 function updateUrl() {
   const query: Record<string, string> = {}
   if (search.value) query.search = search.value
-  if (selectedCategory.value) query.category_id = String(selectedCategory.value)
-  if (selectedBrand.value) query.brand = selectedBrand.value
+  if (selectedCategories.value.length) query.category_id = selectedCategories.value.join(',')
+  if (selectedBrands.value.length) query.brand = selectedBrands.value.join(',')
   if (minPrice.value) query.min_price = minPrice.value
   if (maxPrice.value) query.max_price = maxPrice.value
   if (ordering.value !== '-created_at') query.ordering = ordering.value
@@ -146,6 +172,7 @@ function onSearchInput() {
 
 onMounted(() => {
   fetchCategories()
+  fetchBrands()
   fetchProducts()
 })
 
@@ -209,49 +236,31 @@ watch(ordering, applyFilters)
           </div>
 
           <div class="bento-card p-5">
-            <h3 class="text-sm font-semibold text-text mb-3" style="font-family: var(--font-family-serif);">Categoria</h3>
+            <h3 class="text-sm font-semibold text-text mb-3" style="font-family: var(--font-family-serif);">Categoría</h3>
             <div class="space-y-2.5">
-              <label class="flex items-center gap-2.5 cursor-pointer group">
-                <input
-                  type="radio"
-                  :checked="!selectedCategory"
-                  class="accent-blue-500 w-4 h-4"
-                  @change="selectedCategory = undefined; applyFilters()"
-                />
-                <span class="text-sm text-text-secondary group-hover:text-text transition-colors">Todas</span>
-              </label>
               <label v-for="cat in categories" :key="cat.id" class="flex items-center gap-2.5 cursor-pointer group">
                 <input
-                  type="radio"
+                  type="checkbox"
                   :value="cat.id"
-                  :checked="selectedCategory === cat.id"
-                  class="accent-blue-500 w-4 h-4"
-                  @change="selectedCategory = cat.id; applyFilters()"
+                  :checked="selectedCategories.includes(cat.id)"
+                  class="accent-gold w-4 h-4"
+                  @change="toggleCategory(cat.id)"
                 />
                 <span class="text-sm text-text-secondary group-hover:text-text transition-colors">{{ cat.name }}</span>
               </label>
             </div>
           </div>
 
-          <div class="bento-card p-5">
+          <div v-if="brands.length" class="bento-card p-5">
             <h3 class="text-sm font-semibold text-text mb-3" style="font-family: var(--font-family-serif);">Marca</h3>
             <div class="space-y-2.5">
-              <label class="flex items-center gap-2.5 cursor-pointer group">
-                <input
-                  type="radio"
-                  :checked="!selectedBrand"
-                  class="accent-blue-500 w-4 h-4"
-                  @change="selectedBrand = ''; applyFilters()"
-                />
-                <span class="text-sm text-text-secondary group-hover:text-text transition-colors">Todas</span>
-              </label>
               <label v-for="brand in brands" :key="brand" class="flex items-center gap-2.5 cursor-pointer group">
                 <input
-                  type="radio"
+                  type="checkbox"
                   :value="brand"
-                  :checked="selectedBrand === brand"
-                  class="accent-blue-500 w-4 h-4"
-                  @change="selectedBrand = brand; applyFilters()"
+                  :checked="selectedBrands.includes(brand)"
+                  class="accent-gold w-4 h-4"
+                  @change="toggleBrand(brand)"
                 />
                 <span class="text-sm text-text-secondary group-hover:text-text transition-colors">{{ brand }}</span>
               </label>
@@ -323,7 +332,7 @@ watch(ordering, applyFilters)
               <Search :size="28" class="text-text-tertiary" />
             </div>
             <p class="font-semibold text-lg text-text mb-1">No se encontraron productos</p>
-            <p class="text-text-tertiary text-sm mb-6">Intenta ajustar los filtros de busqueda.</p>
+            <p class="text-text-tertiary text-sm mb-6">Intenta ajustar los filtros de búsqueda.</p>
             <button class="btn-gold px-6 py-2.5 rounded-full text-sm font-semibold" @click="clearFilters">
               Limpiar filtros
             </button>

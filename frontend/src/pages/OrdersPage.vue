@@ -37,7 +37,7 @@ async function loadOrders() {
 }
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString('es-MX', {
+  return new Date(value).toLocaleDateString('es-CO', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

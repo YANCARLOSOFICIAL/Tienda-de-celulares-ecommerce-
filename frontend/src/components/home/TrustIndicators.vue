@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Shield, Truck, CreditCard, Headphones, RefreshCcw, Lock } from '@lucide/vue'
+import { site, formatCurrency } from '@/config/site'
 
 const indicators = [
   {
@@ -11,13 +12,13 @@ const indicators = [
   {
     icon: Truck,
     title: 'Envío gratis',
-    description: 'En compras mayores a $999 MXN',
+    description: `En compras superiores a ${formatCurrency(site.freeShippingThreshold)}`,
     color: 'text-green-500',
   },
   {
     icon: CreditCard,
-    title: 'Meses sin intereses',
-    description: 'Paga hasta en 12 MSI con tarjetas participantes',
+    title: 'Paga a cuotas',
+    description: 'Hasta 12 cuotas con tarjeta de crédito',
     color: 'text-purple-500',
   },
   {
@@ -35,7 +36,7 @@ const indicators = [
   {
     icon: RefreshCcw,
     title: 'Devolución fácil',
-    description: '30 días para cambios y devoluciones',
+    description: '5 días hábiles para el retracto (Ley 1480)',
     color: 'text-green-500',
   },
 ]

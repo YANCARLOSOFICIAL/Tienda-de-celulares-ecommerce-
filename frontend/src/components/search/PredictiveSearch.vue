@@ -2,7 +2,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, X, ArrowRight } from '@lucide/vue'
-import { productsApi, type Product } from '@/api/products'
+import { productsApi, formatPrice, type Product } from '@/api/products'
 
 const router = useRouter()
 const query = ref('')
@@ -106,10 +106,6 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleKeydown)
 })
-
-function formatPrice(price: string): string {
-  return Number(price).toLocaleString('es-MX')
-}
 </script>
 
 <template>

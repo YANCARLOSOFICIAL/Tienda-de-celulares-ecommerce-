@@ -2,18 +2,22 @@
 
 Tienda Cell es un e-commerce de celulares desarrollado como un monorepo con un frontend en Vue 3 + Vite + TypeScript y un backend en FastAPI con PostgreSQL. El proyecto incluye una tienda pública, autenticación de usuarios, carrito de compras, gestión de pedidos y un panel de administración para administrar productos, categorías y órdenes.
 
+La tienda opera en **Colombia**: los precios se muestran en pesos colombianos (COP, sin decimales) y la facturación electrónica se emite ante la DIAN a través de Factus. Los datos de país, moneda, contacto, ubicación y reglas de envío están centralizados en `frontend/src/config/site.ts`.
+
 ## Características principales
 
-- Catálogo de productos con secciones promocionales y contenido comercial.
+- Catálogo de productos con filtros multiselección (marca y categoría), galería de imágenes por producto y búsqueda predictiva.
 - Registro e inicio de sesión de usuarios con autenticación JWT.
-- Carrito de compras y flujo de pedidos.
+- Carrito de compras y flujo de pedidos (checkout de 3 pasos con envío gratis por umbral).
+- Notificaciones (toasts) para las acciones del cliente y página 404 dedicada.
 - Panel de administración para gestionar:
-  - productos
+  - productos (incluida la galería de imágenes)
   - categorías
   - pedidos
 - API REST documentada con Swagger / Redoc.
 - Migraciones de base de datos con Alembic.
 - Datos de ejemplo mediante seed para desarrollo.
+- Rutas del frontend con carga diferida (code-splitting).
 
 ## Stack tecnológico
 

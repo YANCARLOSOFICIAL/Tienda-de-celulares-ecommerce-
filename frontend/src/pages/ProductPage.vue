@@ -4,10 +4,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { ShoppingBag, ArrowLeft, Package, Truck, Shield, MessageCircle, Heart, Star } from '@lucide/vue'
 
 import { productsApi, formatPrice, type Product } from '@/api/products'
+import { site, whatsappProductUrl, formatCurrency } from '@/config/site'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { wishlistApi } from '@/api/wishlist'
 import { ApiError } from '@/api/client'
+import { useToast } from '@/composables/useToast'
 
 import ProductGallery from '@/components/product/ProductGallery.vue'
 import ProductSpecs from '@/components/product/ProductSpecs.vue'
@@ -19,6 +21,7 @@ const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const toast = useToast()
 
 const product = ref<Product | null>(null)
 const loading = ref(true)
@@ -69,13 +72,13 @@ function injectSchema(p: Product) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: p.name,
-    image: p.image,
+    image: p.images?.length ? p.images : p.image,
     description: p.description,
     brand: { '@type': 'Brand', name: p.brand },
     model: p.model,
     offers: {
       '@type': 'Offer',
-      priceCurrency: 'MXN',
+      priceCurrency: site.currency,
       price: p.price,
       availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     },
@@ -98,12 +101,9 @@ const stockLabel = computed(() => {
   return `${product.value.stock} disponibles`
 })
 
-const whatsappMessage = computed(() => {
-  if (!product.value) return ''
-  return encodeURIComponent(
-    `¡Hola! Me interesa el ${product.value.name} por $${formatPrice(product.value.price)}. ¿Podrían darme más información?`
-  )
-})
+const whatsappHref = computed(() =>
+  product.value ? whatsappProductUrl(product.value.name, product.value.price) : '#',
+)
 
 async function checkWishlist() {
   if (!authStore.isAuthenticated || !product.value) return
@@ -124,11 +124,15 @@ async function toggleWishlist() {
     if (isWishlisted.value) {
       await wishlistApi.remove(product.value.id)
       isWishlisted.value = false
+      toast.success('Quitado de favoritos')
     } else {
       await wishlistApi.add(product.value.id)
       isWishlisted.value = true
+      toast.success('Agregado a favoritos')
     }
-  } catch { /* ignore */ } finally {
+  } catch (e) {
+    toast.error(e instanceof ApiError ? e.message : 'No se pudo actualizar favoritos')
+  } finally {
     wishlistLoading.value = false
   }
 }
@@ -143,22 +147,28 @@ async function addToCart() {
   try {
     await cartStore.add(product.value.id, quantity.value)
     added.value = true
+    toast.success(`${product.value.name} se agregó al carrito`)
     setTimeout(() => (added.value = false), 2500)
-  } catch {
+  } catch (e) {
     added.value = false
+    toast.error(e instanceof ApiError ? e.message : 'No se pudo agregar al carrito')
+    throw e
   } finally {
     adding.value = false
   }
 }
 
-function buyNow() {
+async function buyNow() {
   if (!authStore.isAuthenticated) {
     router.push({ name: 'login', query: { redirect: `/products/${productId.value}` } })
     return
   }
-  addToCart().then(() => {
+  try {
+    await addToCart()
     router.push('/checkout')
-  })
+  } catch {
+    /* el error ya se notificó en addToCart */
+  }
 }
 </script>
 
@@ -193,8 +203,7 @@ function buyNow() {
         <Package :size="48" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-4" />
         <h2 class="text-xl font-semibold text-white mb-2" style="font-family: var(--font-family-serif);">{{ error }}</h2>
         <p class="text-text-secondary text-sm mb-6">El producto que buscas no esta disponible o fue eliminado.</p>
-        <router-link to="/#productos" class="btn-gold px-6 py-3 inline-block text-sm">
-        >
+        <router-link to="/shop" class="btn-gold px-6 py-3 inline-block text-sm">
           Ver catálogo
         </router-link>
       </div>
@@ -204,7 +213,7 @@ function buyNow() {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <!-- Gallery -->
           <div class="bento-card rounded-2xl overflow-hidden">
-            <ProductGallery :image="product.image" :name="product.name" />
+            <ProductGallery :image="product.image" :images="product.images" :name="product.name" />
           </div>
 
           <!-- Details -->
@@ -255,7 +264,7 @@ function buyNow() {
             >
               <span class="text-4xl font-bold text-gold" style="font-family: var(--font-family-serif);">
                 <span itemprop="price" :content="String(Number(product.price))">${{ formatPrice(product.price) }}</span>
-                <meta itemprop="priceCurrency" content="MXN" />
+                <meta itemprop="priceCurrency" :content="site.currency" />
               </span>
             </div>
 
@@ -325,7 +334,7 @@ function buyNow() {
                   {{ isWishlisted ? 'Guardado' : 'Favorito' }}
                 </button>
                 <a
-                  :href="`https://wa.me/521234567890?text=${whatsappMessage}`"
+                  :href="whatsappHref"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="btn-secondary flex-1 flex items-center justify-center gap-2 py-3 text-sm"
@@ -345,16 +354,16 @@ function buyNow() {
             <div class="bento-card p-4 flex items-start gap-3">
               <Truck :size="20" :stroke-width="2" class="text-accent mt-0.5 shrink-0" />
               <div class="text-sm">
-                <p class="font-medium text-white">Envio a todo Mexico</p>
-                <p class="text-text-secondary text-xs mt-0.5">Envio gratis en compras mayores a $999 MXN</p>
+                <p class="font-medium text-white">Envío a todo {{ site.country }}</p>
+                <p class="text-text-secondary text-xs mt-0.5">Envío estándar gratis en compras superiores a {{ formatCurrency(site.freeShippingThreshold) }}</p>
               </div>
             </div>
 
             <div class="bento-card p-4 flex items-start gap-3">
               <Shield :size="20" :stroke-width="2" class="text-gold mt-0.5 shrink-0" />
               <div class="text-sm">
-                <p class="font-medium text-white">Garantia incluida</p>
-                <p class="text-text-secondary text-xs mt-0.5">3 meses de garantia del fabricante</p>
+                <p class="font-medium text-white">Garantía incluida</p>
+                <p class="text-text-secondary text-xs mt-0.5">1 año de garantía del fabricante</p>
               </div>
             </div>
           </div>

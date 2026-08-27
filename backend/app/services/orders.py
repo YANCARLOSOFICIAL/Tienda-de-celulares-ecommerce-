@@ -12,11 +12,22 @@ from app.models.user import User
 from app.schemas.order import OrderCreate
 from app.services.coupons import validate_coupon, calculate_discount
 
+# Costos de envío en pesos colombianos (COP).
 SHIPPING_COSTS = {
-    "estandar": Decimal("99.00"),
-    "express": Decimal("199.00"),
+    "estandar": Decimal("15000.00"),
+    "express": Decimal("30000.00"),
     "recoleccion": Decimal("0.00"),
 }
+DEFAULT_SHIPPING_METHOD = "estandar"
+
+# Umbral (COP) a partir del cual el envío estándar es gratis.
+# Mantener sincronizado con `freeShippingThreshold` en frontend/src/config/site.ts
+FREE_SHIPPING_THRESHOLD = Decimal("300000.00")
+
+
+def _normalize_shipping_method(method: str | None) -> str:
+    normalized = (method or DEFAULT_SHIPPING_METHOD).strip().lower()
+    return normalized if normalized in SHIPPING_COSTS else DEFAULT_SHIPPING_METHOD
 
 
 def _lock_products(db: Session, product_ids: list[int]) -> list[Product]:
@@ -39,8 +50,8 @@ def create_order(db: Session, user: User, payload: OrderCreate | None = None) ->
     no queda un pedido incompleto, el stock no se descuenta parcialmente
     y el carrito no se vacia.
     """
-    shipping_method = payload.shipping_method if payload else "estandar"
-    shipping_cost = SHIPPING_COSTS.get(shipping_method, Decimal("99.00"))
+    shipping_method = _normalize_shipping_method(payload.shipping_method if payload else None)
+    shipping_cost = SHIPPING_COSTS[shipping_method]
     notes = payload.notes if payload else None
     coupon_code = payload.coupon_code if payload else None
 
@@ -112,6 +123,11 @@ def create_order(db: Session, user: User, payload: OrderCreate | None = None) ->
                 )
             )
             product.stock -= item.quantity
+
+        # Envío estándar gratis a partir del umbral configurado.
+        if shipping_method == "estandar" and total >= FREE_SHIPPING_THRESHOLD:
+            shipping_cost = Decimal("0.00")
+        order.shipping_cost = shipping_cost
 
         discount = Decimal("0.00")
         if coupon_code:

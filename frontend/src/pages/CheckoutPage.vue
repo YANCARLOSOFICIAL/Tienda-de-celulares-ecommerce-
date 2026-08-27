@@ -14,6 +14,7 @@ import {
 } from '@lucide/vue'
 
 import { formatPrice } from '@/api/products'
+import { site, shippingOptions, formatCurrency, type ShippingMethod } from '@/config/site'
 import { addressesApi, type Address, type AddressPayload } from '@/api/addresses'
 import { ordersApi, orderStatusLabels, type OrderCreatePayload } from '@/api/orders'
 import { couponsApi, type CouponValidateResult } from '@/api/coupons'
@@ -38,16 +39,19 @@ const addresses = ref<Address[]>([])
 const selectedAddressId = ref<number | null>(null)
 const showNewAddress = ref(false)
 
-const shippingMethod = ref<string>('ESTANDAR')
+const shippingMethod = ref<ShippingMethod>('estandar')
+
+/** Subtotal (COP) del carrito antes de envío y descuentos. */
+const cartSubtotal = computed(() => Number(cartStore.cart?.total ?? 0))
+
+/** Envío estándar gratis a partir del umbral configurado. */
+const freeShipping = computed(
+  () => shippingMethod.value === 'estandar' && cartSubtotal.value >= site.freeShippingThreshold,
+)
+
 const shippingCost = computed(() => {
-  switch (shippingMethod.value) {
-    case 'EXPRESS':
-      return 199
-    case 'RECOLECCION':
-      return 0
-    default:
-      return 99
-  }
+  if (freeShipping.value) return 0
+  return shippingOptions.find((o) => o.value === shippingMethod.value)?.cost ?? shippingOptions[0].cost
 })
 
 const notes = ref('')
@@ -89,7 +93,7 @@ const couponDiscount = computed(() => {
   return Math.min(Number(appliedCoupon.value.discount_value), subtotal)
 })
 
-const stepLabels = ['Direccion', 'Envio', 'Resumen']
+const stepLabels = ['Dirección', 'Envío', 'Resumen']
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
@@ -137,7 +141,7 @@ async function saveNewAddress() {
     showNewAddress.value = false
     resetNewAddress()
   } catch {
-    orderError.value = 'No se pudo guardar la direccion.'
+    orderError.value = 'No se pudo guardar la dirección.'
   }
 }
 
@@ -172,7 +176,7 @@ async function placeOrder() {
       const created = await addressesApi.create(newAddress.value)
       addressId = created.id
     } catch {
-      orderError.value = 'No se pudo guardar la direccion.'
+      orderError.value = 'No se pudo guardar la dirección.'
       processing.value = false
       return
     }
@@ -193,7 +197,7 @@ async function placeOrder() {
     if (e instanceof ApiError) {
       orderError.value = e.message
     } else {
-      orderError.value = 'Ocurrio un error al procesar el pedido.'
+      orderError.value = 'Ocurrió un error al procesar el pedido.'
     }
   } finally {
     processing.value = false
@@ -243,7 +247,7 @@ async function applyCoupon() {
     couponError.value = null
   } catch (e: any) {
     appliedCoupon.value = null
-    couponError.value = e.message || 'Cupon invalido'
+    couponError.value = e.message || 'Cupón inválido'
   } finally {
     validatingCoupon.value = false
   }
@@ -256,14 +260,9 @@ function removeCoupon() {
 }
 
 function shipLabel(method: string) {
-  switch (method) {
-    case 'EXPRESS':
-      return 'Express ($199)'
-    case 'RECOLECCION':
-      return 'Recoleccion en tienda ($0)'
-    default:
-      return 'Estandar ($99)'
-  }
+  const opt = shippingOptions.find((o) => o.value === method) ?? shippingOptions[0]
+  const price = freeShipping.value && opt.value === 'estandar' ? 'Gratis' : formatCurrency(opt.cost)
+  return `${opt.label} (${price})`
 }
 </script>
 <template>
@@ -311,13 +310,13 @@ function shipLabel(method: string) {
       <!-- EMPTY CART -->
       <div v-else-if="isEmpty" class="text-center py-16">
         <ShoppingBag :size="48" :stroke-width="1" class="text-text-secondary mx-auto mb-4" />
-        <h2 class="text-2xl font-semibold text-text tracking-tight mb-2">Carrito vacio</h2>
+        <h2 class="text-2xl font-semibold text-text tracking-tight mb-2">Carrito vacío</h2>
         <p class="text-text-secondary mb-6">No hay productos en tu carrito.</p>
         <router-link
-          to="/#productos"
+          to="/shop"
           class="btn-gold px-8 py-3 inline-block"
         >
-          Ver catalogo
+          Ver catálogo
         </router-link>
       </div>
 
@@ -371,7 +370,7 @@ function shipLabel(method: string) {
           <div>
             <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
               <MapPin :size="18" :stroke-width="1.5" class="text-text-tertiary" />
-              Direccion de entrega
+              Dirección de entrega
             </h2>
 
             <div v-if="addresses.length === 0 && !showNewAddress" class="text-text-secondary text-sm">
@@ -391,7 +390,7 @@ function shipLabel(method: string) {
                 <div class="flex items-start justify-between">
                   <div class="min-w-0">
                     <p class="text-sm font-medium text-text">
-                      {{ addr.label || 'Direccion' }}
+                      {{ addr.label || 'Dirección' }}
                       <span v-if="addr.is_default" class="badge-accent text-[10px] ml-2">
                         Default
                       </span>
@@ -426,93 +425,121 @@ function shipLabel(method: string) {
               @click="toggleNewAddress"
             >
               <Plus :size="16" :stroke-width="2" />
-              {{ showNewAddress ? 'Cancelar' : 'Agregar direccion nueva' }}
+              {{ showNewAddress ? 'Cancelar' : 'Agregar dirección nueva' }}
             </button>
           </div>
 
           <!-- NEW ADDRESS FORM -->
-          <div v-if="showNewAddress" class="glass rounded-2xl p-6 space-y-4">
-            <h3 class="text-base font-semibold text-text">Nueva direccion</h3>
+          <form v-if="showNewAddress" class="glass rounded-2xl p-6 space-y-4" autocomplete="on" @submit.prevent="saveNewAddress">
+            <h3 class="text-base font-semibold text-text">Nueva dirección</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Etiqueta</label>
+                <label for="addr-label" class="text-xs font-medium text-text-secondary block mb-1.5">Etiqueta</label>
                 <input
+                  id="addr-label"
                   v-model="newAddress.label"
                   placeholder="Casa, Oficina..."
                   class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Nombre completo *</label>
+                <label for="addr-name" class="text-xs font-medium text-text-secondary block mb-1.5">Nombre completo *</label>
                 <input
+                  id="addr-name"
                   v-model="newAddress.full_name"
+                  required
+                  autocomplete="name"
                   class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Telefono *</label>
+                <label for="addr-phone" class="text-xs font-medium text-text-secondary block mb-1.5">Teléfono / celular *</label>
                 <input
+                  id="addr-phone"
                   v-model="newAddress.phone"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  required
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  placeholder="300 123 4567"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Calle *</label>
+                <label for="addr-street" class="text-xs font-medium text-text-secondary block mb-1.5">Dirección *</label>
                 <input
+                  id="addr-street"
                   v-model="newAddress.street"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  required
+                  autocomplete="address-line1"
+                  placeholder="Cra. 7 # 71 - 21"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Numero</label>
+                <label for="addr-number" class="text-xs font-medium text-text-secondary block mb-1.5">Torre / bloque</label>
                 <input
+                  id="addr-number"
                   v-model="newAddress.street_number"
+                  autocomplete="address-line2"
                   class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Interior</label>
+                <label for="addr-interior" class="text-xs font-medium text-text-secondary block mb-1.5">Apartamento / interior</label>
                 <input
+                  id="addr-interior"
                   v-model="newAddress.interior"
+                  autocomplete="address-line3"
                   class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Colonia *</label>
+                <label for="addr-neighborhood" class="text-xs font-medium text-text-secondary block mb-1.5">Barrio *</label>
                 <input
+                  id="addr-neighborhood"
                   v-model="newAddress.neighborhood"
+                  required
                   class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Ciudad *</label>
+                <label for="addr-city" class="text-xs font-medium text-text-secondary block mb-1.5">Ciudad / municipio *</label>
                 <input
+                  id="addr-city"
                   v-model="newAddress.city"
+                  required
+                  autocomplete="address-level2"
                   class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Estado *</label>
+                <label for="addr-state" class="text-xs font-medium text-text-secondary block mb-1.5">Departamento *</label>
                 <input
+                  id="addr-state"
                   v-model="newAddress.state"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  required
+                  autocomplete="address-level1"
+                  placeholder="Cundinamarca"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
-                <label class="text-xs font-medium text-text-secondary block mb-1.5">Codigo postal *</label>
+                <label for="addr-zip" class="text-xs font-medium text-text-secondary block mb-1.5">Código postal</label>
                 <input
+                  id="addr-zip"
                   v-model="newAddress.zip_code"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  inputmode="numeric"
+                  autocomplete="postal-code"
+                  placeholder="110111"
+                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
             </div>
-            <button
-              class="btn-gold px-5 py-2.5"
-              @click="saveNewAddress"
-            >
-              Guardar direccion
+            <button type="submit" class="btn-gold px-5 py-2.5">
+              Guardar dirección
             </button>
-          </div>
+          </form>
 
           <div class="flex justify-end pt-2">
             <button
@@ -531,37 +558,42 @@ function shipLabel(method: string) {
           <div>
             <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
               <Truck :size="18" :stroke-width="1.5" class="text-text-tertiary" />
-              Metodo de envio
+              Método de envío
             </h2>
 
             <div class="space-y-3">
               <label
-                v-for="method in ['ESTANDAR', 'EXPRESS', 'RECOLECCION']"
-                :key="method"
+                v-for="opt in shippingOptions"
+                :key="opt.value"
                 class="flex items-center gap-4 rounded-xl p-4 cursor-pointer transition-all"
-                :class="shippingMethod === method
+                :class="shippingMethod === opt.value
                   ? 'border-gold bg-gold/[0.03]'
                   : 'border border-border hover:border-white/10 bg-surface-dim'"
               >
                 <input
                   v-model="shippingMethod"
                   type="radio"
-                  :value="method"
+                  name="shipping-method"
+                  :value="opt.value"
                   class="w-4 h-4 accent-gold"
                 />
                 <div class="flex-1">
-                  <span class="text-sm font-medium text-text">
-                    {{ method === 'ESTANDAR' ? 'Estandar' : method === 'EXPRESS' ? 'Express' : 'Recoleccion en tienda' }}
-                  </span>
-                  <span class="text-xs text-text-secondary ml-2">
-                    {{ method === 'ESTANDAR' ? '5-7 dias habiles' : method === 'EXPRESS' ? '1-2 dias habiles' : 'Sin costo' }}
-                  </span>
+                  <span class="text-sm font-medium text-text">{{ opt.label }}</span>
+                  <span class="text-xs text-text-secondary ml-2">{{ opt.eta }}</span>
                 </div>
                 <span class="text-sm font-medium text-text">
-                  {{ method === 'ESTANDAR' ? '$99' : method === 'EXPRESS' ? '$199' : '$0' }}
+                  <template v-if="opt.value === 'estandar' && freeShipping">Gratis</template>
+                  <template v-else>{{ formatCurrency(opt.cost) }}</template>
                 </span>
               </label>
             </div>
+
+            <p
+              v-if="shippingMethod === 'estandar' && !freeShipping && cartSubtotal > 0"
+              class="text-xs text-text-secondary mt-3"
+            >
+              Te faltan {{ formatCurrency(site.freeShippingThreshold - cartSubtotal) }} para el envío estándar gratis.
+            </p>
           </div>
 
           <div class="flex justify-between pt-2">
@@ -621,7 +653,7 @@ function shipLabel(method: string) {
             <div v-if="selectedAddress" class="flex items-start gap-3">
               <MapPin :size="18" :stroke-width="1.5" class="text-text-secondary mt-0.5 flex-shrink-0" />
               <div>
-                <p class="text-sm font-medium text-text">{{ selectedAddress.label || 'Direccion' }}</p>
+                <p class="text-sm font-medium text-text">{{ selectedAddress.label || 'Dirección' }}</p>
                 <p class="text-sm text-text-secondary mt-0.5">
                   {{ selectedAddress.street }} {{ selectedAddress.street_number }}
                   <span v-if="selectedAddress.interior">, {{ selectedAddress.interior }}</span>
@@ -653,12 +685,12 @@ function shipLabel(method: string) {
 
           <!-- Coupon -->
           <div>
-            <label class="text-sm font-medium text-text block mb-2">Cupon de descuento</label>
+            <label class="text-sm font-medium text-text block mb-2">Cupón de descuento</label>
             <div v-if="!appliedCoupon" class="flex gap-2">
               <input
                 v-model="couponCode"
                 class="glass flex-1 uppercase px-3 py-2 rounded-xl text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
-                placeholder="Codigo del cupon"
+                placeholder="Código del cupón"
                 @keyup.enter="applyCoupon"
               />
               <button
@@ -680,7 +712,7 @@ function shipLabel(method: string) {
                     - ${{ formatPrice(appliedCoupon.discount_value) }}
                   </span>
                 </p>
-                <p class="text-xs text-gold/70 mt-0.5">Cupon aplicado correctamente</p>
+                <p class="text-xs text-gold/70 mt-0.5">Cupón aplicado correctamente</p>
               </div>
               <button class="p-1.5 rounded-full hover:bg-gold/10 transition-colors" @click="removeCoupon">
                 <XCircle :size="18" :stroke-width="2" class="text-gold" />
@@ -697,8 +729,9 @@ function shipLabel(method: string) {
                 <span>${{ formatPrice(cartTotal) }}</span>
               </div>
               <div class="flex justify-between text-sm text-text">
-                <span>Envio</span>
-                <span>${{ formatPrice(String(shippingCost)) }}</span>
+                <span>Envío</span>
+                <span v-if="freeShipping" class="text-gold">Gratis</span>
+                <span v-else>${{ formatPrice(String(shippingCost)) }}</span>
               </div>
               <div v-if="appliedCoupon" class="flex justify-between text-sm text-gold">
                 <span>Descuento ({{ appliedCoupon.code }})</span>
@@ -710,7 +743,7 @@ function shipLabel(method: string) {
               </div>
             </div>
             <p class="text-xs text-text-secondary mb-5">
-              Al confirmar se creara tu pedido y se descontara el inventario.
+              Al confirmar se creará tu pedido y se descontará el inventario.
               Estado inicial: <strong class="text-white">{{ orderStatusLabels.PENDING }}</strong>.
             </p>
 

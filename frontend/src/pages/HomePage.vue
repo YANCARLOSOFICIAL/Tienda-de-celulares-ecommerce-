@@ -2,26 +2,27 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ShoppingCart, Wrench, Shield, RefreshCcw, Headphones, Star, ChevronRight, MessageCircle } from '@lucide/vue'
+import { site, whatsappUrl, formatCurrency } from '@/config/site'
 
 const featuredProducts = ref([
-  { id: 1, name: 'iPhone 15 Pro Max', price: 1199, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=iPhone+15+Pro+Max&font=inter', badge: 'Nuevo' },
-  { id: 2, name: 'Samsung Galaxy S24 Ultra', price: 1099, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Galaxy+S24+Ultra&font=inter', badge: null },
-  { id: 3, name: 'Xiaomi 14 Pro', price: 799, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Xiaomi+14+Pro&font=inter', badge: 'Oferta' },
-  { id: 4, name: 'Google Pixel 8 Pro', price: 899, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Pixel+8+Pro&font=inter', badge: null },
+  { id: 1, name: 'iPhone 16 Pro Max', price: 6499000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=iPhone+16+Pro+Max&font=inter', badge: 'Nuevo' },
+  { id: 2, name: 'Samsung Galaxy S25 Ultra', price: 5999000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Galaxy+S25+Ultra&font=inter', badge: null },
+  { id: 3, name: 'Xiaomi 15 Pro', price: 3799000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Xiaomi+15+Pro&font=inter', badge: 'Oferta' },
+  { id: 4, name: 'Motorola Edge 50 Fusion', price: 1599000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Edge+50+Fusion&font=inter', badge: null },
 ])
 
-const brands = ['Apple', 'Samsung', 'Xiaomi', 'Google', 'Motorola', 'OnePlus', 'Nothing']
+const brands = ['Apple', 'Samsung', 'Xiaomi', 'Motorola', 'Honor', 'Oppo', 'Realme']
 
 const services = [
-  { icon: Wrench, title: 'Reparacion', desc: 'Servicio tecnico rapido y confiable para todo tipo de celulares.' },
-  { icon: Shield, title: 'Garantia', desc: 'Todos nuestros productos cuentan con garantia oficial.' },
-  { icon: Headphones, title: 'Accesorios', desc: 'Fundas, cargadores, audifonos y mas.' },
-  { icon: RefreshCcw, title: 'Intercambio', desc: 'Cambia tu celular actual por uno nuevo con descuento.' },
+  { icon: Wrench, title: 'Reparación', desc: 'Servicio técnico rápido y confiable para todo tipo de celulares.' },
+  { icon: Shield, title: 'Garantía', desc: 'Todos nuestros productos cuentan con garantía oficial.' },
+  { icon: Headphones, title: 'Accesorios', desc: 'Fundas, cargadores, audífonos y más.' },
+  { icon: RefreshCcw, title: 'Plan canje', desc: 'Entrega tu celular actual y estrena uno nuevo con descuento.' },
 ]
 
 const testimonials = ref([
-  { name: 'Maria L.', stars: 5, quote: 'Excelente atencion y precios muy buenos. Mi iPhone llego en perfecto estado.', avatar: 'M' },
-  { name: 'Carlos R.', stars: 5, quote: 'Compre un Galaxy y quedo muy satisfecho. Lo recomiendo totalmente.', avatar: 'C' },
+  { name: 'María L.', stars: 5, quote: 'Excelente atención y precios muy buenos. Mi iPhone llegó en perfecto estado.', avatar: 'M' },
+  { name: 'Carlos R.', stars: 5, quote: 'Compré un Galaxy y quedé muy satisfecho. Lo recomiendo totalmente.', avatar: 'C' },
   { name: 'Ana P.', stars: 5, quote: 'El mejor lugar para comprar celulares. Rapidez y confianza.', avatar: 'A' },
 ])
 </script>
@@ -47,8 +48,8 @@ const testimonials = ref([
             <span class="text-gold-gradient">al mejor precio</span>
           </h1>
           <p class="text-text-secondary mb-8 mx-auto lg:mx-0" style="font-size: clamp(16px, 1.6vw, 19px); max-width: 560px;">
-            Encuentra tu proximo smartphone con los mejores precios del mercado.
-            Envio gratis y garantia en todos los productos.
+            Encuentra tu próximo smartphone con los mejores precios del mercado.
+            Envío gratis y garantía en todos los productos.
           </p>
           <div class="flex gap-4 flex-wrap justify-center lg:justify-start">
             <RouterLink to="/shop" class="btn-primary">
@@ -62,11 +63,11 @@ const testimonials = ref([
           <div class="flex gap-12 mt-16 flex-wrap justify-center lg:justify-start">
             <div>
               <div class="text-gold-gradient text-3xl font-semibold" style="font-family: var(--font-family-serif);">24h</div>
-              <div class="text-text-secondary text-sm mt-1">Envio express</div>
+              <div class="text-text-secondary text-sm mt-1">Envío express</div>
             </div>
             <div>
               <div class="text-gold-gradient text-3xl font-semibold" style="font-family: var(--font-family-serif);">100%</div>
-              <div class="text-text-secondary text-sm mt-1">Garantia oficial</div>
+              <div class="text-text-secondary text-sm mt-1">Garantía oficial</div>
             </div>
             <div>
               <div class="text-gold-gradient text-3xl font-semibold" style="font-family: var(--font-family-serif);">5k+</div>
@@ -87,12 +88,12 @@ const testimonials = ref([
               />
             </div>
             <div class="absolute top-10 right-10 glass rounded-2xl p-4 animate-fade-in-up">
-              <p class="text-sm font-semibold text-white">Envio gratis</p>
-              <p class="text-xs text-text-secondary">En compras +$500</p>
+              <p class="text-sm font-semibold text-white">Envío gratis</p>
+              <p class="text-xs text-text-secondary">En compras desde {{ formatCurrency(site.freeShippingThreshold) }}</p>
             </div>
             <div class="absolute bottom-10 left-10 glass rounded-2xl p-4 animate-fade-in-up" style="animation-delay: 0.2s">
-              <p class="text-sm font-semibold text-white">6 meses</p>
-              <p class="text-xs text-text-secondary">Sin intereses</p>
+              <p class="text-sm font-semibold text-white">Hasta 12 cuotas</p>
+              <p class="text-xs text-text-secondary">Con tarjeta de crédito</p>
             </div>
           </div>
         </div>
@@ -105,8 +106,8 @@ const testimonials = ref([
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-end justify-between mb-10">
         <div>
-          <span class="eyebrow mb-3 inline-flex">Lo mas vendido</span>
-          <h2 class="section-title">Descubre nuestros smartphones mas populares</h2>
+          <span class="eyebrow mb-3 inline-flex">Lo más vendido</span>
+          <h2 class="section-title">Descubre nuestros smartphones más populares</h2>
         </div>
         <RouterLink to="/shop" class="view-all hidden sm:inline-flex">
           Ver todo
@@ -138,7 +139,7 @@ const testimonials = ref([
             <h3 class="font-semibold text-lg text-white group-hover:text-gold-light transition-colors duration-300" style="font-family: var(--font-family-serif);">
               {{ featuredProducts[0].name }}
             </h3>
-            <p class="text-gold font-bold text-xl mt-1">${{ featuredProducts[0].price }}</p>
+            <p class="text-gold font-bold text-xl mt-1">{{ formatCurrency(featuredProducts[0].price) }}</p>
           </div>
         </RouterLink>
 
@@ -164,7 +165,7 @@ const testimonials = ref([
             <h3 class="font-medium text-sm text-white group-hover:text-gold-light transition-colors duration-300 line-clamp-1" style="font-family: var(--font-family-serif);">
               {{ product.name }}
             </h3>
-            <p class="text-gold font-bold mt-1">${{ product.price }}</p>
+            <p class="text-gold font-bold mt-1">{{ formatCurrency(product.price) }}</p>
           </div>
         </RouterLink>
       </div>
@@ -265,12 +266,12 @@ const testimonials = ref([
             style="background: var(--color-metal-gradient, linear-gradient(135deg, #f8fafb 0%, #aebac5 25%, #ffffff 46%, #6d7b88 74%, #dbe3e9 100%));">
             <MessageCircle :size="28" class="text-[#102745]" />
           </div>
-          <h2 class="section-title mb-4">Contactanos</h2>
+          <h2 class="section-title mb-4">Contáctanos</h2>
           <p class="section-subtitle mx-auto mb-8">
-            Tenes dudas? Escribinos por WhatsApp y te respondemos al instante. Estamos para ayudarte.
+            ¿Tienes dudas? Escríbenos por WhatsApp y te respondemos al instante. Estamos para ayudarte.
           </p>
           <a
-            href="https://wa.me/5491112345678"
+            :href="whatsappUrl"
             target="_blank"
             rel="noopener"
             class="inline-flex items-center gap-2 bg-whatsapp text-white font-semibold px-8 py-3.5 rounded-full hover:opacity-90 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-whatsapp/20"
@@ -287,13 +288,13 @@ const testimonials = ref([
   <section class="section-clean">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-8">
-        <span class="eyebrow mb-3 inline-flex">Ubicacion</span>
-        <h2 class="section-title">Encontranos</h2>
-        <p class="section-subtitle mt-2 mx-auto">Visitanos en nuestro local</p>
+        <span class="eyebrow mb-3 inline-flex">Ubicación</span>
+        <h2 class="section-title">Visítanos</h2>
+        <p class="section-subtitle mt-2 mx-auto">{{ site.address.line }}</p>
       </div>
       <div class="bento-card overflow-hidden p-2">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3283.8403699704563!2d-58.3838!3d-34.6037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccacdf8b0e405%3A0x5c68b39de097aa50!2sBuenos%20Aires%2C%20Argentina!5e0!3m2!1ses!2sar!4v1"
+          :src="site.mapEmbedUrl"
           width="100%"
           height="400"
           style="border: 0; border-radius: 16px"

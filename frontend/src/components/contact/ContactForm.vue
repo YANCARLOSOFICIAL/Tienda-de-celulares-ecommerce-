@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useIntersectionObserver } from '@/composables/useIntersectionObserver'
 import { Send, CheckCircle, AlertCircle, Phone, Mail, MapPin } from '@lucide/vue'
+import { site, whatsappUrl } from '@/config/site'
 
 const sectionRef = ref<HTMLElement | null>(null)
 const { isVisible } = useIntersectionObserver(sectionRef)
@@ -40,9 +41,9 @@ async function handleSubmit() {
 }
 
 const contactInfo = [
-  { icon: Phone, label: 'Teléfono', value: '+52 123 456 7890' },
-  { icon: Mail, label: 'Email', value: 'hola@tiendacell.mx' },
-  { icon: MapPin, label: 'Dirección', value: 'Av. Tecnológico 123, Col. Centro, CDMX' }
+  { icon: Phone, label: 'Teléfono', value: site.phoneDisplay },
+  { icon: Mail, label: 'Email', value: site.email },
+  { icon: MapPin, label: 'Dirección', value: site.address.line }
 ]
 </script>
 
@@ -110,7 +111,7 @@ const contactInfo = [
                 v-model="form.phone"
                 type="tel"
                 class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
-                placeholder="+52 55 1234 5678"
+                placeholder="+57 300 123 4567"
               />
             </div>
 
@@ -187,7 +188,7 @@ const contactInfo = [
             :style="{ transitionDelay: '600ms' }"
           >
             <a
-              href="https://wa.me/521234567890"
+              :href="whatsappUrl"
               target="_blank"
               rel="noopener noreferrer"
               class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-whatsapp text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"

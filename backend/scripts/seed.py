@@ -32,7 +32,7 @@ PRODUCTS = [
         "name": "iPhone 16 Pro Max",
         "brand": "Apple",
         "model": "A3101",
-        "price": "28999.00",
+        "price": "6499000.00",
         "stock": 15,
         "category": "Smartphones",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=iPhone+16&font=inter",
@@ -42,7 +42,7 @@ PRODUCTS = [
         "name": "Samsung Galaxy S25 Ultra",
         "brand": "Samsung",
         "model": "SM-S938",
-        "price": "25999.00",
+        "price": "5999000.00",
         "stock": 20,
         "category": "Smartphones",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=Galaxy+S25&font=inter",
@@ -52,7 +52,7 @@ PRODUCTS = [
         "name": "Xiaomi 15 Pro",
         "brand": "Xiaomi",
         "model": "2410DPN6CC",
-        "price": "15999.00",
+        "price": "3799000.00",
         "stock": 25,
         "category": "Smartphones",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=Xiaomi+15&font=inter",
@@ -62,7 +62,7 @@ PRODUCTS = [
         "name": "Motorola Edge 50 Fusion",
         "brand": "Motorola",
         "model": "XT2503",
-        "price": "7999.00",
+        "price": "1599000.00",
         "stock": 30,
         "category": "Smartphones",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=Edge+50&font=inter",
@@ -72,7 +72,7 @@ PRODUCTS = [
         "name": "Honor Magic6 Pro",
         "brand": "Honor",
         "model": "BVL-AN00",
-        "price": "18999.00",
+        "price": "4299000.00",
         "stock": 12,
         "category": "Smartphones",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=Magic6+Pro&font=inter",
@@ -82,7 +82,7 @@ PRODUCTS = [
         "name": "Oppo Find X8 Pro",
         "brand": "Oppo",
         "model": "CPH2669",
-        "price": "21999.00",
+        "price": "4799000.00",
         "stock": 10,
         "category": "Smartphones",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=Find+X8&font=inter",
@@ -92,7 +92,7 @@ PRODUCTS = [
         "name": "Funda Silicona iPhone 16",
         "brand": "Spigen",
         "model": "ACC-FND-01",
-        "price": "349.00",
+        "price": "89000.00",
         "stock": 100,
         "category": "Accesorios",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=Funda&font=inter",
@@ -102,7 +102,7 @@ PRODUCTS = [
         "name": "Cargador Rápido 65W USB-C",
         "brand": "Baseus",
         "model": "ACC-CRG-01",
-        "price": "599.00",
+        "price": "149000.00",
         "stock": 80,
         "category": "Accesorios",
         "image": "https://placehold.co/400x400/111111/FFD60A?text=Cargador&font=inter",
@@ -153,6 +153,16 @@ def seed_categories(db) -> dict[str, Category]:
     return categories
 
 
+def _gallery(base_image: str, name: str) -> list[str]:
+    """Genera una galería de ejemplo a partir de la imagen principal."""
+    slug = name.split()[0]
+    return [
+        base_image,
+        f"https://placehold.co/400x400/1c1c1c/FFD60A?text={slug}+atras&font=inter",
+        f"https://placehold.co/400x400/2a2a2a/FFD60A?text={slug}+detalle&font=inter",
+    ]
+
+
 def seed_products(db, categories: dict[str, Category]) -> None:
     existing = set(db.scalars(select(Product.name)))
     for data in PRODUCTS:
@@ -168,6 +178,7 @@ def seed_products(db, categories: dict[str, Category]) -> None:
                 price=data["price"],
                 stock=data["stock"],
                 image=data["image"],
+                images=data.get("images") or _gallery(data["image"], data["name"]),
                 description=data["description"],
                 category_id=category.id,
                 is_active=True,

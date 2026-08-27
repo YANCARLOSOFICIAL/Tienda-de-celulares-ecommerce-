@@ -28,7 +28,7 @@ class Payment(Base, TimestampMixin):
         String(20), default=PaymentStatus.PENDING, nullable=False
     )
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
-    currency: Mapped[str] = mapped_column(String(3), default="MXN", nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), default="COP", nullable=False)
     checkout_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     order: Mapped["Order"] = relationship(back_populates="payments")

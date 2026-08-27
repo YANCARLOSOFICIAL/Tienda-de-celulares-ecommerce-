@@ -1,4 +1,5 @@
 import { Api } from './client'
+import { formatNumber } from '@/config/site'
 import type { Category } from './categories'
 
 export interface Product {
@@ -10,6 +11,7 @@ export interface Product {
   brand: string
   model: string | null
   image: string | null
+  images: string[]
   is_active: boolean
   category_id: number | null
   category: Category | null
@@ -27,8 +29,10 @@ export interface ProductPage {
 
 export interface ProductFilters {
   search?: string
-  category_id?: number
-  brand?: string
+  /** Uno o varios IDs de categoría (se envían como `category_id` repetido). */
+  category_id?: number[]
+  /** Una o varias marcas (se envían como `brand` repetido). */
+  brand?: string[]
   min_price?: string
   max_price?: string
   ordering?: string
@@ -40,8 +44,9 @@ export function priceToNumber(price: string): number {
   return Number(price)
 }
 
-export function formatPrice(price: string): string {
-  return Number(price).toLocaleString('es-MX')
+/** Precio agrupado en formato colombiano, sin decimales. Las plantillas anteponen "$". */
+export function formatPrice(price: string | number): string {
+  return formatNumber(price)
 }
 
 export interface ProductPayload {
@@ -53,20 +58,29 @@ export interface ProductPayload {
   model?: string | null
   category_id?: number | null
   image?: string | null
+  images?: string[]
   is_active?: boolean
 }
 
 export const productsApi = {
   async list(filters: ProductFilters = {}) {
     const params = new URLSearchParams()
-    const entries = Object.entries(filters)
-    for (const [key, value] of entries) {
-      if (value !== undefined && value !== null && value !== '') {
+    for (const [key, value] of Object.entries(filters)) {
+      if (value === undefined || value === null || value === '') continue
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          if (v !== undefined && v !== null && v !== '') params.append(key, String(v))
+        }
+      } else {
         params.append(key, String(value))
       }
     }
     const query = params.toString()
     return Api.get<ProductPage>(`/products${query ? `?${query}` : ''}`)
+  },
+
+  async brands() {
+    return Api.get<string[]>('/products/brands')
   },
 
   async get(id: number) {

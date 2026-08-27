@@ -40,7 +40,7 @@ def create_payment(db: Session, user: User, order_id: int) -> Payment:
                         "title": f"Pedido #{order.id}",
                         "quantity": 1,
                         "unit_price": float(order.total),
-                        "currency_id": "MXN",
+                        "currency_id": "COP",
                     }
                 ],
                 "external_reference": str(order.id),
@@ -61,7 +61,7 @@ def create_payment(db: Session, user: User, order_id: int) -> Payment:
         external_id=external_id,
         status=PaymentStatus.PENDING,
         amount=order.total,
-        currency="MXN",
+        currency="COP",
         checkout_url=checkout_url,
     )
     db.add(payment)

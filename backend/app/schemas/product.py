@@ -16,6 +16,7 @@ class ProductCreate(BaseModel):
     model: str | None = Field(default=None, max_length=100)
     category_id: int | None = Field(default=None, description="ID de la categoría (opcional)")
     image: str | None = Field(default=None, max_length=500)
+    images: list[str] = Field(default_factory=list, description="Galería de imágenes (URLs)")
     is_active: bool = True
 
 
@@ -28,6 +29,7 @@ class ProductUpdate(BaseModel):
     model: str | None = Field(default=None, max_length=100)
     category_id: int | None = Field(default=None)
     image: str | None = Field(default=None, max_length=500)
+    images: list[str] | None = Field(default=None, description="Galería de imágenes (URLs)")
     is_active: bool | None = None
 
 
@@ -40,6 +42,7 @@ class ProductOut(ORMModel):
     brand: str
     model: str | None
     image: str | None
+    images: list[str] = []
     is_active: bool
     category_id: int | None
     category: CategoryOut | None = None

@@ -3,11 +3,14 @@ import { computed, ref } from 'vue'
 import { ShoppingBag, Heart, MessageCircle, Scale } from '@lucide/vue'
 
 import { formatPrice } from '@/api/products'
+import { site, whatsappProductUrl } from '@/config/site'
 import { wishlistApi } from '@/api/wishlist'
+import { ApiError } from '@/api/client'
 import type { Product } from '@/stores/products'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useCompareStore } from '@/stores/compare'
+import { useToast } from '@/composables/useToast'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -23,6 +26,7 @@ const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const compareStore = useCompareStore()
+const toast = useToast()
 const adding = ref(false)
 const added = ref(false)
 const isWishlisted = ref(false)
@@ -32,11 +36,7 @@ function goToDetail() {
   router.push({ name: 'product-detail', params: { id: props.product.id } })
 }
 
-const whatsappMessage = computed(() => {
-  return encodeURIComponent(
-    `¡Hola! Me interesa el ${props.product.name} por $${formatPrice(props.product.price)}. ¿Podrían darme más información?`
-  )
-})
+const whatsappHref = computed(() => whatsappProductUrl(props.product.name, props.product.price))
 
 const priceNumber = computed(() => Number(props.product.price))
 
@@ -44,7 +44,8 @@ const isInCompare = computed(() => compareStore.isInCompare(props.product.id))
 
 async function addToCart() {
   if (!authStore.isAuthenticated) {
-    router.push({ name: 'login', query: { redirect: '/#productos' } })
+    toast.info('Inicia sesión para continuar')
+    router.push({ name: 'login', query: { redirect: `/products/${props.product.id}` } })
     return
   }
   if (props.product.stock <= 0) return
@@ -52,9 +53,11 @@ async function addToCart() {
   try {
     await cartStore.add(props.product.id, 1)
     added.value = true
+    toast.success(`${props.product.name} se agregó al carrito`)
     setTimeout(() => (added.value = false), 2000)
-  } catch {
+  } catch (e) {
     added.value = false
+    toast.error(e instanceof ApiError ? e.message : 'No se pudo agregar al carrito')
   } finally {
     adding.value = false
   }
@@ -62,7 +65,8 @@ async function addToCart() {
 
 async function toggleWishlist() {
   if (!authStore.isAuthenticated) {
-    router.push({ name: 'login', query: { redirect: '/#productos' } })
+    toast.info('Inicia sesión para continuar')
+    router.push({ name: 'login', query: { redirect: `/products/${props.product.id}` } })
     return
   }
   togglingWishlist.value = true
@@ -74,8 +78,9 @@ async function toggleWishlist() {
     }
     isWishlisted.value = !isWishlisted.value
     emit('toggle-wishlist', props.product.id)
-  } catch {
-    // silently fail
+    toast.success(isWishlisted.value ? 'Agregado a favoritos' : 'Quitado de favoritos')
+  } catch (e) {
+    toast.error(e instanceof ApiError ? e.message : 'No se pudo actualizar favoritos')
   } finally {
     togglingWishlist.value = false
   }
@@ -143,7 +148,7 @@ function toggleCompare() {
       <div class="mt-auto pt-2 space-y-3">
         <span class="text-gold font-bold text-xl" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
           <span itemprop="price" :content="String(priceNumber)">${{ formatPrice(product.price) }}</span>
-          <meta itemprop="priceCurrency" content="MXN" />
+          <meta itemprop="priceCurrency" :content="site.currency" />
         </span>
 
         <div class="flex gap-2">
@@ -157,7 +162,7 @@ function toggleCompare() {
             {{ added ? 'Agregado!' : adding ? 'Agregando...' : 'Agregar' }}
           </button>
           <a
-            :href="`https://wa.me/521234567890?text=${whatsappMessage}`"
+            :href="whatsappHref"
             target="_blank"
             rel="noopener noreferrer"
             class="btn-secondary flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full text-sm font-semibold"

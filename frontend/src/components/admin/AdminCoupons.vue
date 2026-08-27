@@ -165,7 +165,7 @@ function couponLabel(coupon: Coupon): string {
                 {{ coupon.used_count }}{{ coupon.max_uses ? ` / ${coupon.max_uses}` : '' }}
               </td>
               <td class="px-4 py-3 text-text-secondary">
-                {{ coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('es-MX') : 'Sin límite' }}
+                {{ coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('es-CO') : 'Sin límite' }}
               </td>
               <td class="px-4 py-3">
                 <span v-if="isExpired(coupon)" class="badge badge-danger text-xs">

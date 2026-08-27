@@ -66,9 +66,9 @@ function scrollToSection(id: string) {
                 </div>
                 <span class="font-bold text-xl text-white">iPhone 16</span>
                 <span class="text-text-secondary text-sm">Pro Max</span>
-                <span class="font-bold text-2xl text-blue-500 mt-4">$28,999</span>
-                <span class="text-text-tertiary line-through text-sm">$32,999</span>
-                <span class="mt-4 badge badge-accent">12% OFF</span>
+                <span class="font-bold text-2xl text-blue-500 mt-4">$5.799.000</span>
+                <span class="text-text-tertiary line-through text-sm">$6.499.000</span>
+                <span class="mt-4 badge badge-accent">11% OFF</span>
               </div>
             </div>
             <div class="absolute -bottom-3 -left-3 bg-whatsapp text-white font-semibold text-xs px-4 py-2 rounded-2xl shadow-lg z-20">

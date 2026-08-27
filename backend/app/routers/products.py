@@ -22,8 +22,8 @@ def list_products(
     db: DbDep,
     current_user: OptionalUser = None,
     search: str | None = Query(default=None, description="Buscar por nombre, marca o modelo"),
-    category_id: int | None = Query(default=None, description="Filtrar por ID de categoría"),
-    brand: str | None = Query(default=None, description="Filtrar por marca"),
+    category_id: list[int] | None = Query(default=None, description="Filtrar por uno o varios IDs de categoría"),
+    brand: list[str] | None = Query(default=None, description="Filtrar por una o varias marcas"),
     min_price: Decimal | None = Query(default=None, gt=0, description="Precio mínimo"),
     max_price: Decimal | None = Query(default=None, gt=0, description="Precio máximo"),
     ordering: str = Query(
@@ -38,8 +38,8 @@ def list_products(
     is_admin = bool(current_user) and current_user.role.name == "ADMIN"
     filters = product_service.ProductFilters(
         search=search,
-        category_id=category_id,
-        brand=brand,
+        category_ids=category_id,
+        brands=brand,
         min_price=min_price,
         max_price=max_price,
         is_active=None if is_admin else True,
@@ -50,6 +50,13 @@ def list_products(
     result["items"] = [ProductOut.model_validate(p) for p in result["items"]]
     page_data = Page[ProductOut](**result)
     return ProductListApiResponse(success=True, message="Productos obtenidos correctamente", data=page_data)
+
+
+@router.get("/brands", response_model=ApiResponse[list[str]], summary="Listar marcas disponibles")
+def list_brands(db: DbDep) -> ApiResponse[list[str]]:
+    return ApiResponse[list[str]](
+        success=True, message="Marcas obtenidas correctamente", data=product_service.list_brands(db)
+    )
 
 
 @router.get("/{product_id}", response_model=ProductApiResponse, summary="Obtener un producto por ID")

@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { Pencil, Plus, Trash2, X, Package } from '@lucide/vue'
 
 import { categoriesApi, type Category } from '@/api/categories'
-import { productsApi, type Product, type ProductPayload } from '@/api/products'
+import { productsApi, formatPrice, type Product, type ProductPayload } from '@/api/products'
 
 const products = ref<Product[]>([])
 const categories = ref<Category[]>([])
@@ -15,17 +15,34 @@ const editingId = ref<number | null>(null)
 const showForm = ref(false)
 const formBusy = ref(false)
 const formError = ref<string | null>(null)
-const form = ref({
-  name: '',
-  brand: '',
-  model: '',
-  description: '',
-  price: '',
-  stock: 0,
-  category_id: '',
-  image: '',
-  is_active: true,
-})
+interface ProductForm {
+  name: string
+  brand: string
+  model: string
+  description: string
+  price: string
+  stock: number
+  category_id: string
+  image: string
+  images: string[]
+  is_active: boolean
+}
+
+function blankForm(): ProductForm {
+  return {
+    name: '', brand: '', model: '', description: '', price: '', stock: 0,
+    category_id: '', image: '', images: [], is_active: true,
+  }
+}
+
+const form = ref<ProductForm>(blankForm())
+
+function addImage() {
+  form.value.images.push('')
+}
+function removeImage(i: number) {
+  form.value.images.splice(i, 1)
+}
 
 async function load() {
   loading.value = true
@@ -42,7 +59,7 @@ async function load() {
 
 function openNew() {
   editingId.value = null
-  form.value = { name: '', brand: '', model: '', description: '', price: '', stock: 0, category_id: '', image: '', is_active: true }
+  form.value = blankForm()
   formError.value = null
   showForm.value = true
 }
@@ -58,6 +75,7 @@ function openEdit(product: Product) {
     stock: product.stock,
     category_id: product.category_id ? String(product.category_id) : '',
     image: product.image ?? '',
+    images: [...(product.images ?? [])],
     is_active: product.is_active,
   }
   formError.value = null
@@ -78,7 +96,11 @@ async function save() {
     if (form.value.model.trim()) payload.model = form.value.model.trim()
     if (form.value.description.trim()) payload.description = form.value.description.trim()
     if (form.value.category_id) payload.category_id = Number(form.value.category_id)
-    if (form.value.image.trim()) payload.image = form.value.image.trim()
+
+    const gallery = form.value.images.map((s) => s.trim()).filter(Boolean)
+    payload.images = gallery
+    const mainImage = form.value.image.trim() || gallery[0] || ''
+    if (mainImage) payload.image = mainImage
 
     if (editingId.value !== null) {
       await productsApi.update(editingId.value, payload)
@@ -171,8 +193,28 @@ onMounted(load)
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-text-secondary mb-1.5">URL de imagen</label>
-            <input v-model="form.image" class="input-minimal" placeholder="https://..." />
+            <label class="block text-sm font-medium text-text-secondary mb-1.5">Imagen principal (miniatura)</label>
+            <input v-model="form.image" class="input-minimal" placeholder="https://... (si se deja vacía se usa la 1ª de la galería)" />
+          </div>
+          <div class="sm:col-span-2">
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-sm font-medium text-text-secondary">Galería de imágenes</label>
+              <button type="button" class="text-xs text-accent font-medium flex items-center gap-1 hover:opacity-70" @click="addImage">
+                <Plus :size="14" :stroke-width="2" /> Agregar imagen
+              </button>
+            </div>
+            <p v-if="!form.images.length" class="text-xs text-text-tertiary">Sin imágenes adicionales.</p>
+            <div v-for="(_, i) in form.images" :key="i" class="flex gap-2 mb-2">
+              <input v-model="form.images[i]" class="input-minimal flex-1" :placeholder="`Imagen ${i + 1} — https://...`" />
+              <button
+                type="button"
+                class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors shrink-0"
+                aria-label="Quitar imagen"
+                @click="removeImage(i)"
+              >
+                <Trash2 :size="16" :stroke-width="2" />
+              </button>
+            </div>
           </div>
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium text-text-secondary mb-1.5">Descripción</label>
@@ -240,7 +282,7 @@ onMounted(load)
                   </div>
                 </div>
               </td>
-              <td class="px-4 py-3 font-semibold text-text">${{ Number(product.price).toLocaleString('es-MX') }}</td>
+              <td class="px-4 py-3 font-semibold text-text">${{ formatPrice(product.price) }}</td>
               <td class="px-4 py-3 text-text">{{ product.stock }}</td>
               <td class="px-4 py-3 text-text-secondary">{{ categoryName(product.category_id) }}</td>
               <td class="px-4 py-3">

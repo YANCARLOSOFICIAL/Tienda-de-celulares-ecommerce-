@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { PackageOpen, Pencil, ChevronDown, ChevronUp, FileText, Download } from '@lucide/vue'
 
 import { ordersApi, orderStatusLabels, type Order, type OrderStatus } from '@/api/orders'
+import { formatPrice } from '@/api/products'
 import {
   invoicesApi,
   invoiceStatusLabels,
@@ -138,7 +139,7 @@ async function downloadInvoice(kind: 'pdf' | 'xml', billNumber: string | null) {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })
+  return new Date(iso).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' })
 }
 
 onMounted(load)
@@ -197,7 +198,7 @@ onMounted(load)
                     {{ orderStatusLabels[order.status] }}
                   </span>
                 </td>
-                <td class="px-4 py-3 text-right font-semibold text-text">${{ Number(order.total).toLocaleString('es-MX') }}</td>
+                <td class="px-4 py-3 text-right font-semibold text-text">${{ formatPrice(order.total) }}</td>
                 <td class="px-4 py-3">
                   <div class="flex gap-1 justify-end">
                     <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Expandir" @click="toggleExpand(order.id)">
@@ -218,14 +219,14 @@ onMounted(load)
                       <div class="space-y-1.5">
                         <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
                           <span class="text-white">{{ item.quantity }} × {{ item.product_name }}</span>
-                          <span class="font-medium text-text">${{ Number(item.subtotal).toLocaleString('es-MX') }}</span>
+                          <span class="font-medium text-text">${{ formatPrice(item.subtotal) }}</span>
                         </div>
                       </div>
                     </div>
                     <div class="divider"></div>
                     <div class="flex items-center justify-between">
                       <span class="text-sm font-medium text-text-secondary">Total</span>
-                      <span class="text-lg font-bold text-text">${{ Number(order.total).toLocaleString('es-MX') }}</span>
+                      <span class="text-lg font-bold text-text">${{ formatPrice(order.total) }}</span>
                     </div>
 
                     <!-- Facturación electrónica (Factus) -->

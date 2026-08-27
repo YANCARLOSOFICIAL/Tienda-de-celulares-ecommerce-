@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { MessageCircle } from '@lucide/vue'
+import { whatsappUrl } from '@/config/site'
 
 const showButton = ref(false)
 
@@ -21,7 +22,7 @@ onUnmounted(() => {
   <Teleport to="body">
     <a
       v-show="showButton"
-      href="https://wa.me/521234567890"
+      :href="whatsappUrl"
       target="_blank"
       rel="noopener noreferrer"
       class="fixed bottom-6 right-6 z-40 bg-whatsapp text-white rounded-full p-4 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 animate-pulse-whatsapp"

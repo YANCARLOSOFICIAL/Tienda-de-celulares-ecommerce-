@@ -1,21 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
-import LoginPage from '@/pages/LoginPage.vue'
-import RegisterPage from '@/pages/RegisterPage.vue'
-import CartPage from '@/pages/CartPage.vue'
-import CheckoutPage from '@/pages/CheckoutPage.vue'
-import OrdersPage from '@/pages/OrdersPage.vue'
-import OrderDetailPage from '@/pages/OrderDetailPage.vue'
-import AdminPage from '@/pages/AdminPage.vue'
-import ProductPage from '@/pages/ProductPage.vue'
-import ShopPage from '@/pages/ShopPage.vue'
-import ProfilePage from '@/pages/ProfilePage.vue'
-import WishlistPage from '@/pages/WishlistPage.vue'
-import ForgotPasswordPage from '@/pages/ForgotPasswordPage.vue'
-import ResetPasswordPage from '@/pages/ResetPasswordPage.vue'
-import ComparePage from '@/pages/ComparePage.vue'
 import { useAuthStore } from '@/stores/auth'
 
+// Las vistas se cargan bajo demanda (code-splitting): el bundle inicial solo
+// incluye la Home y el shell de la app.
 const routes = [
   {
     path: '/',
@@ -26,97 +14,101 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: LoginPage,
+    component: () => import('@/pages/LoginPage.vue'),
     meta: { title: 'Iniciar sesión | Tienda Cell', guestOnly: true }
   },
   {
     path: '/forgot-password',
     name: 'forgot-password',
-    component: ForgotPasswordPage,
+    component: () => import('@/pages/ForgotPasswordPage.vue'),
     meta: { title: 'Recuperar contraseña | Tienda Cell', guestOnly: true }
   },
   {
     path: '/reset-password',
     name: 'reset-password',
-    component: ResetPasswordPage,
+    component: () => import('@/pages/ResetPasswordPage.vue'),
     meta: { title: 'Restablecer contraseña | Tienda Cell', guestOnly: true }
   },
   {
     path: '/register',
     name: 'register',
-    component: RegisterPage,
+    component: () => import('@/pages/RegisterPage.vue'),
     meta: { title: 'Crear cuenta | Tienda Cell', guestOnly: true }
   },
   {
     path: '/products/:id',
     name: 'product-detail',
-    component: ProductPage,
+    component: () => import('@/pages/ProductPage.vue'),
     meta: { title: 'Producto | Tienda Cell' }
   },
   {
     path: '/shop',
     name: 'shop',
-    component: ShopPage,
+    component: () => import('@/pages/ShopPage.vue'),
     meta: { title: 'Tienda | Tienda Cell' }
   },
   {
     path: '/profile',
     name: 'profile',
-    component: ProfilePage,
+    component: () => import('@/pages/ProfilePage.vue'),
     meta: { title: 'Mi perfil | Tienda Cell', requiresAuth: true }
   },
   {
     path: '/wishlist',
     name: 'wishlist',
-    component: WishlistPage,
+    component: () => import('@/pages/WishlistPage.vue'),
     meta: { title: 'Mis favoritos | Tienda Cell', requiresAuth: true }
   },
   {
     path: '/cart',
     name: 'cart',
-    component: CartPage,
+    component: () => import('@/pages/CartPage.vue'),
     meta: { title: 'Mi carrito | Tienda Cell', requiresAuth: true }
   },
   {
     path: '/checkout',
     name: 'checkout',
-    component: CheckoutPage,
+    component: () => import('@/pages/CheckoutPage.vue'),
     meta: { title: 'Confirmar pedido | Tienda Cell', requiresAuth: true }
   },
   {
     path: '/orders',
     name: 'orders',
-    component: OrdersPage,
+    component: () => import('@/pages/OrdersPage.vue'),
     meta: { title: 'Mis pedidos | Tienda Cell', requiresAuth: true }
   },
   {
     path: '/orders/:id',
     name: 'order-detail',
-    component: OrderDetailPage,
+    component: () => import('@/pages/OrderDetailPage.vue'),
     meta: { title: 'Detalle de pedido | Tienda Cell', requiresAuth: true }
   },
   {
     path: '/compare',
     name: 'compare',
-    component: ComparePage,
+    component: () => import('@/pages/ComparePage.vue'),
     meta: { title: 'Comparar productos | Tienda Cell' }
   },
   {
     path: '/admin',
     name: 'admin',
-    component: AdminPage,
+    component: () => import('@/pages/AdminPage.vue'),
     meta: { title: 'Panel de administración | Tienda Cell', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/'
+    name: 'not-found',
+    component: () => import('@/pages/NotFoundPage.vue'),
+    meta: { title: 'Página no encontrada | Tienda Cell' }
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior() {
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) return savedPosition
+    if (to.hash) return { el: to.hash, behavior: 'smooth' }
     return { top: 0, behavior: 'smooth' }
   }
 })

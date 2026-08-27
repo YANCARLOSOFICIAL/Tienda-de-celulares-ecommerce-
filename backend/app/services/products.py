@@ -25,8 +25,8 @@ class ProductFilters:
     def __init__(
         self,
         search: str | None = None,
-        category_id: int | None = None,
-        brand: str | None = None,
+        category_ids: list[int] | None = None,
+        brands: list[str] | None = None,
         min_price: Decimal | None = None,
         max_price: Decimal | None = None,
         is_active: bool | None = None,
@@ -34,8 +34,8 @@ class ProductFilters:
         include_inactive: bool = False,
     ):
         self.search = search
-        self.category_id = category_id
-        self.brand = brand
+        self.category_ids = [c for c in (category_ids or []) if c is not None]
+        self.brands = [b.strip() for b in (brands or []) if b and b.strip()]
         self.min_price = min_price
         self.max_price = max_price
         self.is_active = is_active
@@ -52,10 +52,10 @@ class ProductFilters:
                     Product.model.ilike(pattern),
                 )
             )
-        if self.category_id is not None:
-            stmt = stmt.where(Product.category_id == self.category_id)
-        if self.brand:
-            stmt = stmt.where(Product.brand.ilike(f"%{self.brand.strip()}%"))
+        if self.category_ids:
+            stmt = stmt.where(Product.category_id.in_(self.category_ids))
+        if self.brands:
+            stmt = stmt.where(Product.brand.in_(self.brands))
         if self.min_price is not None:
             stmt = stmt.where(Product.price >= self.min_price)
         if self.max_price is not None:
@@ -102,6 +102,17 @@ def list_products(db: Session, filters: ProductFilters, page: int, page_size: in
     }
 
 
+def list_brands(db: Session) -> list[str]:
+    """Marcas distintas de productos activos, ordenadas alfabéticamente."""
+    stmt = (
+        select(Product.brand)
+        .where(Product.is_active.is_(True))
+        .distinct()
+        .order_by(Product.brand)
+    )
+    return [b for b in db.scalars(stmt) if b]
+
+
 def _validate_category(db: Session, category_id: int | None) -> None:
     if category_id is not None and db.get(Category, category_id) is None:
         raise AppException(status_code=404, message="Categoría no encontrada")
@@ -124,7 +135,7 @@ def update_product(db: Session, product_id: int, payload: ProductUpdate) -> Prod
         _validate_category(db, changes["category_id"])
         product.category_id = changes["category_id"]
 
-    for field in ("name", "description", "price", "stock", "brand", "model", "image", "is_active"):
+    for field in ("name", "description", "price", "stock", "brand", "model", "image", "images", "is_active"):
         if field in changes:
             setattr(product, field, changes[field])
 

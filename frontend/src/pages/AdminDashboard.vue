@@ -158,7 +158,7 @@ const statusBadgeMap: Record<string, string> = {
                   </span>
                 </td>
                 <td class="py-3 font-semibold text-text">${{ formatPrice(order.total) }}</td>
-                <td class="py-3 text-secondary">{{ new Date(order.created_at).toLocaleDateString('es-MX') }}</td>
+                <td class="py-3 text-secondary">{{ new Date(order.created_at).toLocaleDateString('es-CO') }}</td>
               </tr>
             </tbody>
           </table>
