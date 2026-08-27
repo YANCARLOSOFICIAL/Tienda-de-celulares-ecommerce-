@@ -39,9 +39,10 @@ Tienda Cell es un e-commerce de celulares desarrollado como un monorepo con un f
 
 ```text
 .
+├── docker-compose.yml       # Stack de desarrollo (db + api) — se corre desde la raíz
+├── .env.example             # Overrides opcionales del compose (puertos, credenciales DB)
 ├── backend/                 # API FastAPI y base de datos
 │   ├── app/                 # Aplicación principal
-│   │   ├── api/             # Routers y endpoints
 │   │   ├── core/            # Configuración, seguridad y excepciones
 │   │   ├── db/              # Conexión y modelos base
 │   │   ├── models/          # Modelos SQLAlchemy
@@ -53,17 +54,28 @@ Tienda Cell es un e-commerce de celulares desarrollado como un monorepo con un f
 │   ├── scripts/             # Seed y scripts auxiliares
 │   ├── tests/               # Pruebas del backend
 │   ├── Dockerfile           # Imagen Docker del backend
-│   ├── docker-compose.yml   # Servicios locales
+│   ├── docker-entrypoint.sh # Migraciones + seed + uvicorn (idempotente)
 │   └── pyproject.toml       # Dependencias y configuración Python
-├── public/                  # Archivos estáticos
-├── src/                     # Aplicación frontend Vue
-│   ├── components/          # Componentes reutilizables
-│   ├── pages/               # Vistas principales
-│   ├── stores/              # Estado global con Pinia
-│   ├── api/                 # Servicios de comunicación con backend
-│   └── router/              # Configuración de rutas
-├── package.json             # Scripts y dependencias del frontend
-└── vite.config.ts          # Configuración de Vite
+├── frontend/                # Aplicación Vue 3 + Vite + TypeScript
+│   ├── index.html
+│   ├── package.json         # Scripts y dependencias del frontend
+│   ├── vite.config.ts       # Configuración de Vite (incluye alias `@` → `src/`)
+│   ├── public/              # Archivos estáticos
+│   └── src/
+│       ├── api/             # Clientes HTTP del backend (uno por dominio)
+│       ├── stores/          # Estado global con Pinia (uno por dominio)
+│       ├── composables/     # Composables reutilizables
+│       ├── components/      # Componentes agrupados por dominio/rol
+│       │   ├── layout/      # Navbar, Footer, WhatsAppButton, BackToTop
+│       │   ├── home/        # Secciones de la landing (Hero, Featured, etc.)
+│       │   ├── product/     # ProductCard, ProductGallery, ProductReviews, ...
+│       │   ├── search/      # PredictiveSearch
+│       │   ├── compare/     # CompareBar
+│       │   ├── contact/     # ContactForm, MapLocation
+│       │   └── admin/       # Componentes del panel de administración
+│       ├── pages/           # Vistas enrutadas
+│       └── router/          # Configuración de rutas
+└── docs/                    # Documentación adicional
 ```
 
 ## Requisitos previos
@@ -119,10 +131,10 @@ La API estará disponible en:
 
 ### 3. Configurar el frontend
 
-En una nueva terminal:
+En una nueva terminal, desde la raíz del repositorio:
 
 ```bash
-cd ..
+cd frontend
 npm install
 npm run dev
 ```
@@ -133,12 +145,34 @@ La aplicación frontend correrá en:
 
 ## Ejecución con Docker
 
-También puedes levantar el backend y la base de datos con Docker Compose desde la carpeta `backend`:
+El backend y la base de datos se levantan con Docker Compose **desde la raíz del repositorio**:
 
 ```bash
-cd backend
-docker compose up --build
+docker compose build      # solo la primera vez, o al cambiar backend/requirements.txt
+docker compose up -d
 ```
+
+Con eso queda todo listo:
+
+- La API aplica migraciones y el seed automáticamente al arrancar (idempotente).
+- `restart: unless-stopped` vuelve a levantar los contenedores cuando reinicia
+  Docker Desktop o la máquina — ya no hay que hacer `up` cada vez que se reabre el proyecto.
+- El código de `backend/app` está montado en vivo con recarga automática de uvicorn:
+  editar y guardar basta, sin reconstruir la imagen.
+
+Comandos útiles:
+
+```bash
+docker compose ps           # estado y salud de los servicios
+docker compose logs -f api  # logs de la API
+docker compose stop         # detener sin borrar
+docker compose down         # detener y eliminar contenedores (los datos persisten en el volumen)
+docker compose down -v      # además borra la base de datos
+```
+
+El frontend se sigue corriendo aparte con `cd frontend && npm run dev` (Vite hace
+proxy de `/api` y `/health` hacia `http://localhost:8001`). Puertos y credenciales
+de la DB se pueden ajustar copiando `.env.example` a `.env` en la raíz.
 
 ## Pruebas
 
@@ -147,6 +181,13 @@ docker compose up --build
 ```bash
 cd backend
 uv run pytest
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run build   # typecheck (tsc) + build de producción
 ```
 
 ## Credenciales de desarrollo
@@ -231,7 +272,7 @@ curl -X POST http://localhost:8000/api/invoices/orders/1 \
 
 ### Integración en el frontend
 
-- `src/api/invoices.ts`: cliente de facturas con descargas autenticadas de PDF/XML.
+- `frontend/src/api/invoices.ts`: cliente de facturas con descargas autenticadas de PDF/XML.
 - `OrderDetailPage.vue`: el cliente ve el estado de su factura (CUFE, número DIAN) y descarga PDF/XML.
 - `AdminOrders.vue`: el admin emite la factura desde el panel (formulario de datos del adquiriente) y consulta/descarga los documentos.
 
@@ -239,4 +280,4 @@ curl -X POST http://localhost:8000/api/invoices/orders/1 \
 
 - El frontend está diseñado para consumir la API del backend en local mediante la configuración de CORS y la URL base del cliente API.
 - Para trabajar con el panel de administración, inicia sesión con un usuario administrador o usa las credenciales de seed.
-- Si necesitas cambiar la URL del backend en el frontend, revisa los archivos dentro de `src/api/`.
+- Si necesitas cambiar la URL del backend en el frontend, revisa los archivos dentro de `frontend/src/api/`.

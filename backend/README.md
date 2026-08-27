@@ -33,9 +33,11 @@ backend/
 ├── tests/                   # Pruebas pytest
 ├── pyproject.toml
 ├── Dockerfile
-├── docker-compose.yml
+├── docker-entrypoint.sh     # Migraciones + seed + uvicorn (idempotente)
 └── .env.example
 ```
+
+> El `docker-compose.yml` vive en la **raíz del repo**, no aquí.
 
 ## Puesta en marcha (local)
 
@@ -51,9 +53,15 @@ Documentación: http://localhost:8000/docs y http://localhost:8000/redoc
 
 ## Puesta en marcha (Docker Compose)
 
+Desde la **raíz del repositorio** (no desde `backend/`):
+
 ```bash
-docker compose up --build
+docker compose build      # solo la primera vez / al cambiar requirements.txt
+docker compose up -d
 ```
+
+El contenedor aplica migraciones y seed automáticamente al arrancar, y
+`restart: unless-stopped` lo vuelve a levantar cuando reinicia Docker Desktop.
 
 ## Pruebas
 

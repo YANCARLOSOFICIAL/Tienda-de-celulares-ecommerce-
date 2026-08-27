@@ -1,0 +1,66 @@
+# ------------------------------------------------------------------
+# Tienda Cell - stack de desarrollo (base de datos + API)
+#
+# Uso normal (una sola vez):
+#   docker compose build
+#   docker compose up -d
+#
+# A partir de ahi el stack se levanta solo cuando arranca Docker
+# Desktop (restart: unless-stopped). Para pararlo:  docker compose stop
+# Para reconstruir tras cambiar requirements.txt:   docker compose up -d --build
+#
+# El frontend NO va en Docker: se corre aparte con `npm run dev`
+# (Vite hace proxy de /api y /health hacia http://localhost:8001).
+# ------------------------------------------------------------------
+name: tiendacell
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: tiendacell_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tiendacell}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tiendacell}
+      POSTGRES_DB: ${POSTGRES_DB:-tiendacell}
+    ports:
+      - "${DB_PORT:-5434}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tiendacell} -d ${POSTGRES_DB:-tiendacell}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    image: tiendacell-api
+    container_name: tiendacell_api
+    restart: unless-stopped
+    # backend/.env es opcional: si existe, sus valores (SECRET_KEY, FACTUS_*,
+    # SEED_*, etc.) se cargan; si no, se usan los defaults del codigo.
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      # La app siempre habla con el contenedor db, no con localhost.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-tiendacell}:${POSTGRES_PASSWORD:-tiendacell}@db:5432/${POSTGRES_DB:-tiendacell}
+      RUN_MIGRATIONS: "true"
+      RUN_SEED: "true"
+      UVICORN_RELOAD: "true"
+    ports:
+      - "${API_PORT:-8001}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Codigo montado en vivo: editar y uvicorn recarga solo, sin rebuild.
+      - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
+      - ./backend/scripts:/app/scripts
+
+volumes:
+  # Volumen gestionado por compose (nombre real: tiendacell_postgres_data).
+  postgres_data:

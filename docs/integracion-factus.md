@@ -269,9 +269,9 @@ Extras:
 
 ### Paso 7 — Frontend (Vue 3)
 
-1. **`src/api/client.ts`**: se añadió `Api.download(path)` → `fetch` con Bearer token
+1. **`frontend/src/api/client.ts`**: se añadió `Api.download(path)` → `fetch` con Bearer token
    que devuelve `Blob` + filename del header `Content-Disposition`.
-2. **`src/api/invoices.ts`**: tipos + `invoicesApi` (create/get/remove/downloadPdf/downloadXml);
+2. **`frontend/src/api/invoices.ts`**: tipos + `invoicesApi` (create/get/remove/downloadPdf/downloadXml);
    la descarga dispara el archivo en el navegador creando un `<a download>` temporal.
 3. **`OrderDetailPage.vue`**: tarjeta "Factura electrónica" (estado DIAN, número, CUFE
    truncado, botones PDF/XML). Se consulta con try/catch silencioso: si no hay
@@ -307,7 +307,7 @@ flujo end-to-end vía TestClient, permisos e idempotencia.
 ```bash
 cd backend
 docker compose up -d --build     # db (5434) + api (8001), aplica migraciones y seed
-cd .. && npm run dev             # frontend 5173 (proxy /api → localhost:8001)
+cd frontend && npm run dev             # frontend 5173 (proxy /api → localhost:8001)
 ```
 
 ### Variables `.env` (backend)
@@ -372,4 +372,4 @@ Cliente: Mis pedidos → ve número de factura + descarga PDF/XML
 
 *Documento generado agosto 2026. Código relevante: `backend/app/services/factus.py`,
 `backend/app/services/invoices.py`, `backend/app/routers/invoices.py`,
-`src/api/invoices.ts`, `tests/test_factus.py`.*
+`frontend/src/api/invoices.ts`, `tests/test_factus.py`.*
