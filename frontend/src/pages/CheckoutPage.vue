@@ -271,7 +271,7 @@ function shipLabel(method: string) {
 
       <!-- SUCCESS SCREEN -->
       <div v-if="createdOrderId" class="text-center py-16">
-        <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
+        <div class="w-16 h-16 bg-gold/10 flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 :size="32" :stroke-width="1.5" class="text-gold" />
         </div>
         <h2 class="text-3xl font-semibold text-text tracking-tight mb-2">Pedido confirmado</h2>
@@ -331,7 +331,7 @@ function shipLabel(method: string) {
           <template v-for="(label, i) in stepLabels" :key="i">
             <div class="flex items-center gap-2">
               <div
-                class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all"
+                class="w-8 h-8 flex items-center justify-center text-xs font-medium transition-all"
                 :class="step === i + 1
                   ? 'bg-gold text-surface'
                   : step > i + 1
@@ -359,7 +359,7 @@ function shipLabel(method: string) {
         <!-- Error -->
         <div
           v-if="orderError"
-          class="mb-6 p-4 rounded-xl bg-danger/5 border border-danger/20 flex items-center gap-3"
+          class="mb-6 p-4 bg-danger/5 border border-danger/20 flex items-center gap-3"
         >
           <XCircle :size="18" :stroke-width="2" class="text-danger flex-shrink-0" />
           <p class="text-sm text-danger">{{ orderError }}</p>
@@ -381,10 +381,10 @@ function shipLabel(method: string) {
               <button
                 v-for="addr in addresses"
                 :key="addr.id"
-                class="w-full text-left rounded-xl p-4 transition-all"
+                class="w-full text-left p-4 transition-all border"
                 :class="selectedAddressId === addr.id
-                  ? 'border-gold bg-gold/[0.03]'
-                  : 'border border-border hover:border-white/10 bg-surface-dim'"
+                  ? 'border-accent bg-accent/[0.04]'
+                  : 'border-border hover:border-[rgba(240,196,25,0.3)] bg-surface-dim'"
                 @click="selectAddress(addr.id)"
               >
                 <div class="flex items-start justify-between">
@@ -430,7 +430,7 @@ function shipLabel(method: string) {
           </div>
 
           <!-- NEW ADDRESS FORM -->
-          <form v-if="showNewAddress" class="glass rounded-2xl p-6 space-y-4" autocomplete="on" @submit.prevent="saveNewAddress">
+          <form v-if="showNewAddress" class="glass p-6 space-y-4" autocomplete="on" @submit.prevent="saveNewAddress">
             <h3 class="text-base font-semibold text-text">Nueva dirección</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -439,7 +439,7 @@ function shipLabel(method: string) {
                   id="addr-label"
                   v-model="newAddress.label"
                   placeholder="Casa, Oficina..."
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -449,7 +449,7 @@ function shipLabel(method: string) {
                   v-model="newAddress.full_name"
                   required
                   autocomplete="name"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -462,7 +462,7 @@ function shipLabel(method: string) {
                   inputmode="tel"
                   autocomplete="tel"
                   placeholder="300 123 4567"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -473,7 +473,7 @@ function shipLabel(method: string) {
                   required
                   autocomplete="address-line1"
                   placeholder="Cra. 7 # 71 - 21"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -482,7 +482,7 @@ function shipLabel(method: string) {
                   id="addr-number"
                   v-model="newAddress.street_number"
                   autocomplete="address-line2"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -491,7 +491,7 @@ function shipLabel(method: string) {
                   id="addr-interior"
                   v-model="newAddress.interior"
                   autocomplete="address-line3"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -500,7 +500,7 @@ function shipLabel(method: string) {
                   id="addr-neighborhood"
                   v-model="newAddress.neighborhood"
                   required
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -510,7 +510,7 @@ function shipLabel(method: string) {
                   v-model="newAddress.city"
                   required
                   autocomplete="address-level2"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -521,7 +521,7 @@ function shipLabel(method: string) {
                   required
                   autocomplete="address-level1"
                   placeholder="Cundinamarca"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
               <div>
@@ -532,7 +532,7 @@ function shipLabel(method: string) {
                   inputmode="numeric"
                   autocomplete="postal-code"
                   placeholder="110111"
-                  class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                  class="glass px-3 py-2 w-full text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 />
               </div>
             </div>
@@ -565,10 +565,10 @@ function shipLabel(method: string) {
               <label
                 v-for="opt in shippingOptions"
                 :key="opt.value"
-                class="flex items-center gap-4 rounded-xl p-4 cursor-pointer transition-all"
+                class="flex items-center gap-4 p-4 cursor-pointer transition-all border"
                 :class="shippingMethod === opt.value
-                  ? 'border-gold bg-gold/[0.03]'
-                  : 'border border-border hover:border-white/10 bg-surface-dim'"
+                  ? 'border-accent bg-accent/[0.04]'
+                  : 'border-border hover:border-[rgba(240,196,25,0.3)] bg-surface-dim'"
               >
                 <input
                   v-model="shippingMethod"
@@ -628,7 +628,7 @@ function shipLabel(method: string) {
                 :key="item.id"
                 class="flex items-center gap-4 py-3 border-b border-border last:border-b-0"
               >
-                <div class="w-14 h-14 rounded-xl bg-surface-dim flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div class="w-14 h-14 bg-surface-dim flex items-center justify-center flex-shrink-0 overflow-hidden">
                   <img
                     v-if="item.product.image"
                     :src="item.product.image"
@@ -679,7 +679,7 @@ function shipLabel(method: string) {
               v-model="notes"
               rows="3"
               placeholder="Instrucciones de entrega, referencias..."
-              class="glass px-3 py-2 rounded-xl w-full text-sm text-text placeholder:text-text-tertiary resize-none focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+              class="glass px-3 py-2 w-full text-sm text-text placeholder:text-text-tertiary resize-none focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
             />
           </div>
 
@@ -689,7 +689,7 @@ function shipLabel(method: string) {
             <div v-if="!appliedCoupon" class="flex gap-2">
               <input
                 v-model="couponCode"
-                class="glass flex-1 uppercase px-3 py-2 rounded-xl text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
+                class="glass flex-1 uppercase px-3 py-2 text-sm text-text placeholder:text-text-tertiary focus:border-gold focus:ring-gold/30 focus:ring-1 outline-none transition-all"
                 placeholder="Código del cupón"
                 @keyup.enter="applyCoupon"
               />
@@ -701,7 +701,7 @@ function shipLabel(method: string) {
                 {{ validatingCoupon ? 'Validando...' : 'Aplicar' }}
               </button>
             </div>
-            <div v-else class="flex items-center justify-between bg-gold/5 border border-gold/20 rounded-xl p-3">
+            <div v-else class="flex items-center justify-between bg-gold/5 border border-gold/20 p-3">
               <div>
                 <p class="text-sm font-medium text-gold">
                   {{ appliedCoupon.code }}
@@ -714,7 +714,7 @@ function shipLabel(method: string) {
                 </p>
                 <p class="text-xs text-gold/70 mt-0.5">Cupón aplicado correctamente</p>
               </div>
-              <button class="p-1.5 rounded-full hover:bg-gold/10 transition-colors" @click="removeCoupon">
+              <button class="p-1.5 hover:bg-gold/10 transition-colors" @click="removeCoupon">
                 <XCircle :size="18" :stroke-width="2" class="text-gold" />
               </button>
             </div>
@@ -739,12 +739,12 @@ function shipLabel(method: string) {
               </div>
               <div class="border-t border-border pt-3 mt-3 flex justify-between items-center">
                 <span class="text-lg font-semibold text-text">Total</span>
-                <span class="text-2xl font-bold text-text">${{ formatPrice(String(grandTotal)) }}</span>
+                <span class="text-2xl font-semibold text-accent" style="font-family: var(--font-family-serif);">${{ formatPrice(String(grandTotal)) }}</span>
               </div>
             </div>
             <p class="text-xs text-text-secondary mb-5">
               Al confirmar se creará tu pedido y se descontará el inventario.
-              Estado inicial: <strong class="text-white">{{ orderStatusLabels.PENDING }}</strong>.
+              Estado inicial: <strong class="text-text">{{ orderStatusLabels.PENDING }}</strong>.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-3">
@@ -778,8 +778,8 @@ function shipLabel(method: string) {
       class="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showSandboxConfirm = false"></div>
-      <div class="relative glass rounded-2xl p-8 w-full max-w-md text-center space-y-5">
-        <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center mx-auto">
+      <div class="relative glass p-8 w-full max-w-md text-center space-y-5">
+        <div class="w-14 h-14 bg-gold/10 flex items-center justify-center mx-auto">
           <CheckCircle2 :size="28" :stroke-width="1.5" class="text-gold" />
         </div>
         <h3 class="text-xl font-semibold text-text">Confirmar pago (sandbox)</h3>

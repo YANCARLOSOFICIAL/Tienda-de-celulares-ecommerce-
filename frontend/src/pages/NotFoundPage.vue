@@ -15,7 +15,7 @@ function search() {
 <template>
   <section class="section-clean min-h-[70vh] flex items-center">
     <div class="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-surface-dim flex items-center justify-center">
+      <div class="w-16 h-16 mx-auto mb-6 bg-surface-dim flex items-center justify-center">
         <Compass :size="30" :stroke-width="1.5" class="text-text-tertiary" />
       </div>
 
@@ -37,7 +37,7 @@ function search() {
             class="input-minimal w-full pl-10 pr-4"
           />
         </div>
-        <button type="submit" class="btn-gold px-5 rounded-full text-sm font-semibold whitespace-nowrap">
+        <button type="submit" class="btn-gold px-5 text-sm font-semibold whitespace-nowrap">
           Buscar
         </button>
       </form>

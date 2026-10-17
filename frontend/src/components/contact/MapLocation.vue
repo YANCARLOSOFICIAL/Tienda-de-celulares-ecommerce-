@@ -20,14 +20,14 @@ const { isVisible } = useIntersectionObserver(sectionRef)
           Visítanos
         </h2>
         <p class="section-subtitle mx-auto flex items-center justify-center gap-2">
-          <MapPin :size="16" :stroke-width="2" class="text-blue-500" />
+          <MapPin :size="16" :stroke-width="2" class="text-accent" />
           Av. Tecnológico 123, Col. Centro, CDMX
         </p>
       </div>
 
       <div
         :class="[
-          'bento-card-static overflow-hidden rounded-2xl border border-border',
+          'bento-card-static overflow-hidden border border-border',
           'animate-fade-in-up',
           isVisible ? 'visible' : ''
         ]"

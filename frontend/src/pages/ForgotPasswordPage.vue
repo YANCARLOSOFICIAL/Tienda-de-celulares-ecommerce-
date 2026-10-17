@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { Mail, ArrowLeft, CheckCircle2 } from '@lucide/vue'
+import { ArrowLeft, Check } from '@lucide/vue'
 
 import { passwordResetApi } from '@/api/passwordReset'
-
-const router = useRouter()
 
 const email = ref('')
 const loading = ref(false)
@@ -30,67 +27,158 @@ async function requestReset() {
 </script>
 
 <template>
-  <section class="py-16 sm:py-24 min-h-[70vh] flex items-center">
-    <div class="max-w-md mx-auto px-4 w-full">
-      <div class="bg-surface-dim border border-border rounded-2xl p-8">
-        <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gold/10 mb-4">
-            <Mail :size="22" :stroke-width="2" class="text-gold" />
+  <section class="page">
+    <div class="auth-card">
+      <p class="eyebrow">Recuperación</p>
+      <h1 class="page-title">Recuperar contraseña</h1>
+      <p class="auth-sub">
+        Ingresa tu email y te enviaremos un token para restablecer tu contraseña.
+      </p>
+
+      <div v-if="!sent">
+        <p v-if="error" class="form-error mt-6">
+          {{ error }}
+        </p>
+
+        <form @submit.prevent="requestReset" class="auth-form">
+          <div>
+            <label class="field-label">Email</label>
+            <input
+              v-model="email"
+              type="email"
+              required
+              class="maison-input"
+              placeholder="tu@email.com"
+            />
           </div>
-          <h1 class="text-2xl font-semibold tracking-tight text-white" style="font-family: var(--font-family-serif);">Recuperar contraseña</h1>
-          <p class="text-text-secondary text-sm mt-2">
-            Ingresa tu email y te enviaremos un token para restablecer tu contraseña.
-          </p>
-        </div>
-
-        <div v-if="!sent">
-          <p v-if="error" class="text-sm text-danger font-medium mb-4">
-            {{ error }}
-          </p>
-
-          <form @submit.prevent="requestReset" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-text-secondary mb-1.5">Email</label>
-              <input
-                v-model="email"
-                type="email"
-                required
-                class="input-minimal"
-                placeholder="tu@email.com"
-              />
-            </div>
-            <button
-              type="submit"
-              class="btn-gold w-full"
-              :disabled="loading || !email"
-            >
-              {{ loading ? 'Enviando...' : 'Enviar token' }}
-            </button>
-          </form>
-        </div>
-
-        <div v-else class="text-center space-y-4">
-          <CheckCircle2 :size="48" :stroke-width="1.5" class="mx-auto text-success" />
-          <p class="font-semibold text-white">Token enviado.</p>
-          <div v-if="token" class="bg-surface-dim rounded-2xl p-4">
-            <p class="text-text-secondary text-sm mb-1">Token de prueba:</p>
-            <code class="font-mono text-xs text-white break-all">{{ token }}</code>
-          </div>
-          <router-link
-            :to="{ name: 'reset-password', query: { token } }"
-            class="btn-gold inline-flex items-center gap-2"
+          <button
+            type="submit"
+            class="btn-fill w-full"
+            :disabled="loading || !email"
           >
-            Restablecer contraseña
-          </router-link>
-        </div>
+            {{ loading ? 'Enviando...' : 'Enviar token' }}
+          </button>
+        </form>
+      </div>
 
-        <div class="mt-6 text-center">
-          <router-link to="/login" class="btn-ghost text-sm inline-flex items-center gap-1">
-            <ArrowLeft :size="14" :stroke-width="2" />
-            Volver al login
-          </router-link>
+      <div v-else class="success-block">
+        <div class="success-icon">
+          <Check :size="22" :stroke-width="2" />
         </div>
+        <p class="success-title">Token enviado.</p>
+        <div v-if="token" class="token-box">
+          <p class="token-label">Token de prueba:</p>
+          <code class="token-value">{{ token }}</code>
+        </div>
+        <router-link
+          :to="{ name: 'reset-password', query: { token } }"
+          class="btn-fill"
+        >
+          Restablecer contraseña
+        </router-link>
+      </div>
+
+      <div class="auth-back">
+        <router-link to="/login" class="btn-ghost">
+          <ArrowLeft :size="14" :stroke-width="2" />
+          Volver al login
+        </router-link>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.auth-card {
+  max-width: 460px;
+  margin: 0 auto;
+  background: var(--color-surface-dim);
+  border: 1px solid var(--color-border);
+  padding: clamp(2rem, 5vw, 3rem);
+}
+
+.auth-sub {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.auth-form {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field-label {
+  display: block;
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: 8px;
+}
+
+.form-error {
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+.success-block {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: var(--color-success);
+}
+
+.success-title {
+  font-family: var(--font-family-serif);
+  font-size: 1.2rem;
+  color: var(--color-text);
+}
+
+.token-box {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.token-label {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-bottom: 6px;
+}
+
+.token-value {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  color: var(--color-accent);
+  word-break: break-all;
+}
+
+.auth-back {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+}
+</style>

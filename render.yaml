@@ -1,0 +1,47 @@
+# Blueprint de Render para la API (FastAPI en Docker).
+# La base de datos NO se crea aquí: usa Neon (plan free permanente) y pega
+# su cadena de conexión en la variable DATABASE_URL desde el panel de Render.
+#
+# Despliegue:
+#   1. Crea la BD en https://neon.tech y copia la connection string.
+#   2. En Render: New > Blueprint > conecta este repo.
+#   3. Rellena las variables marcadas como "sync: false".
+services:
+  - type: web
+    name: tienda-cell-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: ohio          # la más cercana a Colombia
+    healthCheckPath: /health
+    envVars:
+      # Cadena de Neon, PERO cambiando el esquema a "postgresql+psycopg://"
+      # ej: postgresql+psycopg://user:pass@ep-xxx.us-east-2.aws.neon.tech/tiendacell?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      # URL(s) del frontend en Vercel, separadas por coma. Sin barra final.
+      # ej: https://tienda-cell.vercel.app,https://www.tudominio.com
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      # Factus: sandbox para pruebas, api.factus.com.co en producción real
+      - key: FACTUS_BASE_URL
+        value: https://api-sandbox.factus.com.co
+      - key: FACTUS_API_VERSION
+        value: v2
+      - key: FACTUS_CLIENT_ID
+        sync: false
+      - key: FACTUS_CLIENT_SECRET
+        sync: false
+      - key: FACTUS_USERNAME
+        sync: false
+      - key: FACTUS_PASSWORD
+        sync: false
+      # Deja "true" en el primer deploy para cargar datos de ejemplo;
+      # ponlo en "false" después si no quieres que reintente en cada arranque.
+      - key: RUN_SEED
+        value: "true"

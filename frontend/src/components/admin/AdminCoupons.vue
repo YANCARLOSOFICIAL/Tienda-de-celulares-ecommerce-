@@ -184,7 +184,7 @@ function couponLabel(coupon: Coupon): string {
               <td class="px-4 py-3">
                 <div class="flex items-center justify-end gap-1">
                   <button
-                    class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                    class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 transition-colors"
                     :title="coupon.is_active ? 'Desactivar' : 'Activar'"
                     @click="toggleActive(coupon)"
                   >
@@ -193,14 +193,14 @@ function couponLabel(coupon: Coupon): string {
                     </span>
                   </button>
                   <button
-                    class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                    class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 transition-colors"
                     title="Editar"
                     @click="openEdit(coupon)"
                   >
                     <Pencil :size="16" :stroke-width="2" />
                   </button>
                   <button
-                    class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                    class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors"
                     title="Eliminar"
                     @click="deleteCoupon(coupon)"
                   >
@@ -220,7 +220,7 @@ function couponLabel(coupon: Coupon): string {
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showModal = false"></div>
-        <div class="relative bg-surface-dim rounded-2xl border border-border shadow-xl w-full max-w-md space-y-0 overflow-hidden">
+        <div class="relative bg-surface-dim border border-border shadow-xl w-full max-w-md space-y-0 overflow-hidden">
           <div class="flex items-center justify-between p-6 pb-0">
             <h3 class="text-lg font-semibold text-text">
               {{ editingId ? 'Editar cupón' : 'Crear cupón' }}

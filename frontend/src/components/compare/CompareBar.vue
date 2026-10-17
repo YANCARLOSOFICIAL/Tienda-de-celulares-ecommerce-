@@ -24,13 +24,13 @@ function goToCompare() {
   >
     <div
       v-if="compareStore.count > 0"
-      class="fixed bottom-0 left-0 right-0 z-50 bg-surface-dim/95 backdrop-blur-xl border-t border-blue-500/30"
+      class="fixed bottom-0 left-0 right-0 z-50 bg-surface-dim/95 backdrop-blur-xl border-t border-accent/30"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-3 overflow-x-auto no-scrollbar">
             <div class="flex items-center gap-2 shrink-0">
-              <Scale :size="18" :stroke-width="2" class="text-blue-500" />
+              <Scale :size="18" :stroke-width="2" class="text-accent" />
               <span class="text-sm font-semibold text-white">
                 Comparar ({{ compareStore.count }}/3)
               </span>
@@ -39,16 +39,16 @@ function goToCompare() {
               <div
                 v-for="product in compareStore.items"
                 :key="product.id"
-                class="flex items-center gap-2 bg-surface border border-border rounded-xl px-3 py-1.5 shrink-0"
+                class="flex items-center gap-2 bg-surface border border-border px-3 py-1.5 shrink-0"
               >
                 <img
                   :src="product.image || 'https://placehold.co/40x40/1C1C1E/8E8E93?text=P&font=inter'"
                   :alt="product.name"
-                  class="w-8 h-8 rounded-lg object-cover"
+                  class="w-8 h-8 object-cover"
                 />
                 <div class="max-w-[120px]">
                   <p class="text-xs font-medium text-white truncate">{{ product.name }}</p>
-                  <p class="text-[10px] text-blue-500">${{ formatPrice(product.price) }}</p>
+                  <p class="text-[10px] text-accent">${{ formatPrice(product.price) }}</p>
                 </div>
                 <button
                   class="p-0.5 text-text-tertiary hover:text-danger transition-colors shrink-0"

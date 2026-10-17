@@ -26,7 +26,7 @@ onUnmounted(() => {
     <button
       v-show="showButton"
       type="button"
-      class="fixed bottom-6 left-6 z-40 bg-blue-500 text-white rounded-full p-4 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
+      class="fixed bottom-6 left-6 z-40 bg-accent text-surface p-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
       @click="scrollToTop"
       aria-label="Volver arriba"
     >

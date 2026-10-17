@@ -35,7 +35,7 @@ const accent: Record<ToastKind, string> = {
         <div
           v-for="t in toasts"
           :key="t.id"
-          class="glass-strong w-full rounded-xl shadow-2xl shadow-black/40 px-4 py-3 flex items-start gap-3"
+          class="glass-strong w-full shadow-2xl shadow-black/40 px-4 py-3 flex items-start gap-3"
           role="status"
           aria-live="polite"
         >

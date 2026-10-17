@@ -69,28 +69,31 @@ const statusBadge: Record<string, string> = {
 </script>
 
 <template>
-  <section class="py-16 sm:py-20 min-h-[70vh]">
+  <section class="page">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3 mb-10">
-        <Package :size="20" :stroke-width="2" class="text-text-secondary" />
-        <h1 class="text-2xl sm:text-3xl font-semibold text-white" style="font-family: var(--font-family-serif);">Mis pedidos</h1>
+      <div class="page-header mb-10">
+        <p class="eyebrow">Historial</p>
+        <h1 class="page-title flex items-center gap-3">
+          <Package :size="22" :stroke-width="1.75" class="text-accent" />
+          Mis pedidos
+        </h1>
       </div>
 
-      <div v-if="loading" class="bg-surface-dim border border-border rounded-2xl p-10 text-center">
+      <div v-if="loading" class="maison-panel p-12 text-center">
         <div class="skeleton h-5 w-48 mx-auto mb-3"></div>
         <div class="skeleton h-4 w-32 mx-auto"></div>
       </div>
 
-      <div v-else-if="error" class="bg-surface-dim border border-border rounded-2xl p-10 text-center">
+      <div v-else-if="error" class="maison-panel p-12 text-center">
         <p class="text-sm text-text-secondary">{{ error }}</p>
-        <button class="btn-secondary mt-4 text-sm" @click="loadOrders">Reintentar</button>
+        <button class="btn-outline mt-5" @click="loadOrders">Reintentar</button>
       </div>
 
-      <div v-else-if="orders.length === 0" class="bg-surface-dim border border-border rounded-2xl p-12 text-center">
-        <Package :size="40" :stroke-width="1.5" class="mx-auto mb-4 text-text-tertiary" />
-        <p class="text-lg font-medium mb-1 text-white">Aún no tienes pedidos</p>
-        <p class="text-sm mb-6 text-text-secondary">Cuando realices tu primera compra, aparecerá aquí.</p>
-        <router-link to="/#productos" class="btn-gold text-sm">
+      <div v-else-if="orders.length === 0" class="maison-panel p-16 text-center">
+        <Package :size="40" :stroke-width="1.5" class="mx-auto mb-5 text-text-tertiary" />
+        <p class="text-display text-xl mb-3">Aún no tienes pedidos</p>
+        <p class="text-sm mb-8 text-text-secondary">Cuando realices tu primera compra, aparecerá aquí.</p>
+        <router-link to="/shop" class="btn-fill">
           Ir al catálogo
         </router-link>
       </div>
@@ -100,12 +103,12 @@ const statusBadge: Record<string, string> = {
           v-for="order in orders"
           :key="order.id"
           :to="`/orders/${order.id}`"
-          class="bg-surface-dim border border-border rounded-2xl p-5 block transition-colors hover:border-white/10"
+          class="maison-panel p-6 block transition-colors hover:border-[rgba(240,196,25,0.35)]"
         >
           <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
             <div>
-              <span class="text-base font-semibold text-white">Pedido #{{ order.id }}</span>
-              <span class="block text-xs mt-0.5 text-text-secondary">{{ formatDate(order.created_at) }}</span>
+              <span class="text-base text-text" style="font-family: var(--font-family-serif);">Pedido #{{ order.id }}</span>
+              <span class="block text-xs mt-1 text-text-tertiary">{{ formatDate(order.created_at) }}</span>
             </div>
             <span :class="['badge', statusBadge[order.status]]">
               {{ orderStatusLabels[order.status] }}
@@ -119,28 +122,28 @@ const statusBadge: Record<string, string> = {
               </span>
               <span
                 v-if="order.coupon_code"
-                class="badge badge-success text-[10px]"
+                class="badge badge-success"
               >
                 {{ order.coupon_code }}
               </span>
             </div>
-            <span class="text-lg font-semibold text-white">${{ formatPrice(order.total) }}</span>
+            <span class="text-lg font-semibold text-accent">${{ formatPrice(order.total) }}</span>
           </div>
 
           <div
             v-if="order.invoice"
-            class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-border-light"
+            class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-border"
           >
             <span class="inline-flex items-center gap-1.5 text-xs text-text-secondary">
               <FileText :size="13" :stroke-width="2" />
               Factura {{ order.invoice.bill_number }}
-              <span v-if="order.invoice.status !== 'VALIDATED'" class="badge badge-warning text-[10px]">
+              <span v-if="order.invoice.status !== 'VALIDATED'" class="badge badge-warning">
                 {{ order.invoice.status === 'PENDING' ? 'Pendiente DIAN' : 'Con error' }}
               </span>
             </span>
             <button
               v-if="order.invoice.status === 'VALIDATED' && order.invoice.bill_number"
-              class="btn-ghost text-xs inline-flex items-center gap-1.5"
+              class="btn-ghost text-xs"
               :disabled="downloadingOrderId === order.id"
               @click.stop.prevent="downloadInvoicePdf(order)"
             >

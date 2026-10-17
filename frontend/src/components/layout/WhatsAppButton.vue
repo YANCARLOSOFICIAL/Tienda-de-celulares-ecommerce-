@@ -25,7 +25,7 @@ onUnmounted(() => {
       :href="whatsappUrl"
       target="_blank"
       rel="noopener noreferrer"
-      class="fixed bottom-6 right-6 z-40 bg-whatsapp text-white rounded-full p-4 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 animate-pulse-whatsapp"
+      class="fixed bottom-6 right-6 z-40 bg-whatsapp text-white p-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
       aria-label="Contactar por WhatsApp"
     >
       <MessageCircle :size="28" :stroke-width="2" />

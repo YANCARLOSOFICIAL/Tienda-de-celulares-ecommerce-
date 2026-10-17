@@ -156,16 +156,16 @@ onMounted(load)
         <div class="flex items-start justify-between gap-2 mb-2">
           <h3 class="font-semibold text-text leading-tight">{{ category.name }}</h3>
           <div class="flex gap-1 flex-shrink-0">
-            <button class="p-1.5 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Editar" @click="openEdit(category)">
+            <button class="p-1.5 text-text-secondary hover:text-accent hover:bg-accent/10 transition-colors" title="Editar" @click="openEdit(category)">
               <Pencil :size="14" :stroke-width="2" />
             </button>
-            <button class="p-1.5 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors" title="Eliminar" @click="confirmDelete(category)">
+            <button class="p-1.5 text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors" title="Eliminar" @click="confirmDelete(category)">
               <Trash2 :size="14" :stroke-width="2" />
             </button>
           </div>
         </div>
         <p class="text-sm text-text-secondary flex-1">{{ category.description || 'Sin descripción' }}</p>
-        <span class="text-xs font-mono text-text-tertiary bg-surface-dim rounded-lg px-2.5 py-1 self-start mt-3">
+        <span class="text-xs font-mono text-text-tertiary bg-surface-dim px-2.5 py-1 self-start mt-3">
           /{{ category.slug }}
         </span>
       </div>

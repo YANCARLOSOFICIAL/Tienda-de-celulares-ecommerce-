@@ -1,308 +1,1460 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ShoppingCart, Wrench, Shield, RefreshCcw, Headphones, Star, ChevronRight, MessageCircle } from '@lucide/vue'
-import { site, whatsappUrl, formatCurrency } from '@/config/site'
+import { ArrowRight, Check, Menu, X, ShoppingCart, User } from '@lucide/vue'
+import { formatCurrency, whatsappUrl } from '@/config/site'
+import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
 
-const featuredProducts = ref([
-  { id: 1, name: 'iPhone 16 Pro Max', price: 6499000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=iPhone+16+Pro+Max&font=inter', badge: 'Nuevo' },
-  { id: 2, name: 'Samsung Galaxy S25 Ultra', price: 5999000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Galaxy+S25+Ultra&font=inter', badge: null },
-  { id: 3, name: 'Xiaomi 15 Pro', price: 3799000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Xiaomi+15+Pro&font=inter', badge: 'Oferta' },
-  { id: 4, name: 'Motorola Edge 50 Fusion', price: 1599000, image: 'https://placehold.co/400x400/FAFAFA/1D1D1F?text=Edge+50+Fusion&font=inter', badge: null },
-])
+const authStore = useAuthStore()
+const cartStore = useCartStore()
 
-const brands = ['Apple', 'Samsung', 'Xiaomi', 'Motorola', 'Honor', 'Oppo', 'Realme']
+/* ── Nav ── */
+const isScrolled = ref(false)
+const isMenuOpen = ref(false)
 
-const services = [
-  { icon: Wrench, title: 'Reparación', desc: 'Servicio técnico rápido y confiable para todo tipo de celulares.' },
-  { icon: Shield, title: 'Garantía', desc: 'Todos nuestros productos cuentan con garantía oficial.' },
-  { icon: Headphones, title: 'Accesorios', desc: 'Fundas, cargadores, audífonos y más.' },
-  { icon: RefreshCcw, title: 'Plan canje', desc: 'Entrega tu celular actual y estrena uno nuevo con descuento.' },
+const navLinks = [
+  { label: 'Colección', href: '#featured' },
+  { label: 'Herencia', href: '#heritage' },
+  { label: 'Colecciones', href: '#collections' },
+  { label: 'Inner Circle', href: '#membership' },
 ]
 
-const testimonials = ref([
-  { name: 'María L.', stars: 5, quote: 'Excelente atención y precios muy buenos. Mi iPhone llegó en perfecto estado.', avatar: 'M' },
-  { name: 'Carlos R.', stars: 5, quote: 'Compré un Galaxy y quedé muy satisfecho. Lo recomiendo totalmente.', avatar: 'C' },
-  { name: 'Ana P.', stars: 5, quote: 'El mejor lugar para comprar celulares. Rapidez y confianza.', avatar: 'A' },
-])
+function handleScroll() {
+  isScrolled.value = window.scrollY > 40
+}
+
+function scrollTo(id: string) {
+  isMenuOpen.value = false
+  const el = document.querySelector(id)
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
+}
+
+/* ── Reveal ── */
+let observer: IntersectionObserver | null = null
+
+onMounted(async () => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+  if (!authStore.user) await authStore.fetchMe()
+  if (authStore.isAuthenticated) await cartStore.fetchCart()
+  const els = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'))
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    els.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer?.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.12, rootMargin: '0px 0px -30px 0px' },
+  )
+  els.forEach((el) => observer?.observe(el))
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
+  window.removeEventListener('scroll', handleScroll)
+})
+
+/* ── Datos ── */
+const stats = [
+  { value: '150+', label: 'Piezas exclusivas' },
+  { value: '48', label: 'Boutiques aliadas' },
+  { value: '2010', label: 'Est. Bogotá' },
+]
+
+const products = [
+  {
+    id: 1,
+    name: 'iPhone 16 Pro Max',
+    price: 6499000,
+    badge: 'Nuevo',
+    image:
+      'https://images.unsplash.com/photo-1695048133142-1e20484d2569?w=600&h=800&fit=crop&q=80',
+    alt: 'iPhone 16 Pro Max titanio',
+  },
+  {
+    id: 2,
+    name: 'Galaxy S25 Ultra',
+    price: 5999000,
+    badge: null,
+    image:
+      'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&h=800&fit=crop&q=80',
+    alt: 'Samsung Galaxy S25 Ultra',
+  },
+  {
+    id: 3,
+    name: 'Xiaomi 15 Ultra',
+    price: 4299000,
+    badge: 'Exclusivo',
+    image:
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=800&fit=crop&q=80',
+    alt: 'Xiaomi 15 Ultra Leica',
+  },
+  {
+    id: 4,
+    name: 'Audio Master Pro',
+    price: 1899000,
+    badge: null,
+    image:
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=800&fit=crop&q=80',
+    alt: 'Audífonos premium Audio Master Pro',
+  },
+]
+
+const pillars = [
+  { title: 'Calidad', desc: 'Estándares irreprochables' },
+  { title: 'Pasión', desc: 'Dedicación de artesanos' },
+  { title: 'Atemporal', desc: 'Diseño que perdura' },
+]
+
+const collections = [
+  {
+    title: 'Smartphones',
+    subtitle: 'La cúspide móvil',
+    image:
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=600&fit=crop&q=80',
+  },
+  {
+    title: 'Audio',
+    subtitle: 'Sonido de concierto',
+    image:
+      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&h=600&fit=crop&q=80',
+  },
+  {
+    title: 'Wearables',
+    subtitle: 'Tecnología al pulso',
+    image:
+      'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=800&h=600&fit=crop&q=80',
+  },
+]
+
+const perks = [
+  'Acceso anticipado a lanzamientos limitados',
+  'Invitaciones a eventos privados',
+  'Envoltorio de regalo de cortesía',
+  'Asesor de estilo tecnológico personal',
+]
+
+const email = ref('')
+const subscribed = ref(false)
+
+function subscribe() {
+  if (!email.value) return
+  subscribed.value = true
+  email.value = ''
+}
 </script>
 
 <template>
-  <!-- Hero Section -->
-  <section id="hero" class="section-clean relative overflow-hidden" style="padding-top: 0; padding-bottom: 0;">
-    <!-- Neural network canvas background -->
-    <div class="absolute inset-0">
-      <div class="absolute inset-0 bg-gradient-to-b from-surface-dim/40 to-surface-dim/78 z-[1]"></div>
-      <div class="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[900px] h-[600px] pointer-events-none z-[2]"
-        style="background: radial-gradient(ellipse at center, rgba(70,167,255,.20), transparent 55%);">
-      </div>
-      <div class="absolute inset-0 grid-overlay opacity-50 z-0"></div>
-    </div>
+  <div class="maison">
+    <!-- ═══════════ NAV ═══════════ -->
+    <header :class="['maison-nav', { scrolled: isScrolled }]">
+      <nav class="nav-inner" aria-label="Navegación principal">
+        <a href="#top" class="nav-logo" @click.prevent="scrollTo('#top')">
+          TIENDA<span class="nav-logo-accent">CELL</span>
+        </a>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-[3]">
-      <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 min-h-[80vh] py-20">
-        <div class="flex-1 text-center lg:text-left z-10">
-          <span class="eyebrow mb-6 inline-flex">Celulares y tecnologia</span>
-          <h1 class="mb-6" style="font-family: var(--font-family-serif); font-weight: 600; font-size: clamp(40px, 6vw, 64px); line-height: 1.05; letter-spacing: -0.02em;">
-            Los mejores celulares
-            <span class="text-gold-gradient">al mejor precio</span>
-          </h1>
-          <p class="text-text-secondary mb-8 mx-auto lg:mx-0" style="font-size: clamp(16px, 1.6vw, 19px); max-width: 560px;">
-            Encuentra tu próximo smartphone con los mejores precios del mercado.
-            Envío gratis y garantía en todos los productos.
-          </p>
-          <div class="flex gap-4 flex-wrap justify-center lg:justify-start">
-            <RouterLink to="/shop" class="btn-primary">
-              <ShoppingCart :size="18" />
-              Ver tienda
-            </RouterLink>
-            <a href="#servicios" class="btn-secondary">
-              Explorar servicios
-            </a>
-          </div>
-          <div class="flex gap-12 mt-16 flex-wrap justify-center lg:justify-start">
-            <div>
-              <div class="text-gold-gradient text-3xl font-semibold" style="font-family: var(--font-family-serif);">24h</div>
-              <div class="text-text-secondary text-sm mt-1">Envío express</div>
-            </div>
-            <div>
-              <div class="text-gold-gradient text-3xl font-semibold" style="font-family: var(--font-family-serif);">100%</div>
-              <div class="text-text-secondary text-sm mt-1">Garantía oficial</div>
-            </div>
-            <div>
-              <div class="text-gold-gradient text-3xl font-semibold" style="font-family: var(--font-family-serif);">5k+</div>
-              <div class="text-text-secondary text-sm mt-1">Clientes felices</div>
-            </div>
-          </div>
+        <div class="nav-links">
+          <a
+            v-for="link in navLinks"
+            :key="link.label"
+            :href="link.href"
+            class="nav-link"
+            @click.prevent="scrollTo(link.href)"
+          >
+            {{ link.label }}
+          </a>
         </div>
 
-        <div class="flex-1 relative">
-          <div class="relative w-full aspect-square max-w-md mx-auto">
-            <div class="absolute inset-0 rounded-full blur-3xl"
-              style="background: radial-gradient(circle, rgba(217,169,47,.15), transparent 60%);"></div>
-            <div class="relative z-10 w-full h-full flex items-center justify-center">
+        <div class="nav-actions">
+          <RouterLink to="/shop" class="nav-shop-link">Tienda</RouterLink>
+
+          <RouterLink to="/cart" class="nav-icon" aria-label="Ver carrito">
+            <ShoppingCart :size="18" :stroke-width="1.5" />
+            <span v-if="cartStore.itemCount > 0" class="nav-badge">{{ cartStore.itemCount }}</span>
+          </RouterLink>
+
+          <RouterLink
+            v-if="!authStore.isAuthenticated"
+            to="/login"
+            class="nav-icon"
+            aria-label="Iniciar sesión"
+          >
+            <User :size="18" :stroke-width="1.5" />
+          </RouterLink>
+
+          <button
+            class="nav-icon nav-burger lg:hidden"
+            :aria-label="isMenuOpen ? 'Cerrar menú' : 'Abrir menú'"
+            :aria-expanded="isMenuOpen"
+            @click="isMenuOpen = !isMenuOpen"
+          >
+            <Menu v-if="!isMenuOpen" :size="20" :stroke-width="1.5" />
+            <X v-else :size="20" :stroke-width="1.5" />
+          </button>
+        </div>
+      </nav>
+
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0 -translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-2"
+      >
+        <div v-show="isMenuOpen" class="nav-mobile">
+          <a
+            v-for="link in navLinks"
+            :key="link.label"
+            :href="link.href"
+            class="nav-mobile-link"
+            @click.prevent="scrollTo(link.href)"
+          >
+            {{ link.label }}
+          </a>
+          <RouterLink to="/shop" class="nav-mobile-link" @click="isMenuOpen = false">
+            Tienda
+          </RouterLink>
+        </div>
+      </Transition>
+    </header>
+
+    <!-- ═══════════ HERO ═══════════ -->
+    <section id="top" class="hero">
+      <div class="hero-media" aria-hidden="true">
+        <img
+          src="https://images.unsplash.com/photo-1556656793-08538906a9f8?w=1920&h=1080&fit=crop&q=80"
+          alt=""
+          class="hero-img"
+          width="1920"
+          height="1080"
+          fetchpriority="high"
+        />
+        <div class="hero-overlay"></div>
+      </div>
+
+      <div class="hero-content">
+        <p class="eyebrow-line" data-reveal>Colección Privée · 2026</p>
+        <h1 class="hero-title" data-reveal>
+          El arte de la<br />
+          <span class="hero-title-accent">tecnología eterna</span>
+        </h1>
+        <p class="hero-sub" data-reveal>
+          Descubre nuestra colección curada de dispositivos excepcionales,
+          elaborados con atención inquebrantable al detalle.
+        </p>
+        <div class="hero-ctas" data-reveal>
+          <a href="#featured" class="btn-fill" @click.prevent="scrollTo('#featured')">
+            Explorar colección
+            <ArrowRight :size="16" />
+          </a>
+          <a :href="whatsappUrl" target="_blank" rel="noopener" class="btn-outline">
+            Reservar cita
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-stats" data-reveal>
+        <div v-for="s in stats" :key="s.label" class="stat">
+          <span class="stat-value">{{ s.value }}</span>
+          <span class="stat-label">{{ s.label }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ FEATURED ═══════════ -->
+    <section id="featured" class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow-line">Selección curada</p>
+          <h2 class="section-title">Piezas destacadas</h2>
+        </div>
+
+        <div class="product-grid">
+          <article
+            v-for="(p, i) in products"
+            :key="p.id"
+            class="product-card"
+            :style="{ transitionDelay: `${i * 70}ms` }"
+            data-reveal
+          >
+            <RouterLink :to="`/products/${p.id}`" class="product-media">
               <img
-                src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=800"
-                alt="iPhone 15 Pro"
-                class="w-4/5 h-4/5 object-contain animate-float"
+                :src="p.image"
+                :alt="p.alt"
+                loading="lazy"
+                width="600"
+                height="800"
+                class="product-img"
               />
+              <span v-if="p.badge" class="product-badge">{{ p.badge }}</span>
+              <span class="product-quick">Vista rápida</span>
+            </RouterLink>
+            <div class="product-info">
+              <h3 class="product-name">
+                <RouterLink :to="`/products/${p.id}`">{{ p.name }}</RouterLink>
+              </h3>
+              <p class="product-price">{{ formatCurrency(p.price) }}</p>
             </div>
-            <div class="absolute top-10 right-10 glass rounded-2xl p-4 animate-fade-in-up">
-              <p class="text-sm font-semibold text-white">Envío gratis</p>
-              <p class="text-xs text-text-secondary">En compras desde {{ formatCurrency(site.freeShippingThreshold) }}</p>
-            </div>
-            <div class="absolute bottom-10 left-10 glass rounded-2xl p-4 animate-fade-in-up" style="animation-delay: 0.2s">
-              <p class="text-sm font-semibold text-white">Hasta 12 cuotas</p>
-              <p class="text-xs text-text-secondary">Con tarjeta de crédito</p>
-            </div>
-          </div>
+          </article>
+        </div>
+
+        <div class="section-cta" data-reveal>
+          <RouterLink to="/shop" class="btn-outline">
+            Ver todos los productos
+            <ArrowRight :size="15" />
+          </RouterLink>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Featured Products (Bento Grid) -->
-  <section class="section-clean" id="productos">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-end justify-between mb-10">
-        <div>
-          <span class="eyebrow mb-3 inline-flex">Lo más vendido</span>
-          <h2 class="section-title">Descubre nuestros smartphones más populares</h2>
+    <!-- ═══════════ HERITAGE ═══════════ -->
+    <section id="heritage" class="section heritage">
+      <div class="container heritage-grid">
+        <div class="heritage-visual" data-reveal>
+          <img
+            src="https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&h=1000&fit=crop&q=80"
+            alt="Artesanía en tecnología premium"
+            loading="lazy"
+            width="800"
+            height="1000"
+            class="heritage-img"
+          />
+          <div class="heritage-stat">
+            <span class="heritage-stat-num">15+</span>
+            <span class="heritage-stat-label">Años de excelencia</span>
+          </div>
         </div>
-        <RouterLink to="/shop" class="view-all hidden sm:inline-flex">
-          Ver todo
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </RouterLink>
-      </div>
 
-      <div class="bento-grid">
-        <!-- Large featured card -->
-        <RouterLink
-          :to="`/products/${featuredProducts[0].id}`"
-          class="bento-card bento-span-2 bento-row-2 group cursor-pointer flex flex-col"
-        >
-          <div class="flex-1 p-8 flex items-center justify-center relative overflow-hidden"
-            style="background: linear-gradient(145deg, #0a1018, #163b65 42%, #1e6daf 68%, #a97718 130%);">
-            <div class="absolute inset-0"
-              style="background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 36px 36px;">
-            </div>
-            <span v-if="featuredProducts[0].badge" class="absolute top-4 left-4 badge badge-gold z-10">
-              {{ featuredProducts[0].badge }}
-            </span>
-            <img
-              :src="featuredProducts[0].image"
-              :alt="featuredProducts[0].name"
-              class="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-110 relative z-10"
-            />
-          </div>
-          <div class="p-6">
-            <h3 class="font-semibold text-lg text-white group-hover:text-gold-light transition-colors duration-300" style="font-family: var(--font-family-serif);">
-              {{ featuredProducts[0].name }}
-            </h3>
-            <p class="text-gold font-bold text-xl mt-1">{{ formatCurrency(featuredProducts[0].price) }}</p>
-          </div>
-        </RouterLink>
-
-        <!-- Normal cards -->
-        <RouterLink
-          v-for="product in featuredProducts.slice(1)"
-          :key="product.id"
-          :to="`/products/${product.id}`"
-          class="bento-card group cursor-pointer"
-        >
-          <div class="h-40 flex items-center justify-center relative overflow-hidden p-4"
-            style="background: linear-gradient(145deg, #0c1018, #1a2744 45%, #2a4068 70%, #1a1a1a);">
-            <span v-if="product.badge" class="absolute top-3 left-3 badge badge-gold text-[10px] z-10">
-              {{ product.badge }}
-            </span>
-            <img
-              :src="product.image"
-              :alt="product.name"
-              class="max-h-full max-w-full object-contain transition-transform duration-500 ease-out group-hover:scale-110"
-            />
-          </div>
-          <div class="p-4">
-            <h3 class="font-medium text-sm text-white group-hover:text-gold-light transition-colors duration-300 line-clamp-1" style="font-family: var(--font-family-serif);">
-              {{ product.name }}
-            </h3>
-            <p class="text-gold font-bold mt-1">{{ formatCurrency(product.price) }}</p>
-          </div>
-        </RouterLink>
-      </div>
-
-      <div class="mt-8 text-center sm:hidden">
-        <RouterLink to="/shop" class="view-all inline-flex">
-          Ver todo
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </RouterLink>
-      </div>
-    </div>
-  </section>
-
-  <!-- Brands -->
-  <section class="section-clean" style="border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border);">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-10">
-        <span class="eyebrow mb-3 inline-flex">Marcas</span>
-        <h2 class="section-title">Confiado por las mejores marcas</h2>
-      </div>
-      <div class="flex flex-wrap justify-center gap-8 sm:gap-12">
-        <div
-          v-for="brand in brands"
-          :key="brand"
-          class="text-text-tertiary hover:text-silver transition-all duration-300 cursor-pointer select-none"
-        >
-          <p class="text-2xl sm:text-3xl font-bold tracking-tight opacity-40 hover:opacity-100 transition-opacity" style="font-family: var(--font-family-serif);">
-            {{ brand }}
+        <div class="heritage-copy" data-reveal>
+          <p class="eyebrow-line">Nuestra herencia</p>
+          <h2 class="section-title heritage-title">
+            Un legado de<br />artesanía
+          </h2>
+          <p class="body-text">
+            Desde 2010, Tienda Cell es sinónimo de calidad excepcional y diseño atemporal.
+            Nuestros especialistas continúan técnicas de curaduría de décadas, fusionando
+            tradición con visión contemporánea.
           </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Services -->
-  <section class="section-clean" id="servicios">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <span class="eyebrow mb-3 inline-flex">Servicios</span>
-        <h2 class="section-title">Todo lo que necesitas en un solo lugar</h2>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div
-          v-for="(service, i) in services"
-          :key="service.title"
-          class="bento-card p-6 text-center group"
-        >
-          <div class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300"
-            style="background: var(--color-metal-gradient, linear-gradient(135deg, #f8fafb 0%, #aebac5 25%, #ffffff 46%, #6d7b88 74%, #dbe3e9 100%)); border: 1px solid rgba(217,169,47,.55);">
-            <component :is="service.icon" :size="28" class="text-[#102745]" />
-          </div>
-          <h3 class="font-semibold text-lg text-white mb-2" style="font-family: var(--font-family-serif);">{{ service.title }}</h3>
-          <p class="text-sm text-text-secondary leading-relaxed">{{ service.desc }}</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section-clean">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <span class="eyebrow mb-3 inline-flex">Testimonios</span>
-        <h2 class="section-title">Lo que dicen nuestros clientes</h2>
-        <p class="section-subtitle mt-2 mx-auto">Experiencias reales de quienes confian en nosotros</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div
-          v-for="t in testimonials"
-          :key="t.name"
-          class="bento-card rounded-2xl p-6"
-        >
-          <div class="flex gap-1 mb-4">
-            <Star v-for="s in t.stars" :key="s" :size="16" class="text-gold fill-gold" />
-          </div>
-          <p class="text-white leading-relaxed mb-6 italic">"{{ t.quote }}"</p>
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center"
-              style="background: var(--color-gradient, linear-gradient(115deg, #d8e0e7 0%, #7faee0 28%, #267dd1 52%, #0d315e 70%, #d6a52c 100%));">
-              <span class="text-white font-bold text-sm">{{ t.avatar }}</span>
-            </div>
-            <span class="font-semibold text-white">{{ t.name }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact CTA -->
-  <section class="section-clean" id="contacto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bento-card p-8 sm:p-12 text-center relative overflow-hidden">
-        <div class="absolute inset-0 opacity-38"
-          style="background: linear-gradient(115deg, rgba(70,167,255,.40), rgba(217,169,47,.32));">
-        </div>
-        <div class="relative z-10">
-          <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
-            style="background: var(--color-metal-gradient, linear-gradient(135deg, #f8fafb 0%, #aebac5 25%, #ffffff 46%, #6d7b88 74%, #dbe3e9 100%));">
-            <MessageCircle :size="28" class="text-[#102745]" />
-          </div>
-          <h2 class="section-title mb-4">Contáctanos</h2>
-          <p class="section-subtitle mx-auto mb-8">
-            ¿Tienes dudas? Escríbenos por WhatsApp y te respondemos al instante. Estamos para ayudarte.
+          <p class="body-text">
+            Cada dispositivo de nuestra colección cuenta una historia: de artesanía meticulosa,
+            de materiales raros y de un compromiso inquebrantable con la excelencia.
           </p>
+
+          <div class="pillars">
+            <div v-for="p in pillars" :key="p.title" class="pillar">
+              <h3 class="pillar-title">{{ p.title }}</h3>
+              <p class="pillar-desc">{{ p.desc }}</p>
+            </div>
+          </div>
+
+          <a href="#collections" class="btn-outline" @click.prevent="scrollTo('#collections')">
+            Descubrir nuestra historia
+            <ArrowRight :size="15" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ COLLECTIONS ═══════════ -->
+    <section id="collections" class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow-line">Explorar</p>
+          <h2 class="section-title">Nuestras colecciones</h2>
+        </div>
+
+        <div class="collection-grid">
+          <RouterLink
+            v-for="(c, i) in collections"
+            :key="c.title"
+            to="/shop"
+            class="collection-card"
+            :style="{ transitionDelay: `${i * 80}ms` }"
+            data-reveal
+          >
+            <img
+              :src="c.image"
+              :alt="c.title"
+              loading="lazy"
+              width="800"
+              height="600"
+              class="collection-img"
+            />
+            <div class="collection-overlay">
+              <h3 class="collection-title">{{ c.title }}</h3>
+              <p class="collection-sub">{{ c.subtitle }}</p>
+              <span class="collection-explore">
+                Explorar
+                <ArrowRight :size="14" />
+              </span>
+            </div>
+          </RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ INNER CIRCLE ═══════════ -->
+    <section id="membership" class="section membership">
+      <div class="container membership-grid">
+        <div class="membership-copy" data-reveal>
+          <p class="eyebrow-line">Acceso exclusivo</p>
+          <h2 class="section-title membership-title">
+            Únete al<br /><span class="hero-title-accent">Inner Circle</span>
+          </h2>
+          <p class="body-text">
+            Conviértete en miembro y desbloquea beneficios exclusivos: acceso anticipado
+            a nuevas colecciones, eventos privados, consultas de estilo personal y
+            grabación de regalos de cortesía.
+          </p>
+
+          <ul class="perks">
+            <li v-for="perk in perks" :key="perk" class="perk">
+              <span class="perk-check" aria-hidden="true">
+                <Check :size="12" :stroke-width="2.5" />
+              </span>
+              {{ perk }}
+            </li>
+          </ul>
+
           <a
             :href="whatsappUrl"
             target="_blank"
             rel="noopener"
-            class="inline-flex items-center gap-2 bg-whatsapp text-white font-semibold px-8 py-3.5 rounded-full hover:opacity-90 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-whatsapp/20"
+            class="btn-fill"
           >
-            <MessageCircle :size="20" />
-            Chatea con nosotros
+            Solicitar membresía
+            <ArrowRight :size="16" />
           </a>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Map -->
-  <section class="section-clean">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-8">
-        <span class="eyebrow mb-3 inline-flex">Ubicación</span>
-        <h2 class="section-title">Visítanos</h2>
-        <p class="section-subtitle mt-2 mx-auto">{{ site.address.line }}</p>
+        <div class="membership-visual" data-reveal>
+          <img
+            src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=800&fit=crop&q=80"
+            alt="Experiencia Inner Circle"
+            loading="lazy"
+            width="600"
+            height="800"
+            class="membership-img"
+          />
+          <span class="vip-badge">VIP</span>
+        </div>
       </div>
-      <div class="bento-card overflow-hidden p-2">
-        <iframe
-          :src="site.mapEmbedUrl"
-          width="100%"
-          height="400"
-          style="border: 0; border-radius: 16px"
-          allowfullscreen
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        />
+    </section>
+
+    <!-- ═══════════ NEWSLETTER ═══════════ -->
+    <section class="section newsletter">
+      <div class="container newsletter-inner" data-reveal>
+        <div class="newsletter-copy">
+          <p class="eyebrow-line">Mantente cerca</p>
+          <h2 class="section-title newsletter-title">Suscríbete a nuestro círculo</h2>
+          <p class="body-text">
+            Recibe novedades, ofertas exclusivas y consejos de estilo tecnológico.
+          </p>
+        </div>
+        <form class="newsletter-form" @submit.prevent="subscribe">
+          <label for="newsletter-email" class="sr-only">Correo electrónico</label>
+          <input
+            id="newsletter-email"
+            v-model="email"
+            type="email"
+            required
+            placeholder="tu@correo.com"
+            class="newsletter-input"
+            autocomplete="email"
+          />
+          <button type="submit" class="btn-fill newsletter-btn">
+            {{ subscribed ? '¡Listo!' : 'Suscribirme' }}
+            <Check v-if="subscribed" :size="16" />
+            <ArrowRight v-else :size="16" />
+          </button>
+        </form>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <footer class="maison-footer" role="contentinfo">
+      <div class="container">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <p class="footer-logo">TIENDA<span class="nav-logo-accent">CELL</span></p>
+            <p class="footer-tagline">
+              Tecnología atemporal desde 2010. Bogotá · Medellín · Cali · Barranquilla
+            </p>
+          </div>
+
+          <div class="footer-cols">
+            <div class="footer-col">
+              <h3 class="footer-heading">Tienda</h3>
+              <ul>
+                <li><RouterLink to="/shop" class="footer-link">Novedades</RouterLink></li>
+                <li><a href="#collections" class="footer-link" @click.prevent="scrollTo('#collections')">Colecciones</a></li>
+                <li><RouterLink to="/shop" class="footer-link">Accesorios</RouterLink></li>
+                <li><RouterLink to="/compare" class="footer-link">Comparar</RouterLink></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h3 class="footer-heading">Servicios</h3>
+              <ul>
+                <li><a href="#servicios" class="footer-link" @click.prevent="scrollTo('#heritage')">Asesoría privada</a></li>
+                <li><RouterLink to="/shop" class="footer-link">Plan canje</RouterLink></li>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">Garantía</a></li>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">Localizador</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h3 class="footer-heading">Casa</h3>
+              <ul>
+                <li><a href="#heritage" class="footer-link" @click.prevent="scrollTo('#heritage')">Nuestra historia</a></li>
+                <li><a href="#membership" class="footer-link" @click.prevent="scrollTo('#membership')">Inner Circle</a></li>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">Prensa</a></li>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">Sostenibilidad</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h3 class="footer-heading">Soporte</h3>
+              <ul>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">Contacto</a></li>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">Envíos</a></li>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">Devoluciones</a></li>
+                <li><a :href="whatsappUrl" target="_blank" rel="noopener" class="footer-link">FAQ</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>© {{ new Date().getFullYear() }} Tienda Cell. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
 </template>
+
+<style scoped>
+/* ═══════════ TOKENS EDITORIALES ═══════════ */
+.maison {
+  --ink: #0a0906;
+  --ink-soft: #12100a;
+  --cream: #f5f0e6;
+  --cream-dim: #c4bba8;
+  --cream-faint: #8a8272;
+  --yellow: #f0c419;
+  --mustard: #c9a227;
+  --line: rgba(245, 240, 230, 0.12);
+
+  background: var(--ink);
+  color: var(--cream);
+  min-height: 100vh;
+}
+
+/* ═══════════ NAV ═══════════ */
+.maison-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transition: background 0.4s ease, border-color 0.4s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.maison-nav.scrolled {
+  background: rgba(10, 9, 6, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: var(--line);
+}
+
+.nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.nav-logo {
+  font-family: var(--font-family-serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--cream);
+  text-decoration: none;
+}
+
+.nav-logo-accent {
+  color: var(--yellow);
+  margin-left: 2px;
+}
+
+.nav-links {
+  display: none;
+  align-items: center;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .nav-links {
+    display: flex;
+  }
+}
+
+.nav-link {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  text-decoration: none;
+  transition: color 0.25s ease;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  color: var(--yellow);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-shop-link {
+  display: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cream);
+  text-decoration: none;
+  padding: 8px 0;
+  margin-right: 8px;
+  border-bottom: 1px solid var(--yellow);
+  transition: color 0.25s ease;
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .nav-shop-link {
+    display: inline;
+  }
+}
+
+.nav-shop-link:hover {
+  color: var(--yellow);
+}
+
+.nav-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--cream-dim);
+  border-radius: 50%;
+  transition: color 0.25s ease, background 0.25s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-icon:hover {
+  color: var(--yellow);
+  background: rgba(240, 196, 25, 0.08);
+}
+
+.nav-badge {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.nav-burger {
+  display: inline-flex;
+}
+
+@media (min-width: 1024px) {
+  .nav-burger {
+    display: none;
+  }
+}
+
+.nav-mobile {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 24px 24px;
+  background: rgba(10, 9, 6, 0.97);
+  border-bottom: 1px solid var(--line);
+}
+
+@media (min-width: 1024px) {
+  .nav-mobile {
+    display: none;
+  }
+}
+
+.nav-mobile-link {
+  padding: 14px 0;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav-mobile-link:hover {
+  color: var(--yellow);
+}
+
+/* ═══════════ HERO ═══════════ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 120px 0 0;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 9, 6, 0.55) 0%, rgba(10, 9, 6, 0.25) 40%, rgba(10, 9, 6, 0.92) 100%),
+    linear-gradient(90deg, rgba(10, 9, 6, 0.7) 0%, transparent 60%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+.eyebrow-line {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 20px;
+}
+
+.hero-title {
+  font-family: var(--font-family-serif);
+  font-size: clamp(44px, 8vw, 88px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  margin-bottom: 24px;
+}
+
+.hero-title-accent {
+  color: var(--yellow);
+}
+
+.hero-sub {
+  max-width: 480px;
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.7;
+  color: var(--cream-dim);
+  margin-bottom: 36px;
+}
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* Botones maison */
+.btn-fill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 28px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.btn-fill:hover {
+  background: var(--mustard);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: transparent;
+  color: var(--cream);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid rgba(245, 240, 230, 0.35);
+  border-radius: 0;
+  cursor: pointer;
+  transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--yellow);
+  color: var(--yellow);
+  background: rgba(240, 196, 25, 0.05);
+}
+
+/* Stats bar */
+.hero-stats {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 24px;
+  border-top: 1px solid rgba(245, 240, 230, 0.15);
+  background: rgba(10, 9, 6, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: var(--font-family-serif);
+  font-size: clamp(26px, 3.5vw, 36px);
+  font-weight: 500;
+  color: var(--cream);
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream-faint);
+}
+
+/* ═══════════ SECCIONES ═══════════ */
+.section {
+  padding: clamp(80px, 12vw, 140px) 0;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-head {
+  margin-bottom: clamp(40px, 6vw, 64px);
+}
+
+.section-title {
+  font-family: var(--font-family-serif);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--cream);
+}
+
+.body-text {
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--cream-dim);
+  margin-bottom: 18px;
+  max-width: 520px;
+}
+
+.section-cta {
+  margin-top: 48px;
+  text-align: center;
+}
+
+/* ═══════════ PRODUCTS ═══════════ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 16px;
+}
+
+@media (min-width: 900px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px 24px;
+  }
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-soft);
+  text-decoration: none;
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+.product-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 5px 12px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.product-quick {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: rgba(10, 9, 6, 0.78);
+  backdrop-filter: blur(8px);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.product-card:hover .product-quick {
+  transform: translateY(0);
+}
+
+.product-info {
+  padding-top: 16px;
+}
+
+.product-name {
+  font-family: var(--font-family-serif);
+  font-size: 17px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.product-name a {
+  color: var(--cream);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.product-name a:hover {
+  color: var(--yellow);
+}
+
+.product-price {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--cream-dim);
+}
+
+/* ═══════════ HERITAGE ═══════════ */
+.heritage {
+  background: var(--ink-soft);
+}
+
+.heritage-grid {
+  display: grid;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .heritage-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+  }
+}
+
+.heritage-visual {
+  position: relative;
+}
+
+.heritage-img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+}
+
+.heritage-stat {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 24px;
+  background: linear-gradient(180deg, transparent, rgba(10, 9, 6, 0.9));
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heritage-stat-num {
+  font-family: var(--font-family-serif);
+  font-size: clamp(36px, 5vw, 48px);
+  font-weight: 500;
+  color: var(--yellow);
+  line-height: 1;
+}
+
+.heritage-stat-label {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+}
+
+.heritage-title {
+  margin-bottom: 24px;
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 36px 0 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+
+.pillar-title {
+  font-family: var(--font-family-serif);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--cream);
+  margin-bottom: 6px;
+}
+
+.pillar-desc {
+  font-size: 13px;
+  color: var(--cream-faint);
+  line-height: 1.5;
+}
+
+/* ═══════════ COLLECTIONS ═══════════ */
+.collection-grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .collection-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+.collection-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  text-decoration: none;
+  background: var(--ink-soft);
+}
+
+@media (min-width: 768px) {
+  .collection-card {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+.collection-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.collection-card:hover .collection-img {
+  transform: scale(1.06);
+}
+
+.collection-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 28px;
+  background: linear-gradient(180deg, transparent 40%, rgba(10, 9, 6, 0.88) 100%);
+}
+
+.collection-title {
+  font-family: var(--font-family-serif);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--cream);
+  margin-bottom: 4px;
+}
+
+.collection-sub {
+  font-size: 13px;
+  color: var(--cream-dim);
+  margin-bottom: 14px;
+}
+
+.collection-explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  transition: gap 0.3s ease;
+}
+
+.collection-card:hover .collection-explore {
+  gap: 14px;
+}
+
+/* ═══════════ MEMBERSHIP ═══════════ */
+.membership {
+  background: var(--ink-soft);
+}
+
+.membership-grid {
+  display: grid;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .membership-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 80px;
+  }
+}
+
+.membership-title {
+  margin-bottom: 20px;
+}
+
+.perks {
+  list-style: none;
+  margin: 0 0 36px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.perk {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+  color: var(--cream-dim);
+}
+
+.perk-check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yellow);
+  color: var(--yellow);
+}
+
+.membership-visual {
+  position: relative;
+}
+
+.membership-img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.vip-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 18px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+/* ═══════════ NEWSLETTER ═══════════ */
+.newsletter-inner {
+  display: grid;
+  gap: 36px;
+  align-items: end;
+  padding-top: 48px;
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 768px) {
+  .newsletter-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+  }
+}
+
+.newsletter-title {
+  margin-bottom: 12px;
+}
+
+.newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 480px) {
+  .newsletter-form {
+    flex-direction: row;
+  }
+}
+
+.newsletter-input {
+  flex: 1;
+  padding: 15px 18px;
+  background: transparent;
+  border: 1px solid rgba(245, 240, 230, 0.25);
+  border-radius: 0;
+  color: var(--cream);
+  font-size: 15px;
+  font-family: var(--font-family-sans);
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.newsletter-input::placeholder {
+  color: var(--cream-faint);
+}
+
+.newsletter-input:focus {
+  border-color: var(--yellow);
+}
+
+.newsletter-btn {
+  white-space: nowrap;
+  justify-content: center;
+}
+
+/* ═══════════ FOOTER ═══════════ */
+.maison-footer {
+  border-top: 1px solid var(--line);
+  padding: 64px 0 32px;
+  background: var(--ink);
+}
+
+.footer-top {
+  display: grid;
+  gap: 48px;
+  margin-bottom: 56px;
+}
+
+@media (min-width: 900px) {
+  .footer-top {
+    grid-template-columns: 1.2fr 2fr;
+    gap: 80px;
+  }
+}
+
+.footer-logo {
+  font-family: var(--font-family-serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--cream);
+  margin-bottom: 14px;
+}
+
+.footer-tagline {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--cream-faint);
+  max-width: 280px;
+}
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .footer-cols {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.footer-heading {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+
+.footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-link {
+  font-size: 14px;
+  color: var(--cream-dim);
+  text-decoration: none;
+  transition: color 0.25s ease;
+  cursor: pointer;
+}
+
+.footer-link:hover {
+  color: var(--yellow);
+}
+
+.footer-bottom {
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.footer-bottom p {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--cream-faint);
+}
+
+/* ═══════════ REVEAL ═══════════ */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1), transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .product-img,
+  .collection-img {
+    transition: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+</style>

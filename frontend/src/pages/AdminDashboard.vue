@@ -66,7 +66,7 @@ const statusBadgeMap: Record<string, string> = {
         class="bento-card-static"
       >
         <div class="flex items-center gap-3 mb-3">
-          <span :class="[card.bgColor, 'w-10 h-10 rounded-full flex items-center justify-center']">
+          <span :class="[card.bgColor, 'w-10 h-10 flex items-center justify-center']">
             <component :is="card.icon" :size="18" :stroke-width="2" :class="card.color" />
           </span>
           <span class="text-secondary text-xs uppercase tracking-wider font-medium">{{ card.label }}</span>
@@ -89,10 +89,10 @@ const statusBadgeMap: Record<string, string> = {
             <span class="text-sm text-secondary w-28 shrink-0">
               {{ orderStatusLabels[status as OrderStatus] || status }}
             </span>
-            <div class="flex-1 h-2 bg-surface-dim rounded-full overflow-hidden">
+            <div class="flex-1 h-2 bg-surface-dim overflow-hidden">
               <div
                 :class="[statusColorMap[status] || 'bg-gold']"
-                class="h-full rounded-full transition-all duration-500"
+                class="h-full transition-all duration-500"
                 :style="{ width: stats.total_orders ? `${(count / stats.total_orders) * 100}%` : '0%' }"
               ></div>
             </div>

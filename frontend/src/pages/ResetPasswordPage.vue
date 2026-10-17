@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Lock, ArrowLeft, CheckCircle2 } from '@lucide/vue'
+import { ArrowLeft, Check } from '@lucide/vue'
 
 import { passwordResetApi } from '@/api/passwordReset'
 
@@ -24,7 +24,7 @@ onMounted(() => {
 
 async function resetPassword() {
   if (newPassword.value !== confirmPassword.value) {
-    error.value = 'Las contrasenas no coinciden'
+    error.value = 'Las contraseñas no coinciden'
     return
   }
   loading.value = true
@@ -33,7 +33,7 @@ async function resetPassword() {
     await passwordResetApi.confirmPassword(token.value, newPassword.value)
     success.value = true
   } catch (e: any) {
-    error.value = e.message || 'Error al restablecer la contrasena'
+    error.value = e.message || 'Error al restablecer la contraseña'
   } finally {
     loading.value = false
   }
@@ -41,81 +41,151 @@ async function resetPassword() {
 </script>
 
 <template>
-  <section class="py-16 sm:py-24 min-h-[70vh] flex items-center">
-    <div class="max-w-md mx-auto px-4 w-full">
-      <div class="bg-surface-dim border border-border rounded-2xl p-8">
-        <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gold/10 mb-4">
-            <Lock :size="22" :stroke-width="2" class="text-gold" />
+  <section class="page">
+    <div class="auth-card">
+      <p class="eyebrow">Seguridad</p>
+      <h1 class="page-title">Nueva contraseña</h1>
+
+      <div v-if="!success">
+        <p v-if="error" class="form-error mt-6">
+          {{ error }}
+        </p>
+
+        <form @submit.prevent="resetPassword" class="auth-form">
+          <div>
+            <label class="field-label">Token</label>
+            <input
+              v-model="token"
+              class="maison-input token-input"
+              placeholder="Token de recuperación"
+              required
+            />
           </div>
-          <h1 class="text-2xl font-semibold tracking-tight text-white" style="font-family: var(--font-family-serif);">Nueva contraseña</h1>
-        </div>
-
-        <div v-if="!success">
-          <p v-if="error" class="text-sm text-danger font-medium mb-4">
-            {{ error }}
-          </p>
-
-          <form @submit.prevent="resetPassword" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-text-secondary mb-1.5">Token</label>
-              <input
-                v-model="token"
-                class="input-minimal font-mono text-sm"
-                placeholder="Token de recuperacion"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-text-secondary mb-1.5">Nueva contraseña</label>
-              <input
-                v-model="newPassword"
-                type="password"
-                minlength="8"
-                class="input-minimal"
-                placeholder="Mínimo 8 caracteres"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-text-secondary mb-1.5">Confirmar contraseña</label>
-              <input
-                v-model="confirmPassword"
-                type="password"
-                class="input-minimal"
-                placeholder="Repite la contraseña"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              class="btn-gold w-full"
-              :disabled="loading || !token || !newPassword || !confirmPassword"
-            >
-              {{ loading ? 'Restableciendo...' : 'Restablecer contraseña' }}
-            </button>
-          </form>
-        </div>
-
-        <div v-else class="text-center space-y-4">
-          <CheckCircle2 :size="48" :stroke-width="1.5" class="mx-auto text-success" />
-          <p class="text-lg font-semibold text-white">Contraseña actualizada</p>
-          <p class="text-text-secondary text-sm">Ya puedes iniciar sesión con tu nueva contraseña.</p>
-          <router-link
-            to="/login"
-            class="btn-gold inline-flex items-center gap-2"
+          <div>
+            <label class="field-label">Nueva contraseña</label>
+            <input
+              v-model="newPassword"
+              type="password"
+              minlength="8"
+              class="maison-input"
+              placeholder="Mínimo 8 caracteres"
+              required
+            />
+          </div>
+          <div>
+            <label class="field-label">Confirmar contraseña</label>
+            <input
+              v-model="confirmPassword"
+              type="password"
+              class="maison-input"
+              placeholder="Repite la contraseña"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn-fill w-full"
+            :disabled="loading || !token || !newPassword || !confirmPassword"
           >
-            Ir al login
-          </router-link>
-        </div>
+            {{ loading ? 'Restableciendo...' : 'Restablecer contraseña' }}
+          </button>
+        </form>
+      </div>
 
-        <div class="mt-6 text-center">
-          <router-link to="/login" class="btn-ghost text-sm inline-flex items-center gap-1">
-            <ArrowLeft :size="14" :stroke-width="2" />
-            Volver al login
-          </router-link>
+      <div v-else class="success-block">
+        <div class="success-icon">
+          <Check :size="22" :stroke-width="2" />
         </div>
+        <p class="success-title">Contraseña actualizada</p>
+        <p class="success-sub">Ya puedes iniciar sesión con tu nueva contraseña.</p>
+        <router-link to="/login" class="btn-fill">
+          Ir al login
+        </router-link>
+      </div>
+
+      <div class="auth-back">
+        <router-link to="/login" class="btn-ghost">
+          <ArrowLeft :size="14" :stroke-width="2" />
+          Volver al login
+        </router-link>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.auth-card {
+  max-width: 460px;
+  margin: 0 auto;
+  background: var(--color-surface-dim);
+  border: 1px solid var(--color-border);
+  padding: clamp(2rem, 5vw, 3rem);
+}
+
+.auth-form {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.token-input {
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+}
+
+.field-label {
+  display: block;
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: 8px;
+}
+
+.form-error {
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+.success-block {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: var(--color-success);
+}
+
+.success-title {
+  font-family: var(--font-family-serif);
+  font-size: 1.25rem;
+  color: var(--color-text);
+}
+
+.success-sub {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.auth-back {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+}
+</style>

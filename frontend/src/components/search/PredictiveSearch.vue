@@ -111,8 +111,8 @@ onUnmounted(() => {
 <template>
   <div class="predictive-search relative">
     <div
-      class="flex items-center gap-2 bg-surface-dim border border-border rounded-xl px-3 py-2 transition-all focus-within:border-blue-500"
-      :class="{ 'border-blue-500': isOpen }"
+      class="flex items-center gap-2 bg-surface-dim border border-border px-3 py-2 transition-all focus-within:border-accent"
+      :class="{ 'border-accent': isOpen }"
     >
       <Search :size="16" :stroke-width="1.75" class="text-text-tertiary shrink-0" />
       <input
@@ -143,11 +143,11 @@ onUnmounted(() => {
     >
       <div
         v-if="isOpen && (query.trim() || recentSearches.length > 0)"
-        class="absolute top-full left-0 right-0 mt-2 bg-surface-dim border border-border rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+        class="absolute top-full left-0 right-0 mt-2 bg-surface-dim border border-border shadow-2xl shadow-black/50 overflow-hidden z-50"
       >
         <div v-if="isLoading" class="p-4 space-y-3">
           <div v-for="i in 3" :key="i" class="flex items-center gap-3">
-            <div class="skeleton w-10 h-10 rounded-lg shrink-0"></div>
+            <div class="skeleton w-10 h-10 shrink-0"></div>
             <div class="flex-1 space-y-1.5">
               <div class="skeleton h-3.5 w-3/4 rounded"></div>
               <div class="skeleton h-3 w-1/4 rounded"></div>
@@ -160,13 +160,13 @@ onUnmounted(() => {
             <div
               v-for="product in results"
               :key="product.id"
-              class="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-surface-hover transition-colors"
+              class="flex items-center gap-3 p-2 cursor-pointer hover:bg-surface-hover transition-colors"
               @click="selectProduct(product)"
             >
               <img
                 :src="product.image || 'https://placehold.co/80x80/1C1C1E/8E8E93?text=IMG&font=inter'"
                 :alt="product.name"
-                class="w-10 h-10 rounded-lg object-cover bg-surface shrink-0"
+                class="w-10 h-10 object-cover bg-surface shrink-0"
               />
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-white truncate">{{ product.name }}</p>
@@ -176,7 +176,7 @@ onUnmounted(() => {
             </div>
           </div>
           <button
-            class="w-full px-4 py-2.5 text-sm font-medium text-blue-500 hover:bg-surface-hover border-t border-border transition-colors flex items-center justify-center gap-2"
+            class="w-full px-4 py-2.5 text-sm font-medium text-accent hover:bg-surface-hover border-t border-border transition-colors flex items-center justify-center gap-2"
             @click="searchAll"
           >
             Ver todos los resultados
@@ -194,7 +194,7 @@ onUnmounted(() => {
           <div
             v-for="term in recentSearches"
             :key="term"
-            class="flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer hover:bg-surface-hover transition-colors group"
+            class="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-surface-hover transition-colors group"
             @click="selectRecent(term)"
           >
             <span class="text-sm text-text-secondary group-hover:text-white transition-colors">{{ term }}</span>

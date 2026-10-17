@@ -170,7 +170,7 @@ const invoiceBadge: Record<InvoiceStatus, string> = {
             class="flex items-center gap-4 p-4"
             style="border-bottom: 1px solid var(--color-border-light)"
           >
-            <div class="w-12 h-12 rounded-lg overflow-hidden shrink-0" style="background: var(--color-surface-dim)">
+            <div class="w-12 h-12 overflow-hidden shrink-0" style="background: var(--color-surface-dim)">
               <img
                 v-if="item.product_image"
                 :src="item.product_image"

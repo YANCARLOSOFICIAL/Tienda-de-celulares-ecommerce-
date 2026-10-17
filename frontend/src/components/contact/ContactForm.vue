@@ -80,7 +80,7 @@ const contactInfo = [
                 id="name"
                 v-model="form.name"
                 type="text"
-                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
+                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-accent focus:ring-accent/20"
                 :class="{ '!border-danger': errors.name }"
                 placeholder="Tu nombre"
               />
@@ -95,7 +95,7 @@ const contactInfo = [
                 id="email"
                 v-model="form.email"
                 type="email"
-                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
+                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-accent focus:ring-accent/20"
                 :class="{ '!border-danger': errors.email }"
                 placeholder="tu@correo.com"
               />
@@ -110,7 +110,7 @@ const contactInfo = [
                 id="phone"
                 v-model="form.phone"
                 type="tel"
-                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
+                class="input-minimal bg-surface-dim border-border text-white placeholder-slate-500 focus:border-accent focus:ring-accent/20"
                 placeholder="+57 300 123 4567"
               />
             </div>
@@ -121,7 +121,7 @@ const contactInfo = [
                 id="message"
                 v-model="form.message"
                 rows="4"
-                class="input-minimal resize-y bg-surface-dim border-border text-white placeholder-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
+                class="input-minimal resize-y bg-surface-dim border-border text-white placeholder-slate-500 focus:border-accent focus:ring-accent/20"
                 :class="{ '!border-danger': errors.message }"
                 placeholder="¿En qué podemos ayudarte?"
               ></textarea>
@@ -136,7 +136,7 @@ const contactInfo = [
               :disabled="status === 'sending'"
             >
               <template v-if="status === 'sending'">
-                <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span class="inline-block w-4 h-4 border-2 border-surface/50 border-t-transparent rounded-full animate-spin"></span>
                 Enviando...
               </template>
               <template v-else-if="status === 'success'">
@@ -171,8 +171,8 @@ const contactInfo = [
             ]"
             :style="{ transitionDelay: `${300 + i * 100}ms` }"
           >
-            <div class="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-              <component :is="info.icon" :size="18" :stroke-width="2" class="text-blue-500" />
+            <div class="w-11 h-11 bg-accent/10 flex items-center justify-center flex-shrink-0">
+              <component :is="info.icon" :size="18" :stroke-width="2" class="text-accent" />
             </div>
             <div>
               <p class="text-xs font-medium text-text-tertiary uppercase tracking-wide">{{ info.label }}</p>
@@ -191,7 +191,7 @@ const contactInfo = [
               :href="whatsappUrl"
               target="_blank"
               rel="noopener noreferrer"
-              class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-whatsapp text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
+              class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-whatsapp text-white font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Phone :size="18" :stroke-width="2.5" />
               WhatsApp

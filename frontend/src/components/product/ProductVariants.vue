@@ -85,7 +85,7 @@ function emitVariant() {
         <button
           v-for="storage in storages"
           :key="storage"
-          class="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+          class="px-4 py-2 text-sm font-medium transition-all"
           :class="selectedStorage === storage
             ? 'bg-accent text-black'
             : 'bg-surface-dim border border-border text-text-secondary hover:border-white/10 hover:text-white'"
@@ -106,7 +106,7 @@ function emitVariant() {
           :key="color.name"
           class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center"
           :class="selectedColor === color.name
-            ? 'border-blue-500 scale-110'
+            ? 'border-accent scale-110'
             : 'border-border hover:border-white/10'"
           :title="color.name"
           @click="selectColor(color.name)"

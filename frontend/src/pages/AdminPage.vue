@@ -31,18 +31,18 @@ const activeTab = ref<Tab>('dashboard')
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-text" style="font-family: var(--font-family-serif);">Panel de administración</h1>
-      <p class="text-secondary mt-1">Gestiona el catálogo, las categorías y los pedidos de Tienda Cell.</p>
+      <p class="text-text-secondary mt-2 text-sm">Gestiona el catálogo, las categorías y los pedidos de Tienda Cell.</p>
     </div>
 
-    <nav class="flex flex-wrap gap-2 mb-8 bg-surface-dim border border-border rounded-2xl p-2">
+    <nav class="flex flex-wrap gap-1 mb-8 bg-surface-dim border border-border p-1.5">
       <button
         v-for="tab in tabs"
         :key="tab.id"
-        class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200"
+        class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200"
         :class="
           activeTab === tab.id
-            ? 'bg-gold/15 text-gold border-b-2 border-gold'
-            : 'text-text-tertiary hover:bg-white/5 hover:text-white'
+            ? 'bg-accent text-surface'
+            : 'text-text-tertiary hover:bg-white/5 hover:text-text'
         "
         @click="activeTab = tab.id"
       >

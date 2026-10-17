@@ -201,11 +201,11 @@ onMounted(load)
                 <td class="px-4 py-3 text-right font-semibold text-text">${{ formatPrice(order.total) }}</td>
                 <td class="px-4 py-3">
                   <div class="flex gap-1 justify-end">
-                    <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Expandir" @click="toggleExpand(order.id)">
+                    <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 transition-colors" title="Expandir" @click="toggleExpand(order.id)">
                       <ChevronUp v-if="expandedId === order.id" :size="16" :stroke-width="2" />
                       <ChevronDown v-else :size="16" :stroke-width="2" />
                     </button>
-                    <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Cambiar estado" @click="openEdit(order)">
+                    <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 transition-colors" title="Cambiar estado" @click="openEdit(order)">
                       <Pencil :size="16" :stroke-width="2" />
                     </button>
                   </div>

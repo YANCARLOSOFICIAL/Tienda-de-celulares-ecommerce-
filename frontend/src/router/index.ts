@@ -9,7 +9,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: HomePage,
-    meta: { title: 'Tienda Cell | Celulares, Reparación y Accesorios' }
+    meta: { title: 'Tienda Cell | Colección Privée de Tecnología Premium' }
+  },
+  {
+    path: '/premium',
+    redirect: { name: 'Home' }
   },
   {
     path: '/login',

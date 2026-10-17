@@ -81,21 +81,26 @@ async function changePassword() {
 </script>
 
 <template>
-  <section class="py-10 sm:py-16 min-h-[70vh]">
+  <section class="page">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="page-header mb-8">
+        <p class="eyebrow">Cuenta</p>
+        <h1 class="page-title">Mi perfil</h1>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-        <div class="bg-surface-dim border border-border rounded-2xl p-8 flex flex-col items-center text-center hover:border-white/10 transition-colors">
-          <div class="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center mb-4">
-            <span class="text-2xl font-semibold text-gold">{{ initials }}</span>
+        <div class="maison-panel p-8 flex flex-col items-center text-center">
+          <div class="w-24 h-24 bg-accent/10 border border-border-strong flex items-center justify-center mb-5">
+            <span class="text-2xl font-semibold text-accent" style="font-family: var(--font-family-serif);">{{ initials }}</span>
           </div>
-          <h1 class="text-xl font-semibold tracking-tight text-white" style="font-family: var(--font-family-serif);">{{ fullName || 'Usuario' }}</h1>
+          <h1 class="text-xl tracking-tight text-text" style="font-family: var(--font-family-serif);">{{ fullName || 'Usuario' }}</h1>
           <p class="text-text-secondary text-sm mt-1">{{ email }}</p>
-          <div class="mt-3 badge badge-accent">{{ authStore.user?.role?.name || 'Usuario' }}</div>
+          <div class="mt-4 badge badge-accent">{{ authStore.user?.role?.name || 'Usuario' }}</div>
         </div>
 
         <div class="space-y-6">
-          <div class="bg-surface-dim border border-border rounded-2xl p-6 sm:p-8 hover:border-white/10 transition-colors">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-white" style="font-family: var(--font-family-serif);">
+          <div class="maison-panel p-6 sm:p-8">
+            <h2 class="text-lg mb-5 flex items-center gap-2 text-text" style="font-family: var(--font-family-serif);">
               Datos personales
             </h2>
 
@@ -107,32 +112,32 @@ async function changePassword() {
 
             <form @submit.prevent="saveProfile" class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-text-secondary mb-1.5">Nombre completo</label>
-                <input v-model="fullName" type="text" required class="input-minimal" />
+                <label class="field-label block mb-1.5">Nombre completo</label>
+                <input v-model="fullName" type="text" required class="maison-input" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-text-secondary mb-1.5">Email</label>
-                <input :value="email" type="email" disabled class="input-minimal opacity-60 cursor-not-allowed" />
+                <label class="field-label block mb-1.5">Email</label>
+                <input :value="email" type="email" disabled class="maison-input opacity-60 cursor-not-allowed" />
                 <p class="text-xs text-text-tertiary mt-1">El email no se puede cambiar.</p>
               </div>
               <div>
-                <label class="block text-sm font-medium text-text-secondary mb-1.5">Rol</label>
-                <input :value="authStore.user?.role?.name" type="text" disabled class="input-minimal opacity-60 cursor-not-allowed" />
+                <label class="field-label block mb-1.5">Rol</label>
+                <input :value="authStore.user?.role?.name" type="text" disabled class="maison-input opacity-60 cursor-not-allowed" />
               </div>
               <button
                 type="submit"
-                class="btn-gold flex items-center gap-2"
+                class="btn-fill"
                 :disabled="saving"
               >
-                <Save :size="18" :stroke-width="2" />
+                <Save :size="16" :stroke-width="2" />
                 {{ saving ? 'Guardando...' : 'Guardar cambios' }}
               </button>
             </form>
           </div>
 
-          <div class="bg-surface-dim border border-border rounded-2xl p-6 sm:p-8 hover:border-white/10 transition-colors">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-white" style="font-family: var(--font-family-serif);">
-              <Lock :size="18" :stroke-width="2" />
+          <div class="maison-panel p-6 sm:p-8">
+            <h2 class="text-lg mb-5 flex items-center gap-2 text-text" style="font-family: var(--font-family-serif);">
+              <Lock :size="17" :stroke-width="2" />
               Cambiar contraseña
             </h2>
 
@@ -144,28 +149,28 @@ async function changePassword() {
 
             <form @submit.prevent="changePassword" class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-text-secondary mb-1.5">Nueva contraseña</label>
-                <input v-model="newPassword" type="password" required minlength="6" class="input-minimal" placeholder="Mínimo 6 caracteres" />
+                <label class="field-label block mb-1.5">Nueva contraseña</label>
+                <input v-model="newPassword" type="password" required minlength="6" class="maison-input" placeholder="Mínimo 6 caracteres" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-text-secondary mb-1.5">Confirmar contraseña</label>
-                <input v-model="confirmPassword" type="password" required minlength="6" class="input-minimal" placeholder="Repite la contraseña" />
+                <label class="field-label block mb-1.5">Confirmar contraseña</label>
+                <input v-model="confirmPassword" type="password" required minlength="6" class="maison-input" placeholder="Repite la contraseña" />
               </div>
               <button
                 type="submit"
-                class="btn-gold flex items-center gap-2"
+                class="btn-fill"
                 :disabled="savingPassword"
               >
-                <Lock :size="18" :stroke-width="2" />
+                <Lock :size="16" :stroke-width="2" />
                 {{ savingPassword ? 'Actualizando...' : 'Cambiar contraseña' }}
               </button>
             </form>
           </div>
 
-          <div class="bg-surface-dim border border-border rounded-2xl p-6 sm:p-8 hover:border-white/10 transition-colors">
-            <h2 class="text-lg font-semibold text-danger mb-2" style="font-family: var(--font-family-serif);">Zona de peligro</h2>
-            <p class="text-text-secondary text-sm mb-4">Eliminar tu cuenta es permanente y no se puede deshacer.</p>
-            <button class="border border-danger text-danger font-semibold py-2.5 px-6 rounded-full transition hover:bg-danger/5 cursor-not-allowed" disabled>
+          <div class="maison-panel p-6 sm:p-8">
+            <h2 class="text-lg mb-2 text-danger" style="font-family: var(--font-family-serif);">Zona de peligro</h2>
+            <p class="text-text-secondary text-sm mb-5">Eliminar tu cuenta es permanente y no se puede deshacer.</p>
+            <button class="btn-danger" disabled>
               Eliminar cuenta
             </button>
           </div>
@@ -174,3 +179,15 @@ async function changePassword() {
     </div>
   </section>
 </template>
+
+<style scoped>
+.field-label {
+  display: block;
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+</style>

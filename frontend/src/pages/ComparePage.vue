@@ -42,65 +42,66 @@ function addToCart(productId: number) {
 </script>
 
 <template>
-  <section class="py-10 sm:py-16 bg-surface min-h-[70vh]">
+  <section class="page">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <button
-        class="flex items-center gap-2 text-sm text-text-secondary hover:text-text mb-8 transition-colors"
+        class="flex items-center gap-2 text-[12px] uppercase tracking-[0.14em] text-text-secondary hover:text-accent mb-8 transition-colors"
         @click="router.back()"
       >
-        <ArrowLeft :size="16" :stroke-width="2" />
+        <ArrowLeft :size="15" :stroke-width="2" />
         Volver
       </button>
 
-      <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-text" style="font-family: var(--font-family-serif);">
-          Comparar productos
-        </h1>
+      <div class="page-header flex items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow">Ficha comparativa</p>
+          <h1 class="page-title">Comparar productos</h1>
+        </div>
         <button
-          class="btn-ghost text-sm"
+          class="btn-ghost"
           @click="compareStore.clear()"
         >
           Limpiar todo
         </button>
       </div>
 
-      <div v-if="products.length === 0" class="text-center py-20">
-        <p class="text-text-secondary text-lg mb-4">No hay productos para comparar</p>
-        <router-link to="/shop" class="btn-gold px-6 py-3 inline-block text-sm">
+      <div v-if="products.length === 0" class="maison-panel text-center py-20">
+        <p class="text-display text-xl mb-5">No hay productos para comparar</p>
+        <router-link to="/shop" class="btn-fill">
           Ir a la tienda
         </router-link>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full min-w-[600px]">
+      <div v-else class="overflow-x-auto border border-border">
+        <table class="maison-table min-w-[600px]">
           <thead>
             <tr>
-              <th class="w-40 p-4"></th>
+              <th class="w-40"></th>
               <th
                 v-for="product in products"
                 :key="product.id"
-                class="p-4 text-center"
+                class="text-center"
               >
                 <div class="relative inline-block">
                   <button
-                    class="absolute -top-2 -right-2 p-1 bg-surface-dim border border-border rounded-full text-text-tertiary hover:text-danger hover:border-danger transition-all z-10"
+                    class="absolute -top-2 -right-2 p-1 bg-surface-dim border border-border text-text-tertiary hover:text-danger hover:border-danger transition-all z-10"
                     @click="compareStore.remove(product.id)"
                   >
                     <X :size="12" :stroke-width="2" />
                   </button>
                   <img
-                    :src="product.image || 'https://placehold.co/200x200/1C1C1E/8E8E93?text=IMG&font=inter'"
+                    :src="product.image || 'https://placehold.co/200x200/f5f0e6/0a0906?text=IMG&font=inter'"
                     :alt="product.name"
-                    class="w-32 h-32 object-cover rounded-2xl mx-auto mb-3 border border-border"
+                    class="w-32 h-32 object-cover mx-auto mb-3 border border-border"
                   />
-                  <h3 class="text-sm font-semibold text-text mb-1">{{ product.name }}</h3>
+                  <h3 class="text-sm font-serif font-semibold text-text mb-1">{{ product.name }}</h3>
                   <p class="text-xs text-text-secondary mb-3">{{ product.brand }}</p>
                   <div class="flex gap-2 justify-center">
                     <button
-                      class="btn-gold text-xs px-3 py-1.5"
+                      class="btn-fill text-xs px-3 py-2"
                       @click="addToCart(product.id)"
                     >
-                      <ShoppingCart :size="12" :stroke-width="2" class="inline mr-1" />
+                      <ShoppingCart :size="12" :stroke-width="2" class="inline" />
                       Agregar
                     </button>
                   </div>
@@ -112,9 +113,8 @@ function addToCart(productId: number) {
             <tr
               v-for="spec in specCategories"
               :key="spec.key"
-              class="border-t border-border"
             >
-              <td class="p-4 text-sm font-medium text-text-secondary">
+              <td class="text-sm font-medium text-text-tertiary uppercase tracking-wide text-[11px]">
                 {{ spec.label }}
               </td>
               <td

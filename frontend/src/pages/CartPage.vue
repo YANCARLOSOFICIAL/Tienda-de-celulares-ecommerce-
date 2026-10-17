@@ -57,22 +57,25 @@ const isEmpty = computed(() => items.value.length === 0)
 </script>
 
 <template>
-  <section class="py-16 sm:py-20 bg-surface min-h-[70vh]">
+  <section class="page">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3 mb-10">
-        <ShoppingCart :size="24" :stroke-width="2" class="text-white" />
-        <h1 class="font-semibold text-2xl sm:text-3xl text-text" style="font-family: var(--font-family-serif);">Mi carrito</h1>
+      <div class="page-header mb-10">
+        <p class="eyebrow">Selección</p>
+        <h1 class="page-title flex items-center gap-3">
+          <ShoppingCart :size="26" :stroke-width="1.75" class="text-accent" />
+          Mi carrito
+        </h1>
       </div>
 
-      <div v-if="cartStore.loading" class="bento-card p-10 text-center bg-surface-dim border border-border rounded-2xl">
-        <p class="font-medium text-white">Cargando carrito...</p>
+      <div v-if="cartStore.loading" class="maison-panel p-12 text-center">
+        <p class="font-medium text-text">Cargando carrito...</p>
       </div>
 
-      <div v-else-if="isEmpty" class="bento-card p-10 text-center bg-surface-dim border border-border rounded-2xl">
-        <ShoppingCart :size="48" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-4" />
-        <p class="font-semibold text-xl text-gold mb-2">Tu carrito está vacío</p>
-        <p class="text-text-secondary mb-6">Agrega productos del catálogo para comenzar tu compra.</p>
-        <router-link to="/#productos" class="btn-gold px-6 py-3 inline-block">
+      <div v-else-if="isEmpty" class="maison-panel p-14 text-center">
+        <ShoppingCart :size="44" :stroke-width="1.5" class="mx-auto text-text-tertiary mb-5" />
+        <p class="text-display text-xl text-accent mb-3">Tu carrito está vacío</p>
+        <p class="text-text-secondary mb-8">Agrega productos del catálogo para comenzar tu compra.</p>
+        <router-link to="/shop" class="btn-fill">
           Ver catálogo
         </router-link>
       </div>
@@ -82,45 +85,45 @@ const isEmpty = computed(() => items.value.length === 0)
           <div
             v-for="item in items"
             :key="item.id"
-            class="bento-card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-surface-dim border border-border rounded-2xl"
+            class="maison-panel p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4"
           >
             <img
-              :src="item.product.image || 'https://placehold.co/200x200/FAFAFA/1D1D1F?text=Producto&font=inter'"
+              :src="item.product.image || 'https://placehold.co/200x200/f5f0e6/0a0906?text=Producto&font=inter'"
               :alt="item.product.name"
-              class="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+              class="w-20 h-20 object-cover flex-shrink-0 border border-border"
             />
             <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-base text-white leading-tight">{{ item.product.name }}</h3>
-              <p class="text-sm text-text-secondary">{{ item.product.brand }}</p>
-              <p class="font-semibold mt-1 text-gold">${{ formatPrice(item.product.price) }}</p>
+              <h3 class="font-medium text-base text-text leading-tight" style="font-family: var(--font-family-serif);">{{ item.product.name }}</h3>
+              <p class="text-xs uppercase tracking-[0.14em] text-text-tertiary mt-1">{{ item.product.brand }}</p>
+              <p class="font-medium mt-1.5 text-accent text-sm">${{ formatPrice(item.product.price) }}</p>
             </div>
 
             <div class="flex items-center gap-2">
               <button
-                class="input-minimal p-2 hover:bg-white/5 transition-colors rounded-lg border border-white/10"
+                class="qty-mini"
                 :disabled="item.quantity <= 1"
                 aria-label="Disminuir cantidad"
                 @click="changeQuantity(item.id, item.quantity - 1)"
               >
-                <Minus :size="16" :stroke-width="2" />
+                <Minus :size="14" :stroke-width="2" />
               </button>
-              <span class="font-semibold text-sm w-10 text-center text-white">
+              <span class="font-medium text-sm w-9 text-center text-text">
                 {{ item.quantity }}
               </span>
               <button
-                class="input-minimal p-2 hover:bg-white/5 transition-colors rounded-lg border border-white/10"
+                class="qty-mini"
                 :disabled="item.quantity >= item.product.stock"
                 aria-label="Aumentar cantidad"
                 @click="changeQuantity(item.id, item.quantity + 1)"
               >
-                <Plus :size="16" :stroke-width="2" />
+                <Plus :size="14" :stroke-width="2" />
               </button>
             </div>
 
             <div class="flex items-center gap-4 sm:w-40 sm:justify-end">
-              <span class="font-semibold text-base text-white">${{ formatPrice(item.subtotal) }}</span>
+              <span class="font-semibold text-base text-text">${{ formatPrice(item.subtotal) }}</span>
               <button
-                class="p-2 text-red-400 hover:bg-red-400/10 transition-colors rounded-lg"
+                class="p-2 text-danger hover:bg-danger/10 transition-colors"
                 aria-label="Eliminar producto"
                 @click="removeItem(item.id)"
               >
@@ -131,26 +134,27 @@ const isEmpty = computed(() => items.value.length === 0)
         </div>
 
         <div class="lg:w-80">
-          <div class="bento-card p-6 sticky top-24 bg-surface-dim border border-border rounded-2xl">
+          <div class="maison-panel p-6 sticky top-24">
+            <p class="eyebrow mb-5">Resumen</p>
             <div class="flex justify-between text-sm text-text-secondary mb-2">
               <span>Artículos</span>
               <span>{{ cartStore.itemCount }}</span>
             </div>
-            <div class="flex justify-between font-semibold text-xl text-white mb-6 pb-4 border-b border-white/10">
+            <div class="flex justify-between font-semibold text-xl text-text mb-6 pb-4 border-b border-border">
               <span>Total</span>
-              <span class="text-gold">${{ formatPrice(cartStore.cart?.total ?? '0') }}</span>
+              <span class="text-accent">${{ formatPrice(cartStore.cart?.total ?? '0') }}</span>
             </div>
             <router-link
               to="/checkout"
-              class="btn-gold px-6 py-3 w-full flex items-center justify-center gap-2 transition-shadow"
+              class="btn-fill w-full"
             >
               Proceder al pago
             </router-link>
             <button
-              class="btn-ghost mt-3 w-full flex items-center justify-center gap-2 text-sm text-text-tertiary hover:text-white hover:bg-white/5"
+              class="btn-ghost w-full justify-center mt-3 text-text-tertiary hover:text-danger"
               @click="clearCart()"
             >
-              <X :size="16" :stroke-width="2" />
+              <X :size="15" :stroke-width="2" />
               Vaciar carrito
             </button>
           </div>
@@ -159,3 +163,28 @@ const isEmpty = computed(() => items.value.length === 0)
     </div>
   </section>
 </template>
+
+<style scoped>
+.qty-mini {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qty-mini:hover:not(:disabled) {
+  color: var(--color-accent);
+  border-color: rgba(240, 196, 25, 0.4);
+}
+
+.qty-mini:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+</style>

@@ -208,7 +208,7 @@ onMounted(load)
               <input v-model="form.images[i]" class="input-minimal flex-1" :placeholder="`Imagen ${i + 1} — https://...`" />
               <button
                 type="button"
-                class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors shrink-0"
+                class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
                 aria-label="Quitar imagen"
                 @click="removeImage(i)"
               >
@@ -244,7 +244,7 @@ onMounted(load)
     <div v-if="loading" class="bento-card-static glass p-8">
       <div class="space-y-4">
         <div v-for="i in 5" :key="i" class="flex items-center gap-4">
-          <div class="skeleton h-10 w-10 rounded-xl flex-shrink-0"></div>
+          <div class="skeleton h-10 w-10 flex-shrink-0"></div>
           <div class="skeleton h-4 flex-1"></div>
           <div class="skeleton h-4 w-20"></div>
           <div class="skeleton h-4 w-16"></div>
@@ -275,7 +275,7 @@ onMounted(load)
             <tr v-for="product in products" :key="product.id" class="border-b border-border-light last:border-b-0 admin-table-row">
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <img :src="product.image || undefined" :alt="product.name" class="w-9 h-9 rounded-lg object-cover bg-surface-dim flex-shrink-0" />
+                  <img :src="product.image || undefined" :alt="product.name" class="w-9 h-9 object-cover bg-surface-dim flex-shrink-0" />
                   <div>
                     <p class="font-medium text-text">{{ product.name }}</p>
                     <p class="text-xs text-text-secondary">{{ product.brand }}</p>
@@ -292,10 +292,10 @@ onMounted(load)
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-1 justify-end">
-                  <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Editar" @click="openEdit(product)">
+                  <button class="p-2 text-text-secondary hover:text-accent hover:bg-accent/10 transition-colors" title="Editar" @click="openEdit(product)">
                     <Pencil :size="16" :stroke-width="2" />
                   </button>
-                  <button class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-colors" title="Eliminar" @click="confirmDelete(product)">
+                  <button class="p-2 text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors" title="Eliminar" @click="confirmDelete(product)">
                     <Trash2 :size="16" :stroke-width="2" />
                   </button>
                 </div>

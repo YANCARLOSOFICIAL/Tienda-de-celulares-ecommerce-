@@ -39,12 +39,12 @@ watch(() => props.categoryId, fetchRelated)
       </div>
 
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        <div v-for="i in 3" :key="i" class="bg-surface rounded-2xl overflow-hidden">
+        <div v-for="i in 3" :key="i" class="bg-surface overflow-hidden">
           <div class="skeleton aspect-square rounded-none"></div>
           <div class="p-5 space-y-3">
-            <div class="skeleton h-5 w-3/4 rounded-lg"></div>
-            <div class="skeleton h-4 w-full rounded-lg"></div>
-            <div class="skeleton h-10 w-full rounded-lg"></div>
+            <div class="skeleton h-5 w-3/4"></div>
+            <div class="skeleton h-4 w-full"></div>
+            <div class="skeleton h-10 w-full"></div>
           </div>
         </div>
       </div>
